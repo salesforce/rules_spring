@@ -1,8 +1,8 @@
-## Salesforce Bazel OSS Contributions
+## Salesforce Spring Boot Rule for Bazel
 
-This is the parent repo of the code we want to contribute to OSS.
-Since each contribution is quite different in nature, each is isolated into a distinct Bazel Workspace.
-This will make compliance to the Salesforce OSS process easier to manage.
+This WORKSPACE contains the Spring Boot rule for the [Bazel](https://bazel.build/) build system.
+It enables Bazel to build Spring Boot applications and package them as an executable jar file.
 
-Contributions:
-- [bazel-springboot-rule](bazel-springboot-rule): a Bazel extension to build Spring Boot applications
+The rule is contained in a directory that is designed to be copied into your WORKSPACE.
+It has detailed documentation:
+- [bazel-springboot-rule](tools/springboot): a Bazel extension to build Spring Boot applications

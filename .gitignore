@@ -1,0 +1,7 @@
+# bazel build dirs
+bazel-*
+
+# set your user to your public GitHub user in a script like this:
+#   git config --global user.email '#####+username@users.noreply.github.com'
+# but dont check it in
+setGitOSSUser.sh

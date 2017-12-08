@@ -1,3 +1,7 @@
+# Copyright (c) 2017, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 # Spring Boot Packager
 #
@@ -29,8 +33,8 @@ def _depaggregator_rule_impl(ctx):
   merged = java_common.merge([dep[java_common.provider] for dep in ctx.attr.deps])
   jars = merged.transitive_runtime_jars
 
-  print("AGGREGATED DEPS")
-  print(jars)
+  #print("AGGREGATED DEPS")
+  #print(jars)
 
   return [DefaultInfo(files=jars)]
 
@@ -54,8 +58,8 @@ def _springboot_rule_impl(ctx):
 
   merged = java_common.merge([dep[java_common.provider] for dep in ctx.attr.deps])
   jars = merged.transitive_runtime_jars
-  print("TRANSITIVE DEPS")
-  print(jars)
+  #print("TRANSITIVE DEPS")
+  #print(jars)
 
   return [DefaultInfo(files=outs)]
 

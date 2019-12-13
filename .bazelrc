@@ -1,0 +1,14 @@
+# **********************************
+# ARTIFACT STAMPING
+# **********************************
+# These settings ensure Spring Boot artifacts are built with stamped version info.
+# The Spring Boot rule uses the stamping information to populate the /manage/info endpoint
+# refer to our tools/buildstamp/README.md for more details
+build --stamp
+build --workspace_status_command tools/buildstamp/get_workspace_status
+
+
+# TODO fix these old bazel-isms
+
+build --incompatible_depset_union=false
+build --incompatible_disallow_unverified_http_downloads=false

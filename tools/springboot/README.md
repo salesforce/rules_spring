@@ -4,79 +4,104 @@ This implements a Bazel rule for packaging a Spring Boot application.
 
 ## How to Use:
 
+### Create your BUILD file
+
 This is a *BUILD* file code snippet of how to invoke the rule:
 
 ```
-# Load our Spring Boot Rule
-load("//tools/springboot:springboot.bzl",
-        "springboot",
-        "add_boot_jetty_starter",
-        "add_boot_web_starter"
-)
+# load our Spring Boot rule
+load("//tools/springboot:springboot.bzl", "springboot",)
 
-#
-# Internal Application Dependencies (Bazel targets)
-# For this example, assume that //samples/lib/some-internal-lib is a dependency. This is a
-# library that is built in this Bazel workspace. Add it to the app_deps list as shown below.
-# It might have a transitive dependency (e.g. //samples/lib/some-transitive-lib) but no worries,
-# that will be brought into the deployable jar for you without having to list it explicitly.
-
-# External Application Dependencies (aka Maven Jars, aka Nexus, aka Artifactory)
-# The solution for external dependencies isn't as nice. You have to list each dep explicitly
-# in the app_deps list, and make sure there is a corresponding entry in the WORKSPACE file.
-# The springboot rule automatically adds standard Spring Boot compile time dependencies to
-# the app_deps list, but the WORKSPACE file is maintained entirely by you. Look at the
-# WORKSPACE.sample file provided in this Git repository for guidance.
-# Note that transitive dependencies of each external dependency MUST be also explicitly listed
-# both here in app_deps and in the WORKSPACE file.
-
-app_deps = [
-  "//samples/lib/some-internal-lib",
-  "@commons_logging_commons_logging//jar",
+# create our deps list for Spring Boot, we have some convenience targets for this
+springboot_deps = [
+  "//tools/springboot/import_bundles:springboot_required_deps",
+  "//tools/springboot/import_bundles:springboot_jetty_starter_deps",
+  "//tools/springboot/import_bundles:springboot_web_starter_deps",
 ]
 
-# Convenience Methods for Adding Entire Starters
-add_boot_jetty_starter(app_deps)
-add_boot_web_starter(app_deps)
+# this Java library contains your service code
+java_library(
+    name = 'helloworld_lib',
+    srcs = glob(["src/main/java/**/*.java"]),
+    resources = glob(["src/main/resources/**"]),
+    deps = springboot_deps,
+)
 
-# Build the app
+# use the springboot rule to build the app as a Spring Boot deployable jar
 springboot(
-    name = "spring-boot-sample-jetty",
-    boot_app_class = "sample.jetty.SampleJettyApplication",
-    deps = app_deps
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+    deps = springboot_deps,
 )
 ```
 
-The properties are as follows:
+The *springboot* rule properties are as follows:
 
 -  name:    name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
--  deps:  direct deps within the Bazel workspace, plus the full transitive closure of external dependencies (maven_jars in the *WORKSPACE* file)
--  resources (optional): list of resources to build into the jar; if not specified, default is ```glob(["src/main/resources/**/*"])```
+-  java_library: the library containing your service code
+-  deps:  list of jar file dependencies to add (these get packages as *BOOT-INF/lib* inside the deployable jar)
 
-## Upstream External Dependencies
+### Convenience Import Bundles
 
-This repository has an example [WORKSPACE.sample](../../WORKSPACE.sample) file that lists necessary and some optional Spring Boot dependencies.
+The [//tools/springboot/import_bundles](import_bundles/BUILD) package contains some useful bundles of imports.
+Since Spring Boot apps all need similar groups of dependencies, prefer to create/curate those import bundles if a
+  dependency is coming as a transitive for a Spring Boot class.
+
+### Manage External Dependencies in your WORKSPACE
+
+This repository has an example [WORKSPACE](../../external_deps.bzl) file that lists necessary and some optional Spring Boot dependencies.
 These will come from a Nexus/Artifactory repository, or Maven Central.
 Because the version of each dependency needs to be explicitly defined, it is left for you to review and add to your *WORKSPACE* file.
-We have an internal tool for helping us build this list, and there is also [the Bazel Migration Tool](https://github.com/bazelbuild/migration-tooling)
 
 ## Build and Run
 
 After installing the rule into your workspace at *tools/springboot*, you are ready to build.
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
 You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds.
-Once again, the open source [migration tool](https://github.com/bazelbuild/migration-tooling) can help you with this.
 
-The build will run and create an executable jar file with suffix *_springboot.jar*.
+The build will run and create an executable jar file in the *bazel-bin* directory.
 Find it in the output directories, and then run it:
 
 ```
-java -jar spring-boot-sample-jetty_springboot.jar
+bazel run //samples/helloworld
+```
+
+Or, if you prefer to target the jar directly:
+```
+java -jar bazel-bin/samples/helloworld/helloworld.jar
 ```
 
 You might have to add additional runtime external dependencies to your *BUILD* file until it starts up cleanly.
 
-## Internals
+## In Depth
 
 To understand how this rule works, start by reading the [springboot.bzl file](springboot.bzl).
+
+### Build Stamping of the Spring Boot jar
+
+Spring Boot has a nice feature that can display Git coordinates for your built service in the */manage/info* webadmin endpoint.
+If you are interested in this feature, it is supported by this *springboot* rule.
+However, to avoid breaking Bazel remote caching, we generally have this feature disabled for most builds.
+See the [//tools/buildstamp](../buildstamp) package for more details.
+
+### Duplicate Classes Detection
+
+We find that Spring Boot jars aggregate a great number of dependency jars, many from outside our Bazel
+  build (external Maven-built jars).
+We have had cases where multiple jars brought in the same class, but at different versions.
+These are difficult to diagnose.
+
+There is a feature on the *springboot* rule that will fail the build if duplicate classes are detected:
+
+```
+# use the springboot rule to build the app as a Spring Boot deployable jar
+springboot(
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+    deps = springboot_deps,
+    fail_on_duplicate_classes = True,
+)
+```

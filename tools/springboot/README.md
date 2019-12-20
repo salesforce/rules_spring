@@ -1,6 +1,7 @@
 ## SpringBoot Rule
 
-This implements a Bazel rule for packaging a Spring Boot application.
+This implements a Bazel rule for packaging a Spring Boot application as an executable jar file.
+The output of this rule is a jar file that can be copied to production environments and run.
 
 ## How to Use:
 
@@ -27,7 +28,7 @@ java_library(
     deps = springboot_deps,
 )
 
-# use the springboot rule to build the app as a Spring Boot deployable jar
+# use the springboot rule to build the app as a Spring Boot executable jar
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
@@ -41,7 +42,7 @@ The *springboot* rule properties are as follows:
 -  name:    name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
--  deps:  list of jar file dependencies to add (these get packages as *BOOT-INF/lib* inside the deployable jar)
+-  deps:  list of jar file dependencies to add (these get packages as *BOOT-INF/lib* inside the executable jar)
 
 ### Convenience Import Bundles
 
@@ -61,7 +62,7 @@ Because the version of each dependency needs to be explicitly defined, it is lef
 
 After installing the rule into your workspace at *tools/springboot*, you are ready to build.
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
-You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds.
+You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds and runs.
 
 The build will run and create an executable jar file in the *bazel-bin* directory.
 Find it in the output directories, and then run it:
@@ -70,12 +71,15 @@ Find it in the output directories, and then run it:
 bazel run //samples/helloworld
 ```
 
-Or, if you prefer to target the jar directly:
+In production environments, you will likely not have Bazel installed nor the Bazel workspace files.
+This is the primary use case for the executable jar file.
+Run the jar file locally using *java* like so:
+
 ```
 java -jar bazel-bin/samples/helloworld/helloworld.jar
 ```
 
-You might have to add additional runtime external dependencies to your *BUILD* file until it starts up cleanly.
+The executable jar file is ready to be copied to your production environment.
 
 ## In Depth
 
@@ -83,7 +87,8 @@ To understand how this rule works, start by reading the [springboot.bzl file](sp
 
 ### Build Stamping of the Spring Boot jar
 
-Spring Boot has a nice feature that can display Git coordinates for your built service in the */manage/info* webadmin endpoint.
+Spring Boot has a nice feature that can display Git coordinates for your built service in the
+  [/actuator/info](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints) webadmin endpoint.
 If you are interested in this feature, it is supported by this *springboot* rule.
 However, to avoid breaking Bazel remote caching, we generally have this feature disabled for most builds.
 See the [//tools/buildstamp](../buildstamp) package for more details.
@@ -98,7 +103,7 @@ These are difficult to diagnose.
 There is a feature on the *springboot* rule that will fail the build if duplicate classes are detected:
 
 ```
-# use the springboot rule to build the app as a Spring Boot deployable jar
+# use the springboot rule to build the app as a Spring Boot executable jar
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",

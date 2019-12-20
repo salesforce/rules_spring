@@ -23,7 +23,7 @@ java_library(
     deps = springboot_deps,
 )
 
-# Build the app as a Spring Boot deployable jar
+# Build the app as a Spring Boot executable jar
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",

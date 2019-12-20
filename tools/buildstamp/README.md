@@ -1,9 +1,11 @@
 ## Build Stamping
 
 Bazel has a feature to optionally add 'stamping' information to particular build artifacts.
+That feature is described [in this Bazel documentation](https://docs.bazel.build/versions/master/user-manual.html#workspace_status).
+
 We sometimes stamp Spring Boot applications with Git information (such as branch,
-   commit id, build time, etc) such that the data can be found in the */manage/info* endpoint.
-This helps with troubleshooting.
+   commit id, build time, etc) such that the data can be found in the [/actuator/info](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints) endpoint.
+This helps with troubleshooting as we can determine exactly what source code built the application.
 Great, right?
 
 #### The Downsides of Stamping
@@ -15,7 +17,7 @@ This is a big limitation.
 
 #### Full Stamping is Disabled by Default at Salesforce
 
-At Salesforce, we like to make use of remote caching for developer builds.
+Internally at Salesforce, we like to make use of remote caching for developer builds.
 To mitigate the remote caching limitation, our build by default has very limited build stamping.
 It does **not** include the Git data in the stamp.
 This allows multiple machines to share the same remote cache artifacts, particularly for Spring Boot.

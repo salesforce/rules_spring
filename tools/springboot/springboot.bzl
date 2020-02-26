@@ -150,9 +150,9 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
   native.genrule(
       name = genmanifest_rule,
       srcs = [":"+dep_aggregator_rule],
-      cmd = "$(location //tools/springboot:write_manifest.sh) "+boot_app_class+" $@ $(SRCS)",
+      cmd = "$(location @bazel_springboot_rule//tools/springboot:write_manifest.sh) "+boot_app_class+" $@ $(SRCS)",
 #      message = "SpringBoot rule is writing the MANIFEST.MF...",
-      tools = ["//tools/springboot:write_manifest.sh"],
+      tools = ["@bazel_springboot_rule//tools/springboot:write_manifest.sh"],
       outs = [genmanifest_out],
       tags = tags,
   )
@@ -161,8 +161,8 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
   gengitinfo_out = "git.properties"
   native.genrule(
       name = gengitinfo_rule,
-      cmd = "$(location //tools/springboot:write_gitinfo_properties.sh) $@",
-      tools = ["//tools/springboot:write_gitinfo_properties.sh"],
+      cmd = "$(location @bazel_springboot_rule//tools/springboot:write_gitinfo_properties.sh) $@",
+      tools = ["@bazel_springboot_rule//tools/springboot:write_gitinfo_properties.sh"],
       outs = [gengitinfo_out],
       tags = tags,
       stamp = 1,
@@ -187,8 +187,8 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
   native.genrule(
       name = genjar_rule,
       srcs = [java_library, ":"+genmanifest_rule, ":"+gengitinfo_rule, ":"+dep_aggregator_rule],
-      cmd = "$(location //tools/springboot:springboot_pkg.sh) "+boot_app_class+" "+verify_str+" $(JAVABASE) "+name+" $@ $(SRCS)",
-      tools = ["//tools/springboot:springboot_pkg.sh","//tools/springboot:verify_conflict.py", "//tools/springboot:whitelist.txt"],
+      cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) "+boot_app_class+" "+verify_str+" $(JAVABASE) "+name+" $@ $(SRCS)",
+      tools = ["@bazel_springboot_rule//tools/springboot:springboot_pkg.sh", "@bazel_springboot_rule//tools/springboot:verify_conflict.py", "@bazel_springboot_rule//tools/springboot:whitelist.txt"],
       tags = tags,
       outs = [_get_springboot_jar_file_name(name)],
       toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"], # so that JAVABASE is computed

@@ -9,6 +9,4 @@ build --workspace_status_command tools/buildstamp/get_workspace_status
 
 
 # TODO fix these old bazel-isms
-
-build --incompatible_depset_union=false
 build --incompatible_disallow_unverified_http_downloads=false

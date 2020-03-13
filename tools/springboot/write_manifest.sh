@@ -12,7 +12,7 @@ FOUND_SPRING_JAR=0
 # Looking for the springboot jar injected by springboot.bzl and extracting the version
 for var in "$@"
 do
-  if [[ $var = *"org_springframework_boot_spring_boot/jar/spring-boot-"* ]]; then
+  if [[ $var = *"spring-boot-"* ]]; then
     SPRING_VERSION=$(echo "$var" | rev | cut -c5- | rev | cut -d / -f 4 | cut -d - -f 3)
     FOUND_SPRING_JAR=1
     break

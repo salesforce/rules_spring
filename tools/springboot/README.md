@@ -81,6 +81,16 @@ java -jar bazel-bin/samples/helloworld/helloworld.jar
 
 The executable jar file is ready to be copied to your production environment.
 
+## Debugging
+
+If the environment variable `DEBUG_SPRINGBOOT_RULE` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`. If `$TMPDIR` is not defined, it defaults to `/tmp`.
+
+In order to pass this environment variable to Bazel, use the `--action_env` argument:
+
+```
+bazel build //... --action_env=DEBUG_SPRINGBOOT_RULE=1
+```
+
 ## In Depth
 
 To understand how this rule works, start by reading the [springboot.bzl file](springboot.bzl).

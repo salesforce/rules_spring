@@ -60,24 +60,21 @@ export PACKAGESHA=$(echo "$PACKAGESHA_RAW" | cut -d " " -f 1 )
 BUILD_DATE_TIME=$(date)
 BUILD_TIME_START=$SECONDS
 
-# By default, debug capture is disabled
-DEBUGFILE=/dev/null
+SPRINGBOOT_RULE_TMPDIR=${TMPDIR:-/tmp}/bazel
+mkdir -p $SPRINGBOOT_RULE_TMPDIR
 
-
-# June 2018 - I will leave debug capture on for all users since the cost is miniscule
-#  and we are still in validation phase of various features.
-#  Long term, we can use an environment variable to selectively enable debug capture
-#  See https://bazel.build/designs/2016/06/21/environment.html
-#  I am writing this to /tmp which is normally verboten, but this is a meta-output so I think it is ok.
-DEBUGDIR=/tmp/bazel/debug/springboot
-mkdir -p $DEBUGDIR
-DEBUGFILENAME=$PACKAGENAME-$PACKAGESHA
-DEBUGFILE=$DEBUGDIR/$DEBUGFILENAME.log
-#echo "DEBUG: SpringBoot packaging subrule debug log for $PACKAGENAME: $DEBUGFILE"
+if [ -z "${DEBUG_SPRINGBOOT_RULE}" ]; then
+    DEBUGFILE=/dev/null
+else
+    DEBUGDIR=$SPRINGBOOT_RULE_TMPDIR/debug/springboot
+    mkdir -p $DEBUGDIR
+    DEBUGFILENAME=$PACKAGENAME-$PACKAGESHA
+    DEBUGFILE=$DEBUGDIR/$DEBUGFILENAME.log
+fi
 >$DEBUGFILE
 
 # file that will list the contents of the jar file for duplicate classes checks
-CLASSLIST_FILENAME=$DEBUGDIR/$PACKAGENAME-classlist.txt
+CLASSLIST_FILENAME=$SPRINGBOOT_RULE_TMPDIR/$PACKAGENAME-classlist.txt
 >$CLASSLIST_FILENAME
 
 # Write debug header
@@ -135,6 +132,12 @@ if [[ $VERIFY_DUPE == "verify" ]]; then
       echo "ERROR: Failing build because of conflicting jars/classes"
       exit 1
     fi
+fi
+
+if [ -z "${DEBUG_SPRINGBOOT_RULE}" ]; then
+  # cleanup, unless in debug mode: this file is only needed for the conflicting 
+  # classes check above
+  rm -f $CLASSLIST_FILENAME
 fi
 
 echo $SHASUM_INSTALL_MSG >> $DEBUGFILE

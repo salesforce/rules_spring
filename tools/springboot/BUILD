@@ -10,11 +10,21 @@
 
 # See the README.md file for detailed usage instructions.
 
-exports_files(["springboot.bzl", "springboot_pkg.sh", "verify_conflict.py", "write_gitinfo_properties.sh", "write_manifest.sh", "whitelist.txt"])
+exports_files([
+    "springboot.bzl",
+    "springboot_pkg.sh",
+    "verify_conflict.py",
+    "write_gitinfo_properties.sh",
+    "write_manifest.sh",
+    "whitelist.txt",
+])
 
 py_test(
     name = "verify_conflict_test",
-    srcs = ["verify_conflict.py", "tests/verify_conflict_test.py"],
-    imports = ["."],
     size = "small",
+    srcs = [
+        "tests/verify_conflict_test.py",
+        "verify_conflict.py",
+    ],
+    imports = ["."],
 )

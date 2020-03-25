@@ -35,7 +35,6 @@ JAVA_VERSION=$(echo "$JAVA_STRING" | head -n1 | cut -d ' ' -f 3 | rev | cut -c2-
 echo "Manifest-Version: 1.0" > $MANIFESTFILE
 echo "Created-By: Bazel" >> $MANIFESTFILE
 echo "Built-By: Bazel" >> $MANIFESTFILE
-echo "Throw-Down: hootenanny" >> $MANIFESTFILE
 echo "Main-Class: org.springframework.boot.loader.JarLauncher" >> $MANIFESTFILE
 echo "Spring-Boot-Classes: BOOT-INF/classes/" >> $MANIFESTFILE
 echo "Spring-Boot-Lib: BOOT-INF/lib/" >> $MANIFESTFILE

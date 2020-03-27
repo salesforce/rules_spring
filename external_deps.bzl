@@ -22,11 +22,15 @@ def external_maven_jars():
     native.maven_jar(
         name = "ch_qos_logback_logback_classic",
         artifact = "ch.qos.logback:logback-classic:1.2.3",
+        sha256 = "fb53f8539e7fcb8f093a56e138112056ec1dc809ebb020b59d8a36a5ebac37e0",
+        sha256_src = "480cb5e99519271c9256716d4be1a27054047435ff72078d9deae5c6a19f63eb",
     )
 
     native.maven_jar(
         name = "ch_qos_logback_logback_core",
         artifact = "ch.qos.logback:logback-core:1.2.3",
+        sha256 = "5946d837fe6f960c02a53eda7a6926ecc3c758bbdd69aa453ee429f858217f22",
+        sha256_src = "1f69b6b638ec551d26b10feeade5a2b77abe347f9759da95022f0da9a63a9971",
     )
 
     native.maven_jar(
@@ -592,6 +596,8 @@ def external_maven_jars():
     native.maven_jar(
         name = "org_jboss_logging_jboss_logging",
         artifact = "org.jboss.logging:jboss-logging:3.4.1.Final",
+        sha256 = "8efe877d93e5e1057a1388b2950503b88b0c28447364fde08adbec61e524eeb8",
+        sha256_src = "8606e31150aa5370ab2ed79e21d13a9c0ba029380abf273a6bce15c92c2bce23",
     )
 
     native.maven_jar(
@@ -637,6 +643,8 @@ def external_maven_jars():
     native.maven_jar(
         name = "org_slf4j_jul_to_slf4j",
         artifact = "org.slf4j:jul-to-slf4j:1.7.26",
+        sha256 = "0f3b6dfbfb261e3e2b71ea88574452f36c46fec016063439eb8f60083291918e",
+        sha256_src = "8eebb18952ffd7267feff33658bd17470129aa2e36958176cbff716b7c7fe675",
     )
 
     native.maven_jar(

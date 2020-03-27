@@ -8,6 +8,12 @@
 # load our Spring Boot rule
 load("//tools/springboot:springboot.bzl", "springboot")
 
+# dependencies from other packages in the workspace
+lib_deps = [
+  "//samples/helloworld/libs/lib1",
+  "//samples/helloworld/libs/lib2",
+]
+
 # create our deps list for Spring Boot
 springboot_deps = [
     "//tools/springboot/import_bundles:springboot_required_deps",
@@ -20,14 +26,18 @@ java_library(
     name = "helloworld_lib",
     srcs = glob(["src/main/java/**/*.java"]),
     resources = glob(["src/main/resources/**"]),
-    deps = springboot_deps,
+    deps = springboot_deps + lib_deps,
 )
 
 # Build the app as a Spring Boot executable jar
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
-    fail_on_duplicate_classes = True,
+
+    # TO TEST THE DUPE CLASSES FEATURE: change this to fail_on_duplicate_classes = True
+    # there is an intentionally duplicated class in lib1 and lib2
+    fail_on_duplicate_classes = False,
+
     java_library = ":helloworld_lib",
-    deps = springboot_deps,
+    deps = springboot_deps + lib_deps,
 )

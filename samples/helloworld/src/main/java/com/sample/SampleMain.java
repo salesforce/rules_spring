@@ -8,9 +8,14 @@ package com.sample;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
+import com.bazel.demo.IntentionalDupedClass;
 
 @SpringBootApplication
 public class SampleMain {
+
+  // both //samples/helloworld/libs/lib1 and //samples/helloworld/libs/lib2 have this class
+  // this is only a problem if the springboot rule is configured to fail on dupes.
+  private IntentionalDupedClass dupedClass = new IntentionalDupedClass();
 
   public static void main(String[] args) {
     System.out.println("Launching the sample SpringBoot demo application...");

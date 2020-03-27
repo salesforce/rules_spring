@@ -122,3 +122,7 @@ springboot(
     fail_on_duplicate_classes = True,
 )
 ```
+
+It will fail the build if:
+- the same class (package + classname) is found in more than one jar
+- the MD5 hash of the classfile bytes differ

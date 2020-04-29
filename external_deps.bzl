@@ -36,7 +36,7 @@ def external_maven_jars():
     native.maven_jar(
         name = "com_fasterxml_jackson_core_jackson_annotations",
         artifact = "com.fasterxml.jackson.core:jackson-annotations:2.10.0",
-        sha1 = "d88d5a15951ffcf8ddd5766f5170a45de537b284",
+        sha1 = "e01cfd93b80d6773b3f757c78e756c9755b47b81",
         sha1_src = "c8be836b340e2bf48c335cfd68765ab867cfd088",
     )
 

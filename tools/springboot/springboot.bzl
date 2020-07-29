@@ -118,7 +118,6 @@ _springboot_rule = rule(
         "genjar_rule": attr.label(),
         "apprun_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
-        "extra_deps": attr.label_list(),
     },
 )
 
@@ -131,7 +130,7 @@ _springboot_rule = rule(
 #  deps:  the array of upstream dependencies
 #  fail_on_duplicated_classes:  if enabled, ensures that the final spring boot jar does not contain any duplicate classes (also checks nested jars)
 #  tags:  the array of optional tags to apply to this rule and subrules
-def springboot(name, java_library, boot_app_class, deps, extra_deps = [], fail_on_duplicate_classes = False, tags = []):
+def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_classes = False, tags = []):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -214,7 +213,7 @@ def springboot(name, java_library, boot_app_class, deps, extra_deps = [], fail_o
     native.java_binary(
         name = apprun_rule,
         main_class = boot_app_class,
-        runtime_deps = [java_library] + deps + extra_deps,
+        runtime_deps = [java_library] + deps,
         tags = tags,
     )
 
@@ -228,7 +227,6 @@ def springboot(name, java_library, boot_app_class, deps, extra_deps = [], fail_o
         genjar_rule = ":" + genjar_rule,
         apprun_rule = ":" + apprun_rule,
         deps = deps,
-        extra_deps = extra_deps,
         tags = tags,
     )
 

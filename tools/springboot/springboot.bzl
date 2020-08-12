@@ -26,18 +26,34 @@
 def _depaggregator_rule_impl(ctx):
     # magical incantation for getting upstream transitive closure of java deps
     merged = java_common.merge([dep[java_common.provider] for dep in ctx.attr.deps])
-    jars = merged.transitive_runtime_jars
+
+    jars = []
+    excludes = {}
+
+    for exclusion_info in ctx.attr.exclude:
+        for compile_jar in exclusion_info[JavaInfo].compile_jars.to_list():
+            excludes[compile_jar.path] = True
+
+
+    for dep in merged.transitive_runtime_jars.to_list():
+        if excludes.get(dep.path) == None:
+            # print("include " + dep.path)
+            jars.append(dep)
+        else:
+            # print("exclude " + dep.path)
+            pass
 
     # print("AGGREGATED DEPS")
     # print(jars)
 
-    return [DefaultInfo(files = jars)]
+    return [DefaultInfo(files = depset(jars))]
 
 _depaggregator_rule = rule(
     implementation = _depaggregator_rule_impl,
     attrs = {
         "depaggregator_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
+        "exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
     },
 )
 
@@ -130,7 +146,7 @@ _springboot_rule = rule(
 #  deps:  the array of upstream dependencies
 #  fail_on_duplicated_classes:  if enabled, ensures that the final spring boot jar does not contain any duplicate classes (also checks nested jars)
 #  tags:  the array of optional tags to apply to this rule and subrules
-def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_classes = False, tags = []):
+def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_classes = False, tags = [], exclude = []):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -143,6 +159,7 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
     _depaggregator_rule(
         name = dep_aggregator_rule,
         deps = deps,
+        exclude = exclude,
     )
 
     # SUBRULE 2: GENERATE THE MANIFEST

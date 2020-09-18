@@ -14,6 +14,8 @@ This rule was developed by Salesforce.
 If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/bazel-springboot-rule/issues).
 We will try to quickly address problems and answer questions.
 
+:octocat: Please do us a huge favor. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top. That helps us advocate for more resources on this project. Thanks!
+
 ### Alternate Approach
 
 If you don't need to create a runnable executable jar file, there is a simpler approach to Spring Boot in the *rules_jvm_external* repository.

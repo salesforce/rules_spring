@@ -6,14 +6,14 @@
 #
 
 deps = [
-    "@org_slf4j_slf4j_api//jar",
+    "@maven//:org_slf4j_slf4j_api",
 ]
 
 test_deps = [
-    "@junit_junit//jar",
-    "@org_hamcrest_hamcrest_core//jar",
-    "@org_springframework_boot_spring_boot_test//jar",
-    "@org_springframework_spring_test//jar",
+    "@maven//:junit_junit",
+    "@maven//:org_hamcrest_hamcrest_core",
+    "@maven//:org_springframework_boot_spring_boot_test",
+    "@maven//:org_springframework_spring_test",
 ]
 
 java_library(

@@ -1,3 +1,3 @@
 rm -rf bazel-*
 
-jar -cvf bazel-springboot-rule-0.8.1.zip *
+jar -cvf bazel-springboot-rule-1.0.1.zip *

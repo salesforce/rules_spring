@@ -186,10 +186,10 @@ def external_maven_jars():
             "org.springframework.boot:spring-boot-starter-tomcat",
         ],
         repositories = repositories,
-        fetch_sources = False,
+        fetch_sources = True,
         version_conflict_policy = "pinned",
         strict_visibility = True,
-        generate_compat_repositories = True,
+        generate_compat_repositories = False,
         # comment the following line in once maven_install.json generation doesn't include user id
         maven_install_json = "@bazel_springboot_rule//:maven_install.json",
         resolve_timeout = 1800,

@@ -12,9 +12,10 @@ We recommend the first.
 
 **Copy the rule into your workspace**
 We recommend this approach because this rule is not currently setup well for the second approach.
-On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging locations.
+On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging idioms.
 Until that is done, copying in the bits you need and customizing it is probably the best way to go.
 Make sure to review the [buildstamp](../buildstamp) documentation as well.
+We recommend copying it into location *//tools/springboot* but you are free to change this if you like.
 
 Once it is copied in, add this to your WORKSPACE:
 ```
@@ -33,7 +34,6 @@ http_archive(
     name = "bazel_springboot_rule",
     sha256 = "a193ff7d502d153a1ed74bfe0cf8c1c1abad6dddc8b28cb57afa9d99e287949d",
     urls = [
-        "https://bazelcache01-xrd.eng.sfdc.net/downloads/bazel-springboot-rule-1.0.0.zip",
         "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.0.0/bazel-springboot-rule-1.0.0.zip",
     ],
 )

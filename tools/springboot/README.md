@@ -5,6 +5,40 @@ The output of this rule is a jar file that can be copied to production environme
 
 ## How to Use:
 
+### Add the rule to your WORKSPACE
+
+There are two approaches to doing this. 
+We recommend the first.
+
+**Copy the rule into your workspace**
+We recommend this approach because this rule is not currently setup well for the second approach.
+On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging locations.
+Until that is done, copying in the bits you need and customizing it is probably the best way to go.
+Make sure to review the [buildstamp](../buildstamp) documentation as well.
+
+Once it is copied in, add this to your WORKSPACE:
+```
+local_repository(
+    name = "bazel_springboot_rule",
+    path = "tools/springboot",
+)
+```
+
+**Reference an official release**
+This copies a pre-built version of this rule into your workspace.
+It may or may not work for you, as it does not allow you to customize it.
+
+```
+http_archive(
+    name = "bazel_springboot_rule",
+    sha256 = "a193ff7d502d153a1ed74bfe0cf8c1c1abad6dddc8b28cb57afa9d99e287949d",
+    urls = [
+        "https://bazelcache01-xrd.eng.sfdc.net/downloads/bazel-springboot-rule-1.0.0.zip",
+        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.0.0/bazel-springboot-rule-1.0.0.zip",
+    ],
+)
+```
+
 ### Create your BUILD file
 
 This is a *BUILD* file code snippet of how to invoke the rule:

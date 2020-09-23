@@ -16,7 +16,7 @@ exports_files([
     "verify_conflict.py",
     "write_gitinfo_properties.sh",
     "write_manifest.sh",
-    "whitelist.txt",
+    "allowlist.txt",
 ])
 
 py_test(

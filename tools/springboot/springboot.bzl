@@ -212,7 +212,7 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
         tools = [
             "@bazel_springboot_rule//tools/springboot:springboot_pkg.sh",
             "@bazel_springboot_rule//tools/springboot:verify_conflict.py",
-            "@bazel_springboot_rule//tools/springboot:whitelist.txt",
+            "@bazel_springboot_rule//tools/springboot:allowlist.txt",
             "@bazel_tools//tools/jdk:singlejar",
         ],
         tags = tags,

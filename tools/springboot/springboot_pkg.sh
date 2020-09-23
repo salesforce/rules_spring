@@ -127,7 +127,7 @@ unzip -l $RULEDIR/$APPJAR >> $CLASSLIST_FILENAME 2>/dev/null
 
 if [[ $VERIFY_DUPE == "verify" ]]; then
     # This python script parses the jarfile to check for duplicate classes
-    python external/bazel_springboot_rule/tools/springboot/verify_conflict.py $CLASSLIST_FILENAME external/bazel_springboot_rule/tools/springboot/whitelist.txt
+    python external/bazel_springboot_rule/tools/springboot/verify_conflict.py $CLASSLIST_FILENAME external/bazel_springboot_rule/tools/springboot/allowlist.txt
     returnCode=$?
 
     if [[ $returnCode -eq 1 ]]; then

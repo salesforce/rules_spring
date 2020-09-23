@@ -8,14 +8,14 @@ import platform
 
 FAKE_CONT1 = "This is some class bytecode"
 FAKE_CONT2 = "This is some other class bytecode"
-WHITELIST_PATH = ""
+ALLOWLIST_PATH = ""
 
 class TestVerifyConflict(unittest.TestCase):
 
     def setUp(self):
-        global WHITELIST_PATH
+        global ALLOWLIST_PATH
         self.tempdir = tempfile.mkdtemp("TestVerifyConflict")
-        WHITELIST_PATH = self._write_whitelist_file()
+        ALLOWLIST_PATH = self._write_allowlist_file()
 
     def tearDown(self):
         shutil.rmtree(self.tempdir)
@@ -29,7 +29,7 @@ class TestVerifyConflict(unittest.TestCase):
         self._run("jar tf %s" % jar_file)
 
         index_file_path = self._write_index_file([jar_file])
-        verify_conflict.run(index_file_path, WHITELIST_PATH)
+        verify_conflict.run(index_file_path, ALLOWLIST_PATH)
 
     def test_two_jars_with_duplicate_class__same_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
@@ -44,7 +44,7 @@ class TestVerifyConflict(unittest.TestCase):
 
         index_file_path = self._write_index_file([jar_file1, jar_file2])
 
-        verify_conflict.run(index_file_path, WHITELIST_PATH)
+        verify_conflict.run(index_file_path, ALLOWLIST_PATH)
 
     def test_two_jars_with_duplicate_class__different_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
@@ -57,11 +57,11 @@ class TestVerifyConflict(unittest.TestCase):
         index_file_path = self._write_index_file([jar_file1, jar_file2])
 
         with self.assertRaises(Exception) as ctx:
-            verify_conflict.run(index_file_path, WHITELIST_PATH)
+            verify_conflict.run(index_file_path, ALLOWLIST_PATH)
 
         self.assertIn("Found duplicate classes", str(ctx.exception))
 
-    def test_two_jars_with_duplicate_class_whitelisted__different_content(self):
+    def test_two_jars_with_duplicate_class_allowlisted__different_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
                                                "com/salesforce", FAKE_CONT1)
         classes_dir2 = self._create_fake_class("MyClass.class", "classes2",
@@ -71,7 +71,7 @@ class TestVerifyConflict(unittest.TestCase):
 
         index_file_path = self._write_index_file([jar_file1, jar_file2])
 
-        verify_conflict.run(index_file_path, WHITELIST_PATH)
+        verify_conflict.run(index_file_path, ALLOWLIST_PATH)
 
     def _create_jar(self, name, classes_dir):
         jar_file = os.path.join(self.tempdir, name)
@@ -88,7 +88,7 @@ class TestVerifyConflict(unittest.TestCase):
         with open(class_file, "w") as f:
             f.write(content)
         return classes_dir
-            
+
     def _write_index_file(self, jar_files):
         index_file_path = os.path.join(self.tempdir, "classes.txt")
         print(index_file_path)
@@ -98,20 +98,19 @@ class TestVerifyConflict(unittest.TestCase):
                 f.write(self._run("unzip -l %s" % jar_file))
         return index_file_path
 
-    def _write_whitelist_file(self):
-        whitelist_file_path = os.path.join(self.tempdir, "whitelist.txt")
-        with open(whitelist_file_path, "w") as f:
+    def _write_allowlist_file(self):
+        allowlist_file_path = os.path.join(self.tempdir, "allowlist.txt")
+        with open(allowlist_file_path, "w") as f:
                 f.write(self.tempdir+ "/myjar20.jar\n")
                 f.write(self.tempdir+ "/myjar21.jar\n")
-        return whitelist_file_path
+        return allowlist_file_path
 
     def _run(self, cmd, cwd=None):
         if not cwd:
             cwd = self.tempdir
         output = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE).stdout.read()
         return output
-        
+
 
 if __name__ == '__main__':
     unittest.main()
-

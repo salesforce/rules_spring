@@ -4,15 +4,16 @@ import os
 import sys
 import zipfile
 
-def _check_for_duplicate_classes(class_path_to_jar_paths, whitelisted_jars):
+def _check_for_duplicate_classes(class_path_to_jar_paths, allowlisted_jars):
     """
     Prints error message and returns True if duplicate classes were found,
     false otherwise.
 
-    Jars in the whitelisted_jars list are excluded from the check.
+    Jars in the allowlisted_jars list are excluded from the check.
     """
 
     found_duplicates = False
+    allowlist_violation_jars = set()
 
     for class_path, jars in class_path_to_jar_paths.items():
         if len(jars) > 1:
@@ -27,13 +28,26 @@ def _check_for_duplicate_classes(class_path_to_jar_paths, whitelisted_jars):
                 jar_path_and_md5s.append((jar_path, digest,))
                 if previous_digest is not None:
                     if previous_digest != digest:
-                        if os.path.basename(jar_path) not in whitelisted_jars or os.path.basename(previous_jar_path) not in whitelisted_jars:
+                        jar_base = os.path.basename(jar_path)
+                        prev_jar_base = os.path.basename(previous_jar_path)
+                        # we fail as a dupe if both jars are not in the allowlist
+                        # we could be nicer and only fail if one of the jars is not in the allowlist?
+                        if jar_base not in allowlisted_jars:
+                            allowlist_violation_jars.add(jar_base)
+                            all_hash_digests_match = False
+                            found_duplicates = True
+                        if prev_jar_base not in allowlisted_jars:
+                            allowlist_violation_jars.add(prev_jar_base)
                             all_hash_digests_match = False
                             found_duplicates = True
                 previous_digest = digest
                 previous_jar_path = jar_path
             if not all_hash_digests_match:
                 print("The class [%s] was found in multiple jars:\n%s\n\n" % (class_path, '\n'.join((str(t) for t in jar_path_and_md5s))))
+
+    print("Consider adding these jars to the allowlist.txt file:")
+    for allowlist_candidate in allowlist_violation_jars:
+        print(allowlist_candidate)
 
     return found_duplicates
 
@@ -76,28 +90,28 @@ def _parse_classes_index_file(filename):
 
     return class_path_to_jar_paths
 
-def _parse_whitelisted_jars_file(whitelist_file):
+def _parse_allowlisted_jars_file(allowlist_file):
     """
-    Reads the whitelist.txt file and returns the jars as a set.
-    """        
-    whitelisted_jars = set()
+    Reads the allowlist.txt file and returns the jars as a set.
+    """
+    allowlisted_jars = set()
 
-    with open(whitelist_file, "r") as lines:
-
+    with open(allowlist_file, "r") as lines:
         for line in lines:
             line = line.strip()
             if len(line) == 0 or line.startswith("#"):
                 continue
-            # cannot use the whole jar path as it is different for generated jars on SFCI and mac
-            # this logic might need to change if two jars with the same name are part of the whitelist
-            whitelisted_jars.add(os.path.basename(line))
+            # cannot use the whole jar path as it is different for generated jars on linux and mac
+            # this logic might need to change if two jars with the same name are part of the allowlist
+            jar = os.path.basename(line)
+            allowlisted_jars.add(jar)
 
-    return whitelisted_jars
+    return allowlisted_jars
 
-def run(classes_index_file_path, whitelisted_jar_path):
-    whitelisted_jars = _parse_whitelisted_jars_file(whitelisted_jar_path)
+def run(classes_index_file_path, allowlisted_jar_path):
+    allowlisted_jars = _parse_allowlisted_jars_file(allowlisted_jar_path)
     class_path_to_jar_paths = _parse_classes_index_file(classes_index_file_path)
-    found_duplicates = _check_for_duplicate_classes(class_path_to_jar_paths, whitelisted_jars)
+    found_duplicates = _check_for_duplicate_classes(class_path_to_jar_paths, allowlisted_jars)
     if found_duplicates:
         raise Exception("Found duplicate classes in the packaged springboot jar")
 if __name__ == "__main__":

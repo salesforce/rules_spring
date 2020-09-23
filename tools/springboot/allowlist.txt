@@ -1,0 +1,47 @@
+#
+# Copyright (c) 2019-2020, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+#
+
+# For a class to be ignored for dupe checking, every jar that it may appear must
+# be listed below. It is not enough to list just one of the jars.
+
+
+# TODO This is absurd that this is hard coded into the rule itself.
+# See Issue 29 https://github.com/salesforce/bazel-springboot-rule/issues/29 as the fix for this.
+# Hi guys, these are Salesforce specific target names and jar versions. Enjoy. ಠ╭╮ಠ
+
+grpc-context-1.24.0.jar
+grpc-core-1.24.0.jar
+grpc-api-1.24.0.jar
+grpc-stub-1.24.0.jar
+grpc-protobuf-1.24.0.jar
+grpc-protobuf-lite-1.24.0.jar
+
+proto-google-common-protos-1.12.0.jar
+protobuf-java-3.5.1.jar
+protobuf-java-util-3.5.1.jar
+protobuf-java-3.9.0.jar
+protobuf-java-util-3.9.0.jar
+
+libannotations_proto-speed.jar
+libany_proto-speed.jar
+libapi.jar
+libcode_proto-speed.jar
+libcontext.jar
+libcore.jar
+libdescriptor_proto-speed.jar
+libduration_proto-speed.jar
+libempty_proto-speed.jar
+liberror_details_proto-speed.jar
+libhttp_proto-speed.jar
+libprotobuf.jar
+libprotobuf_java.jar
+libprotobuf_java_util.jar
+libprotobuf-lite.jar
+librpc_protos-speed.jar
+libstatus_proto-speed.jar
+libstub.jar
+libtimestamp_proto-speed.jar

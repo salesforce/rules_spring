@@ -19,7 +19,7 @@ To restore the old style, please use the following stanza in your WORKSPACE (to 
 git_repository(
     name = "bazel_springboot_rule",
     tag = "1.0.2",
-    remote = "https://github.com/salesforce/pomgen",
+    remote = "https://github.com/salesforce/bazel-springboot-rule",
     verbose = False,
 )
 ```

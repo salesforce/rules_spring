@@ -15,7 +15,7 @@ I switched the repo to use *maven_install* style dependencies, instead of the ob
 I tagged the old code line as 1.0.2.
 To restore the old style, please use the following stanza in your WORKSPACE (to replace whatever you have there).
 
-```
+```starlark
 git_repository(
     name = "bazel_springboot_rule",
     tag = "1.0.2",

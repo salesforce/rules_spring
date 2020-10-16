@@ -45,9 +45,10 @@ def _check_for_duplicate_classes(class_path_to_jar_paths, allowlisted_jars):
             if not all_hash_digests_match:
                 print("The class [%s] was found in multiple jars:\n%s\n\n" % (class_path, '\n'.join((str(t) for t in jar_path_and_md5s))))
 
-    print("Consider adding these jars to the allowlist.txt file:")
-    for allowlist_candidate in allowlist_violation_jars:
-        print(allowlist_candidate)
+    if found_duplicates:
+      print("Consider adding these jars to the allowlist.txt file:")
+      for allowlist_candidate in allowlist_violation_jars:
+          print(allowlist_candidate)
 
     return found_duplicates
 

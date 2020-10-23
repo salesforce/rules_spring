@@ -25,6 +25,8 @@ protobuf-java-3.5.1.jar
 protobuf-java-util-3.5.1.jar
 protobuf-java-3.9.0.jar
 protobuf-java-util-3.9.0.jar
+protobuf-java-3.13.0.jar
+protobuf-java-util-3.13.0.jar
 
 libannotations_proto-speed.jar
 libany_proto-speed.jar
@@ -37,6 +39,7 @@ libduration_proto-speed.jar
 libempty_proto-speed.jar
 liberror_details_proto-speed.jar
 libhttp_proto-speed.jar
+liblite.jar
 libprotobuf.jar
 libprotobuf_java.jar
 libprotobuf_java_util.jar

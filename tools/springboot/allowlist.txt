@@ -54,3 +54,4 @@ librpc_protos-speed.jar
 libstatus_proto-speed.jar
 libstub.jar
 libtimestamp_proto-speed.jar
+libutil.jar

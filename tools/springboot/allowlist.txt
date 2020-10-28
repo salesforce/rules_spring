@@ -20,11 +20,19 @@ grpc-stub-1.24.0.jar
 grpc-protobuf-1.24.0.jar
 grpc-protobuf-lite-1.24.0.jar
 
+grpc-protobuf-1.33.0.jar
+grpc-protobuf-lite-1.33.0.jar
+grpc-context-1.33.0.jar
+grpc-api-1.33.0.jar
+grpc-stub-1.33.0.jar
+
 proto-google-common-protos-1.12.0.jar
 protobuf-java-3.5.1.jar
 protobuf-java-util-3.5.1.jar
 protobuf-java-3.9.0.jar
 protobuf-java-util-3.9.0.jar
+protobuf-java-3.13.0.jar
+protobuf-java-util-3.13.0.jar
 
 libannotations_proto-speed.jar
 libany_proto-speed.jar
@@ -37,6 +45,7 @@ libduration_proto-speed.jar
 libempty_proto-speed.jar
 liberror_details_proto-speed.jar
 libhttp_proto-speed.jar
+liblite.jar
 libprotobuf.jar
 libprotobuf_java.jar
 libprotobuf_java_util.jar
@@ -45,3 +54,4 @@ librpc_protos-speed.jar
 libstatus_proto-speed.jar
 libstub.jar
 libtimestamp_proto-speed.jar
+libutil.jar

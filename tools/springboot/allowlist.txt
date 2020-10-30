@@ -20,6 +20,12 @@ grpc-stub-1.24.0.jar
 grpc-protobuf-1.24.0.jar
 grpc-protobuf-lite-1.24.0.jar
 
+grpc-protobuf-1.32.2.jar
+grpc-protobuf-lite-1.32.2.jar
+grpc-stub-1.32.2.jar
+grpc-api-1.32.2.jar
+grpc-context-1.32.2.jar
+
 grpc-protobuf-1.33.0.jar
 grpc-protobuf-lite-1.33.0.jar
 grpc-context-1.33.0.jar

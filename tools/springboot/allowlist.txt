@@ -33,6 +33,7 @@ grpc-api-1.33.0.jar
 grpc-stub-1.33.0.jar
 
 proto-google-common-protos-1.12.0.jar
+proto-google-common-protos-1.17.0.jar
 protobuf-java-3.5.1.jar
 protobuf-java-util-3.5.1.jar
 protobuf-java-3.9.0.jar

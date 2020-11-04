@@ -77,6 +77,7 @@ The *springboot* rule properties are as follows:
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
 -  deps:  list of jar file dependencies to add (these get packages as *BOOT-INF/lib* inside the executable jar)
+-  exclude: list of jar file dependencies that should NOT be added. This is typically unwanted transitive dependencies.
 
 ### Convenience Import Bundles
 

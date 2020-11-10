@@ -31,13 +31,13 @@ def _depaggregator_rule_impl(ctx):
     excludes = {}
 
     for exclusion_info in ctx.attr.exclude:
-        for compile_jar in exclusion_info[JavaInfo].compile_jars.to_list():
+        for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
             excludes[compile_jar.path] = True
 
 
     for dep in merged.transitive_runtime_jars.to_list():
-        if excludes.get(dep.path) == None:
-            # print("include " + dep.path)
+        if excludes.get(dep.path, None) == None:
+            # print("include ", dep.path)
             jars.append(dep)
         else:
             # print("exclude " + dep.path)

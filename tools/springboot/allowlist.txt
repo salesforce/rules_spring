@@ -13,25 +13,4 @@
 # See Issue 29 https://github.com/salesforce/bazel-springboot-rule/issues/29 as the fix for this.
 # Hi guys, these are Salesforce specific target names and jar versions. Enjoy. ಠ╭╮ಠ
 
-# An issue to breakout "well known" protos from protobuf core library jar: https://github.com/protocolbuffers/protobuf/issues/8050
-# If it is implemented, then ALL of the below can be removed.
-
-# "well known" protos https://github.com/protocolbuffers/protobuf/blob/012fe854acc5b2a23bf4bef4a3c0b634c65c058e/BUILD#L294
-libany_proto-speed.jar
-libapi_proto-speed.jar
-libcompiler_plugin_proto-speed.jar
-libdescriptor_proto-speed.jar
-libduration_proto-speed.jar
-libempty_proto-speed.jar
-liberror_details_proto-speed.jar
-libfield_mask_proto-speed.jar
-libsource_context_proto-speed.jar
-libstruct_proto-speed.jar
-libtimestamp_proto-speed.jar
-libtype_proto-speed.jar
-libwrappers_proto-speed.jar
-
-# This contains all of the well known protos
-libcore.jar
-
 # WARNING before adding more entries, please consider using exclude to remove duplicate classes

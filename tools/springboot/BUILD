@@ -13,18 +13,26 @@
 exports_files([
     "springboot.bzl",
     "springboot_pkg.sh",
-    "verify_conflict.py",
+    "check_dupe_classes.py",
     "write_gitinfo_properties.sh",
     "write_manifest.sh",
-    "allowlist.txt",
+    "dupe_class_jar_allowlist.txt",
 ])
 
+py_binary(
+    name = "check_dupe_classes",
+    data = ["dupe_class_jar_allowlist.txt"],
+    srcs = [
+        "check_dupe_classes.py",
+    ],
+)
+
 py_test(
-    name = "verify_conflict_test",
+    name = "check_dupe_classes_test",
     size = "small",
     srcs = [
-        "tests/verify_conflict_test.py",
-        "verify_conflict.py",
+        "tests/check_dupe_classes_test.py",
+        "check_dupe_classes.py",
     ],
     imports = ["."],
 )

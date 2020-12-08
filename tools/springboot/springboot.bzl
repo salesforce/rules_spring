@@ -139,14 +139,24 @@ _springboot_rule = rule(
 
 # ***************************************************************
 # SpringBoot Macro
-#  invoke this from your BUILD file
+#  invoke this from your BUILD file, required params are marked *
 #
-#  name:    name of your application
+#  REQUIRED:
+#  name:            name of your application
+#  java_library:    the java_library rule that contains the compile source for the spring boot app
 #  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
-#  deps:  the array of upstream dependencies
-#  fail_on_duplicated_classes:  if enabled, ensures that the final spring boot jar does not contain any duplicate classes (also checks nested jars)
-#  tags:  the array of optional tags to apply to this rule and subrules
-def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_classes = False, tags = [], exclude = []):
+#  deps:            the array of upstream dependencies
+#
+# OPTIONAL:
+#  fail_on_duplicated_classes: if enabled, ensures that the final spring boot jar does not contain any duplicate classes (also checks nested jars)
+#  duplicate_class_allowlist: list of jar files that can have dupe classes without failing the rule
+#  tags:            the array of tags to apply to this rule and subrules
+#  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
+#
+def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_classes = False,
+    duplicate_class_allowlist = "@bazel_springboot_rule//tools/springboot:dupe_class_jar_allowlist.txt",
+    tags = [], exclude = []):
+
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -194,25 +204,28 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
     # The resolved input_file_paths array is made available as the $(SRCS) token in the cmd string.
     # Skylark will convert the logical input_file_paths into real file system paths when surfaced in $(SRCS)
     #  cmd format (see springboot_pkg.sh)
-    #    param0: location of the jar utility (singlejar)
-    #    param1: boot application classname (the @SpringBootApplication class)
-    #    param2: verify_duplicates
-    #    param3: jdk path for running java tools e.g. jar; $(JAVABASE)
-    #    param4: executable jar output filename to write to
-    #    param5: compiled application jar; $@
-    #    param6: manifest file
-    #    param7: git.properties file
-    #    param8-N: upstream transitive dependency jar(s)
+    #    param0: directory containing the springboot rule
+    #    param1: location of the jar utility (singlejar)
+    #    param2: boot application main classname (the @SpringBootApplication class)
+    #    param3: verify duplicate classes? verify or no_verify
+    #    param4: jdk path for running java tools e.g. jar; $(JAVABASE)
+    #    param5: compiled application jar name
+    #    param6: executable jar output filename to write to
+    #    param7: compiled application jar
+    #    param8: manifest file
+    #    param9: git.properties file
+    #    param10: dupe class checker allowlist (or default empty file)
+    #    param11-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
-        srcs = [java_library, ":" + genmanifest_rule, ":" + gengitinfo_rule, ":" + dep_aggregator_rule],
+        srcs = [java_library, ":" + genmanifest_rule, ":" + gengitinfo_rule,
+          duplicate_class_allowlist, ":" + dep_aggregator_rule,],
         cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) " +
-              "$(location @bazel_tools//tools/jdk:singlejar) " +
-              boot_app_class + " " + verify_str + " $(JAVABASE) " + name + " $@ $(SRCS)",
+              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class + " " + verify_str +
+              " $(JAVABASE) " + name + " $@ $(SRCS)",
         tools = [
             "@bazel_springboot_rule//tools/springboot:springboot_pkg.sh",
-            "@bazel_springboot_rule//tools/springboot:verify_conflict.py",
-            "@bazel_springboot_rule//tools/springboot:allowlist.txt",
+            "@bazel_springboot_rule//tools/springboot:check_dupe_classes.py",
             "@bazel_tools//tools/jdk:singlejar",
         ],
         tags = tags,

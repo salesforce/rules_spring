@@ -14,6 +14,13 @@ lib_deps = [
   "//samples/helloworld/libs/lib2",
 ]
 
+filegroup(
+    name = "dupe_class_allowlist",
+    srcs = glob([
+        "helloworld_dupeclass_allowlist.txt",
+    ]),
+)
+
 # create our deps list for Spring Boot
 springboot_deps = [
     "//tools/springboot/import_bundles:springboot_required_deps",
@@ -36,7 +43,8 @@ springboot(
 
     # TO TEST THE DUPE CLASSES FEATURE: change this to fail_on_duplicate_classes = True
     # there is an intentionally duplicated class in lib1 and lib2
-    fail_on_duplicate_classes = False,
+    fail_on_duplicate_classes = True,
+    duplicate_class_allowlist = ":dupe_class_allowlist",
 
     java_library = ":helloworld_lib",
     deps = springboot_deps + lib_deps,

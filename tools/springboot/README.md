@@ -7,7 +7,7 @@ The output of this rule is a jar file that can be copied to production environme
 
 ### Add the rule to your WORKSPACE
 
-There are two approaches to doing this. 
+There are two approaches to doing this.
 We recommend the first.
 
 **Copy the rule into your workspace**
@@ -71,13 +71,12 @@ springboot(
 )
 ```
 
-The *springboot* rule properties are as follows:
+The required *springboot* rule attributes are as follows:
 
 -  name:    name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
 -  deps:  list of jar file dependencies to add (these get packages as *BOOT-INF/lib* inside the executable jar)
--  exclude: list of jar file dependencies that should NOT be added. This is typically unwanted transitive dependencies.
 
 ### Convenience Import Bundles
 
@@ -99,8 +98,7 @@ After installing the rule into your workspace at *tools/springboot*, you are rea
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
 You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds and runs.
 
-The build will run and create an executable jar file in the *bazel-bin* directory.
-Find it in the output directories, and then run it:
+You can easily run it with *bazel run*:
 
 ```
 bazel run //samples/helloworld
@@ -108,6 +106,7 @@ bazel run //samples/helloworld
 
 In production environments, you will likely not have Bazel installed nor the Bazel workspace files.
 This is the primary use case for the executable jar file.
+The build will run and create the executable jar file in the *bazel-bin* directory.
 Run the jar file locally using *java* like so:
 
 ```
@@ -116,19 +115,8 @@ java -jar bazel-bin/samples/helloworld/helloworld.jar
 
 The executable jar file is ready to be copied to your production environment.
 
-## Debugging
-
-If the environment variable `DEBUG_SPRINGBOOT_RULE` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`. If `$TMPDIR` is not defined, it defaults to `/tmp`.
-
-In order to pass this environment variable to Bazel, use the `--action_env` argument:
-
-```
-bazel build //... --action_env=DEBUG_SPRINGBOOT_RULE=1
-```
 
 ## In Depth
-
-To understand how this rule works, start by reading the [springboot.bzl file](springboot.bzl).
 
 ### Build Stamping of the Spring Boot jar
 
@@ -136,19 +124,42 @@ Spring Boot has a nice feature that can display Git coordinates for your built s
   [/actuator/info](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints) webadmin endpoint.
 If you are interested in this feature, it is supported by this *springboot* rule.
 However, to avoid breaking Bazel remote caching, we generally have this feature disabled for most builds.
-See the [//tools/buildstamp](../buildstamp) package for more details.
+See the [//tools/buildstamp](../buildstamp) package for more details on how to enable and disable it.
+
+### Exclude list
+
+The Spring Boot rule will copy the transitive closure of all Java jar deps into the Spring Boot executable jar.
+This is normally what you want.
+But sometimes you have a transitive dependency that causes problems when included in your Spring Boot jar, but
+  you don't have the control to remove it from your dependency graph.
+
+An exclude list can be passed to the Spring Boot rule which will prevent that dependency from being copied into the jar.
+It is used like this:
+
+```
+springboot(
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+    deps = springboot_deps,
+    exclude = [
+      "@maven//:com_google_protobuf_protobuf_java",
+      "//protos/third-party/google/protobuf:any_java_proto",
+    ],
+)
+```
 
 ### Duplicate Classes Detection
 
-We find that Spring Boot jars aggregate a great number of dependency jars, many from outside our Bazel
+Spring Boot jars normally aggregate a great number of dependency jars, many from outside the Bazel
   build (external Maven-built jars).
 We have had cases where multiple jars brought in the same class, but at different versions.
-These are difficult to diagnose.
+These problems are difficult to diagnose.
 
-There is a feature on the *springboot* rule that will fail the build if duplicate classes are detected:
+There is a feature on the *springboot* rule that will fail the build if duplicate classes are detected.
+It is disabled by default, but can be enabled with an attribute:
 
 ```
-# use the springboot rule to build the app as a Spring Boot executable jar
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
@@ -158,6 +169,54 @@ springboot(
 )
 ```
 
-It will fail the build if:
-- the same class (package + classname) is found in more than one jar
+It will scan all inner jars file, and fail the build if:
+- the same class (package + classname) is found in more than one inner jar, AND...
 - the MD5 hash of the classfile bytes differ
+
+But sometimes you have transitives that are out of your control that bring in duplicate classes.
+If you cannot use the *exclude* attribute as shown above, there is another solution.
+To ignore certain jars from the dupe checker, create a text file in the same directory
+  as the BUILD file.
+Add a jar filename on each line like this:
+
+```
+# write the filename of the jar file that should be excluded from dupe detection
+jakarta.annotation-api-1.3.5.jar
+spring-jcl-5.2.1.RELEASE.jar
+libfoo1.jar
+libfoo2.jar
+```
+
+and then follow this pattern in the BUILD file:
+
+```
+filegroup(
+    name = "dupe_class_allowlist",
+    srcs = glob([
+        "my_dupeclass_allowlist.txt",
+    ]),
+)
+
+springboot(
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+    deps = springboot_deps,
+    fail_on_duplicate_classes = True,
+    duplicate_class_allowlist = ":dupe_class_allowlist",
+)
+```
+
+### Debugging the Rule Execution
+
+If the environment variable `DEBUG_SPRINGBOOT_RULE` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`. If `$TMPDIR` is not defined, it defaults to `/tmp`.
+
+In order to pass this environment variable to Bazel, use the `--action_env` argument:
+
+```
+bazel build //... --action_env=DEBUG_SPRINGBOOT_RULE=1
+```
+
+### Customizing the Spring Boot rule
+
+To understand how this rule works, start by reading the [springboot.bzl file](springboot.bzl).

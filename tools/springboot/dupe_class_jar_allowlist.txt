@@ -8,9 +8,4 @@
 # For a class to be ignored for dupe checking, every jar that it may appear must
 # be listed below. It is not enough to list just one of the jars.
 
-
-# TODO This is absurd that this is hard coded into the rule itself.
-# See Issue 29 https://github.com/salesforce/bazel-springboot-rule/issues/29 as the fix for this.
-# Hi guys, these are Salesforce specific target names and jar versions. Enjoy. ಠ╭╮ಠ
-
 # WARNING before adding more entries, please consider using exclude to remove duplicate classes

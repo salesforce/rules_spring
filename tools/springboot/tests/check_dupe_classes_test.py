@@ -3,14 +3,14 @@ import subprocess
 import tempfile
 import shutil
 import unittest
-import verify_conflict
+import check_dupe_classes
 import platform
 
 FAKE_CONT1 = "This is some class bytecode"
 FAKE_CONT2 = "This is some other class bytecode"
 ALLOWLIST_PATH = ""
 
-class TestVerifyConflict(unittest.TestCase):
+class TestVerifyDupeClasses(unittest.TestCase):
 
     def setUp(self):
         global ALLOWLIST_PATH
@@ -25,11 +25,14 @@ class TestVerifyConflict(unittest.TestCase):
                                               "com/salesforce", FAKE_CONT1)
         classes_dir = self._create_fake_class("MyClass2.class", "classes",
                                               "com/salesforce", FAKE_CONT2)
-        jar_file = self._create_jar("myjar.jar", classes_dir)
-        self._run("jar tf %s" % jar_file)
 
-        index_file_path = self._write_index_file([jar_file])
-        verify_conflict.run(index_file_path, ALLOWLIST_PATH)
+        jar_dir = os.path.join(self.tempdir, "inner_jar2")
+        os.makedirs(jar_dir)
+        jar_file = self._create_jar("myjar.jar", jar_dir, classes_dir)
+
+        springbootjar = self._create_springboot_jar("sb2.jar", jar_dir)
+
+        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
 
     def test_two_jars_with_duplicate_class__same_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
@@ -39,25 +42,31 @@ class TestVerifyConflict(unittest.TestCase):
                                 FAKE_CONT2)
         classes_dir2 = self._create_fake_class("MyClass.class", "classes2",
                                                "com/salesforce", FAKE_CONT1)
-        jar_file1 = self._create_jar("myjar1.jar", classes_dir1)
-        jar_file2 = self._create_jar("myjar2.jar", classes_dir2)
 
-        index_file_path = self._write_index_file([jar_file1, jar_file2])
+        jar_dir = os.path.join(self.tempdir, "inner_jar3")
+        os.makedirs(jar_dir)
+        jar_file1 = self._create_jar("myjar1.jar", jar_dir, classes_dir1)
+        jar_file2 = self._create_jar("myjar2.jar", jar_dir, classes_dir2)
 
-        verify_conflict.run(index_file_path, ALLOWLIST_PATH)
+        springbootjar = self._create_springboot_jar("sb3.jar", jar_dir)
+
+        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
 
     def test_two_jars_with_duplicate_class__different_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
                                                "com/salesforce", FAKE_CONT1)
         classes_dir2 = self._create_fake_class("MyClass.class", "classes2",
                                                "com/salesforce", FAKE_CONT2)
-        jar_file1 = self._create_jar("myjar1.jar", classes_dir1)
-        jar_file2 = self._create_jar("myjar2.jar", classes_dir2)
 
-        index_file_path = self._write_index_file([jar_file1, jar_file2])
+        jar_dir = os.path.join(self.tempdir, "inner_jar4")
+        os.makedirs(jar_dir)
+        jar_file1 = self._create_jar("myjar1.jar", jar_dir, classes_dir1)
+        jar_file2 = self._create_jar("myjar2.jar", jar_dir, classes_dir2)
+
+        springbootjar = self._create_springboot_jar("sb4.jar", jar_dir)
 
         with self.assertRaises(Exception) as ctx:
-            verify_conflict.run(index_file_path, ALLOWLIST_PATH)
+            check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
 
         self.assertIn("Found duplicate classes", str(ctx.exception))
 
@@ -66,21 +75,33 @@ class TestVerifyConflict(unittest.TestCase):
                                                "com/salesforce", FAKE_CONT1)
         classes_dir2 = self._create_fake_class("MyClass.class", "classes2",
                                                "com/salesforce", FAKE_CONT2)
-        jar_file1 = self._create_jar("myjar20.jar", classes_dir1)
-        jar_file2 = self._create_jar("myjar21.jar", classes_dir2)
 
-        index_file_path = self._write_index_file([jar_file1, jar_file2])
+        jar_dir = os.path.join(self.tempdir, "inner_jar5")
+        os.makedirs(jar_dir)
+        jar_file1 = self._create_jar("myjar20.jar", jar_dir, classes_dir1)
+        jar_file2 = self._create_jar("myjar21.jar", jar_dir, classes_dir2)
 
-        verify_conflict.run(index_file_path, ALLOWLIST_PATH)
+        springbootjar = self._create_springboot_jar("sb5.jar", jar_dir)
 
-    def _create_jar(self, name, classes_dir):
-        jar_file = os.path.join(self.tempdir, name)
+        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
+
+
+    # HELPERS
+
+    def _create_jar(self, name, jar_dir, classes_dir):
+        jar_file = os.path.join(jar_dir, name)
         self._run("jar cf %s %s" % (jar_file, "."), cwd=classes_dir)
         assert os.path.exists(jar_file)
         return jar_file
 
-    def _create_fake_class(self, name, root_dir, package, content):
-        classes_dir = os.path.join(self.tempdir, root_dir)
+    def _create_springboot_jar(self, name, innerjar_dir):
+        jar_file = os.path.join(self.tempdir, name)
+        self._run("jar cf %s %s" % (jar_file, "."), cwd=innerjar_dir)
+        assert os.path.exists(jar_file)
+        return jar_file
+
+    def _create_fake_class(self, name, root_classes_dir, package, content):
+        classes_dir = os.path.join(self.tempdir, root_classes_dir)
         package_dir = os.path.join(classes_dir, package)
         if not os.path.exists(package_dir):
             os.makedirs(package_dir)
@@ -94,7 +115,7 @@ class TestVerifyConflict(unittest.TestCase):
         print(index_file_path)
         with open(index_file_path, "wb") as f:
             for jar_file in jar_files:
-                f.write(("%s%s\n" % (verify_conflict.JARNAME_PREFIX, jar_file)).encode())
+                f.write(("%s%s\n" % (check_dupe_classes.JARNAME_PREFIX, jar_file)).encode())
                 f.write(self._run("unzip -l %s" % jar_file))
         return index_file_path
 

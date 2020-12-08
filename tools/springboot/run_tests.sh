@@ -1,1 +1,1 @@
-python3 -m unittest tests/verify_conflict_test.py 
+python3 -m unittest tests/check_dupe_classes_test.py 

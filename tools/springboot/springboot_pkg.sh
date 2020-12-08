@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2017-9, salesforce.com, inc.
+# Copyright (c) 2017-2020, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
@@ -24,7 +24,9 @@ APPJAR_NAME=$5
 OUTPUTJAR=$6
 APPJAR=$7
 MANIFEST=$8
-#GITPROPSFILE=$6
+#GITPROPSFILE=$9 (these assignments have to wait, see below)
+#DUPE_CLASS_ALLOWLIST=$10
+#FIRST_JAR_ARG=11
 
 #The coverage variable is used to make sure that the correct files are picked in case bazel coverage is run with this springboot rule
 COVERAGE=1
@@ -32,13 +34,17 @@ COVERAGE=1
 # When bazel coverage is run on packages the appcompile_rule returns an extra string
 # "bazel-out/darwin-fastbuild/bin/projects/services/basic-rest-service/coverage_runtime_classpath/projects/services/basic-rest-service_app/runtime-classpath.txt"
 # This is a workaround to ensure that the MANIFEST is picked correctly.
-
 if [[ $MANIFEST = *"MANIFEST.MF" ]]; then
     GITPROPSFILE=$9
+    DUPE_CLASS_ALLOWLIST=${10}
     COVERAGE=0
+    FIRST_JAR_ARG=11
 else
-    MANIFEST=$8
-    GITPROPSFILE=$10
+    # move these args down one slot, the code cov introduced something in the manifest slot
+    MANIFEST=$9
+    GITPROPSFILE=${10}
+    DUPE_CLASS_ALLOWLIST=${11}
+    FIRST_JAR_ARG=12
 fi
 
 # package name (not guaranteed to be globally unique)
@@ -71,12 +77,9 @@ else
     mkdir -p $DEBUGDIR
     DEBUGFILENAME=$PACKAGENAME-$PACKAGESHA
     DEBUGFILE=$DEBUGDIR/$DEBUGFILENAME.log
+    echo "SPRING BOOT DEBUG LOG: $DEBUGFILE"
 fi
 >$DEBUGFILE
-
-# file that will list the contents of the jar file for duplicate classes checks
-CLASSLIST_FILENAME=$SPRINGBOOT_RULE_TMPDIR/$PACKAGENAME-classlist.txt
->$CLASSLIST_FILENAME
 
 # Write debug header
 echo "" >> $DEBUGFILE
@@ -91,6 +94,8 @@ echo "  JAVABASE        $JAVABASE    (the path to the JDK2)" >> $DEBUGFILE
 echo "  APPJAR          $APPJAR      (contains the .class files for the Spring Boot application)" >> $DEBUGFILE
 echo "  APPJAR_NAME     $APPJAR_NAME (unused, is the appjar filename without the .jar extension)" >> $DEBUGFILE
 echo "  MANIFEST        $MANIFEST    (the location of the generated MANIFEST.MF file)" >> $DEBUGFILE
+echo "  VERIFY_DUPE     $VERIFY_DUPE (whether the duplicate class checker should be run)" >> $DEBUGFILE
+echo "  DUPE_CLASS_ALLOWLIST $DUPE_CLASS_ALLOWLIST (the list of jars that skip dupe checking)" >> $DEBUGFILE
 echo "  DEPLIBS         (list of upstream transitive dependencies, these will be incorporated into the jar file in BOOT-INF/lib )" >> $DEBUGFILE
 
 # compute path to jar utility
@@ -101,46 +106,14 @@ popd
 echo "Jar command:" >> $DEBUGFILE
 echo $JAR_COMMAND >> $DEBUGFILE
 
-if [[ $COVERAGE -eq 0 ]]; then
-    i=9
-else
-    i=10
-fi
-
 # log the list of dep jars we were given
+i=$FIRST_JAR_ARG
 while [ "$i" -le "$#" ]; do
   eval "lib=\${$i}"
   echo "     DEPLIB:      $lib" >> $DEBUGFILE
-  if [[ $VERIFY_DUPE == "verify" ]]; then
-    # if duplicated classes protection is enabled, write the jar file path and contents to a file
-    # which is later passed to the python script to analyze the contents
-    echo "Jarname: $lib" >> $CLASSLIST_FILENAME
-    unzip -l $lib >> $CLASSLIST_FILENAME 2>/dev/null
-  fi
   i=$((i + 1))
 done
 echo "" >> $DEBUGFILE
-
-# Also include the actual service code in the duplicate classes check
-echo "Jarname: $OUTPUTJAR" >> $CLASSLIST_FILENAME
-unzip -l $RULEDIR/$APPJAR >> $CLASSLIST_FILENAME 2>/dev/null
-
-if [[ $VERIFY_DUPE == "verify" ]]; then
-    # This python script parses the jarfile to check for duplicate classes
-    python external/bazel_springboot_rule/tools/springboot/verify_conflict.py $CLASSLIST_FILENAME external/bazel_springboot_rule/tools/springboot/allowlist.txt
-    returnCode=$?
-
-    if [[ $returnCode -eq 1 ]]; then
-      echo "ERROR: Failing build because of conflicting jars/classes"
-      exit 1
-    fi
-fi
-
-if [ -z "${DEBUG_SPRINGBOOT_RULE}" ]; then
-  # cleanup, unless in debug mode: this file is only needed for the conflicting
-  # classes check above
-  rm -f $CLASSLIST_FILENAME
-fi
 
 echo $SHASUM_INSTALL_MSG >> $DEBUGFILE
 echo "Unique identifier for this build: [$PACKAGESHA] computed from [$PACKAGESHA_RAW]" >> $DEBUGFILE
@@ -161,27 +134,25 @@ $JAR_COMMAND -xf $RULEDIR/$APPJAR
 #   The dependencies are passed as arguments to the script, starting at index 5
 cd $WORKING_DIR
 
-if [[ $COVERAGE -eq 0 ]]; then
-    i=10
-else
-    i=11
-fi
-
+i=$FIRST_JAR_ARG
 while [ "$i" -le "$#" ]; do
   eval "lib=\${$i}"
   libname=$(basename $lib)
   libdir=$(dirname $lib)
   echo "DEBUG: libname: $libname" >> $DEBUGFILE
-  if [[ $libname == *spring-boot-loader* ]]; then
-    # if libname is prefixed with the string 'spring-boot-loader' then...
-    # the Spring Boot Loader classes are special, they must be extracted at the root level /,
-    #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class
-    # we only extract org/* since we don't want the toplevel META-INF files
-    $JAR_COMMAND xf $RULEDIR/$lib org
-  else
-    libdestdir="BOOT-INF/lib/${libdir}"
-    mkdir -p ${libdestdir}
-    cp -f $RULEDIR/$lib ${libdestdir}
+  if [[ $libname == *jar ]]; then
+    # we only want to process .jar files as libs
+    if [[ $libname == *spring-boot-loader* ]]; then
+      # if libname is prefixed with the string 'spring-boot-loader' then...
+      # the Spring Boot Loader classes are special, they must be extracted at the root level /,
+      #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class
+      # we only extract org/* since we don't want the toplevel META-INF files
+      $JAR_COMMAND xf $RULEDIR/$lib org
+    else
+      libdestdir="BOOT-INF/lib/${libdir}"
+      mkdir -p ${libdestdir}
+      cp -f $RULEDIR/$lib ${libdestdir}
+    fi
   fi
 
   i=$((i + 1))
@@ -231,6 +202,17 @@ if [ $? -ne 0 ]; then
 fi
 
 cd $RULEDIR
+
+if [[ $VERIFY_DUPE == "verify" ]]; then
+    # This python script parses the jarfile to check for duplicate classes
+    python external/bazel_springboot_rule/tools/springboot/check_dupe_classes.py $RULEDIR/$OUTPUTJAR $DUPE_CLASS_ALLOWLIST
+    returnCode=$?
+
+    if [[ $returnCode -eq 1 ]]; then
+      echo "ERROR: Failing build because of conflicting jars/classes"
+      exit 1
+    fi
+fi
 
 # Elapsed build time
 BUILD_TIME_END=$SECONDS

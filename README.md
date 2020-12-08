@@ -24,7 +24,7 @@ That approach is sufficient if Bazel and your Bazel workspace are available in a
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.
 
-### Are you taking refreshing your fork for the first time since September 29, 2020?
+### Are you refreshing your fork for the first time since September 29, 2020?
 
 On that date I switched the repo to use *maven_install* style dependencies, instead of the obsolete *maven_jar*.
 I tagged the old code line as 1.0.2.

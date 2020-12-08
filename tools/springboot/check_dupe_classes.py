@@ -14,26 +14,27 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
     Jars in the allowlisted_jars list are excluded from the check.
     """
 
-    # this will be set to True if any duplicate classes are found that are not
-    # included in the allowlist
+    # this will be set to True if any duplicate classes are found, that are not
+    # contained by any jar in the allowlist
     found_illegal_duplicates = False
     # this set will contain the jars that contain the violaters
-    allowlist_violation_jars = set()
+    dupe_containing_jars = set()
     # list of paths of classes that are duped and have different hashes
     # use each string entry as a key into the class_catalog dict
     dupe_classes = []
 
-    # maps the path to a class to all jars (as list) it was found in,
+    # dict that maps the path to a class to all jars (as list) it was found in,
     #   and the hash for each appearance
     # for example:
-    # com/salesforce/sconems/abstractions/HostUtil.class ->
+    # com/acme/common/HostUtil.class ->
     # [
     #   { bazel-out/.../foolib.jar, 5807cc49dfbda8dd937de3b33a885409 },
     #   { bazel-out/.../blahlib.jar, 5807cc49dfbda8dd937de3b33a885409 }
     # ]
     class_catalog = defaultdict(list)
 
-    # iterate through the springboot jar file, and find inner jars
+    # Starting the search....
+    # iterate through the springboot jar file, and find inner jars,
     # open each inner jar and catalog each .class file found
     springbootzip = zipfile.ZipFile(springbootzip_path)
     sprintbootzipentries = springbootzip.infolist()
@@ -58,6 +59,7 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
                     class_bytes = innerjar_zip.read(innerjar_zipentry_path)
                     digest = hashlib.md5(class_bytes).hexdigest()
 
+                    # now check if we have seen this class before
                     other_locations = class_catalog[innerjar_zipentry_path]
                     for other_location in other_locations:
                         other_digest = other_location[1]
@@ -68,15 +70,15 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
                             # we fail as a dupe if both jars are not in the allowlist
                             # we could be nicer and only fail if one of the jars is not in the allowlist?
                             if jar_base not in allowlisted_jars:
-                                allowlist_violation_jars.add(jar_base)
+                                dupe_containing_jars.add(jar_base)
                                 found_illegal_duplicates = True
                                 this_is_a_dupe = True
                             if other_jar_base not in allowlisted_jars:
-                                allowlist_violation_jars.add(other_jar_base)
+                                dupe_containing_jars.add(other_jar_base)
                                 found_illegal_duplicates = True
                                 this_is_a_dupe = True
                             if this_is_a_dupe:
-                                print("MISMATCH for class %s" % (innerjar_zipentry_path))
+                                print("Spring Boot MISMATCH for class %s" % (innerjar_zipentry_path))
                                 print("  jar %s hash %s" % (jar_base, digest))
                                 print("  jar %s hash %s" % (other_jar_base, other_digest))
 
@@ -90,19 +92,17 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
       print("Spring Boot packaging has failed for %s because multiple copies of the same class, but with different hashes, were found." % springbootzip_path)
       print("Look for MISMATCH loglines above for more details. You should eliminate the conflicting dependencies, or if that is not possible")
       print("you can add these jars to the allowlist.txt file:")
-      for allowlist_candidate in allowlist_violation_jars:
+      for allowlist_candidate in dupe_containing_jars:
           print("  " + allowlist_candidate)
 
     return found_illegal_duplicates
-
-JARNAME_PREFIX = "Jarname: "
 
 def _parse_allowlisted_jars_file(allowlist_file):
     """
     Reads the allowlist.txt file and returns the jars as a set.
     File format: each line in the file is the name of a jar, like:
-    foo.jar
-    bar.jar
+      foo.jar
+      bar.jar
     """
     allowlisted_jars = set()
 

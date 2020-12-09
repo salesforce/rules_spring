@@ -40,12 +40,14 @@ java_library(
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
-
-    # TO TEST THE DUPE CLASSES FEATURE: change this to fail_on_duplicate_classes = True
-    # there is an intentionally duplicated class in lib1 and lib2
-    fail_on_duplicate_classes = True,
-    duplicate_class_allowlist = ":dupe_class_allowlist",
-
     java_library = ":helloworld_lib",
     deps = springboot_deps + lib_deps,
+
+    # TO TEST THE DUPE CLASSES FEATURE:
+    #   There is an intentionally duplicated class in lib1 and lib2. Do this:
+    #   1. change this to fail_on_duplicate_classes = True
+    #   2. comment out lib1 or lib2 in helloworld_dupeclass_allowlist.txt
+    #   Build should fail due to the duplicate class.
+    fail_on_duplicate_classes = True,
+    duplicate_class_allowlist = ":dupe_class_allowlist",
 )

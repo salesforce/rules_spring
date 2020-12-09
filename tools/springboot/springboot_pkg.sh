@@ -18,15 +18,13 @@
 RULEDIR=$(pwd)
 SINGLEJAR_CMD=$(pwd)/$1
 MAINCLASS=$2
-VERIFY_DUPE=$3
-JAVABASE=$4
-APPJAR_NAME=$5
-OUTPUTJAR=$6
-APPJAR=$7
-MANIFEST=$8
-#GITPROPSFILE=$9 (these assignments have to wait, see below)
-#DUPE_CLASS_ALLOWLIST=$10
-#FIRST_JAR_ARG=11
+JAVABASE=$3
+APPJAR_NAME=$4
+OUTPUTJAR=$5
+APPJAR=$6
+MANIFEST=$7
+#GITPROPSFILE=$8 (these assignments have to wait, see below)
+#FIRST_JAR_ARG=9
 
 #The coverage variable is used to make sure that the correct files are picked in case bazel coverage is run with this springboot rule
 COVERAGE=1
@@ -35,16 +33,14 @@ COVERAGE=1
 # "bazel-out/darwin-fastbuild/bin/projects/services/basic-rest-service/coverage_runtime_classpath/projects/services/basic-rest-service_app/runtime-classpath.txt"
 # This is a workaround to ensure that the MANIFEST is picked correctly.
 if [[ $MANIFEST = *"MANIFEST.MF" ]]; then
-    GITPROPSFILE=$9
-    DUPE_CLASS_ALLOWLIST=${10}
+    GITPROPSFILE=$8
     COVERAGE=0
-    FIRST_JAR_ARG=11
+    FIRST_JAR_ARG=9
 else
     # move these args down one slot, the code cov introduced something in the manifest slot
-    MANIFEST=$9
-    GITPROPSFILE=${10}
-    DUPE_CLASS_ALLOWLIST=${11}
-    FIRST_JAR_ARG=12
+    MANIFEST=$8
+    GITPROPSFILE=$9
+    FIRST_JAR_ARG=10
 fi
 
 # package name (not guaranteed to be globally unique)
@@ -94,8 +90,6 @@ echo "  JAVABASE        $JAVABASE    (the path to the JDK2)" >> $DEBUGFILE
 echo "  APPJAR          $APPJAR      (contains the .class files for the Spring Boot application)" >> $DEBUGFILE
 echo "  APPJAR_NAME     $APPJAR_NAME (unused, is the appjar filename without the .jar extension)" >> $DEBUGFILE
 echo "  MANIFEST        $MANIFEST    (the location of the generated MANIFEST.MF file)" >> $DEBUGFILE
-echo "  VERIFY_DUPE     $VERIFY_DUPE (whether the duplicate class checker should be run)" >> $DEBUGFILE
-echo "  DUPE_CLASS_ALLOWLIST $DUPE_CLASS_ALLOWLIST (the list of jars that skip dupe checking)" >> $DEBUGFILE
 echo "  DEPLIBS         (list of upstream transitive dependencies, these will be incorporated into the jar file in BOOT-INF/lib )" >> $DEBUGFILE
 
 # compute path to jar utility
@@ -202,17 +196,6 @@ if [ $? -ne 0 ]; then
 fi
 
 cd $RULEDIR
-
-if [[ $VERIFY_DUPE == "verify" ]]; then
-    # This python script parses the jarfile to check for duplicate classes
-    python external/bazel_springboot_rule/tools/springboot/check_dupe_classes.py $RULEDIR/$OUTPUTJAR $DUPE_CLASS_ALLOWLIST
-    returnCode=$?
-
-    if [[ $returnCode -eq 1 ]]; then
-      echo "ERROR: Failing build because of conflicting jars/classes"
-      exit 1
-    fi
-fi
 
 # Elapsed build time
 BUILD_TIME_END=$SECONDS

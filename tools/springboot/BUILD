@@ -21,7 +21,6 @@ exports_files([
 
 py_binary(
     name = "check_dupe_classes",
-    data = ["dupe_class_jar_allowlist.txt"],
     srcs = [
         "check_dupe_classes.py",
     ],

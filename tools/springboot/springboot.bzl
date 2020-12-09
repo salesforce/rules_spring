@@ -132,6 +132,7 @@ _springboot_rule = rule(
         "genmanifest_rule": attr.label(),
         "gengitinfo_rule": attr.label(),
         "genjar_rule": attr.label(),
+        "dupecheck_rule": attr.label(),
         "apprun_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
     },
@@ -162,6 +163,7 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
     genmanifest_rule = native.package_name() + "_genmanifest"
     gengitinfo_rule = native.package_name() + "_gengitinfo"
     genjar_rule = native.package_name() + "_genjar"
+    dupecheck_rule = native.package_name() + "_dupecheck"
     apprun_rule = native.package_name() + "_apprun"
 
     # SUBRULE 1: AGGREGATE UPSTREAM DEPS
@@ -196,10 +198,6 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
         stamp = 1,
     )
 
-    verify_str = "dont_verify"
-    if fail_on_duplicate_classes:
-        verify_str = "verify"
-
     # SUBRULE 3: INVOKE THE BASH SCRIPT THAT DOES THE PACKAGING
     # The resolved input_file_paths array is made available as the $(SRCS) token in the cmd string.
     # Skylark will convert the logical input_file_paths into real file system paths when surfaced in $(SRCS)
@@ -207,30 +205,39 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
     #    param0: directory containing the springboot rule
     #    param1: location of the jar utility (singlejar)
     #    param2: boot application main classname (the @SpringBootApplication class)
-    #    param3: verify duplicate classes? verify or no_verify
-    #    param4: jdk path for running java tools e.g. jar; $(JAVABASE)
-    #    param5: compiled application jar name
-    #    param6: executable jar output filename to write to
-    #    param7: compiled application jar
-    #    param8: manifest file
-    #    param9: git.properties file
-    #    param10: dupe class checker allowlist (or default empty file)
-    #    param11-N: upstream transitive dependency jar(s)
+    #    param3: jdk path for running java tools e.g. jar; $(JAVABASE)
+    #    param4: compiled application jar name
+    #    param5: executable jar output filename to write to
+    #    param6: compiled application jar
+    #    param7: manifest file
+    #    param8: git.properties file
+    #    param9-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
         srcs = [java_library, ":" + genmanifest_rule, ":" + gengitinfo_rule,
-          duplicate_class_allowlist, ":" + dep_aggregator_rule,],
+                ":" + dep_aggregator_rule,],
         cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) " +
-              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class + " " + verify_str +
+              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
               " $(JAVABASE) " + name + " $@ $(SRCS)",
         tools = [
             "@bazel_springboot_rule//tools/springboot:springboot_pkg.sh",
-            "@bazel_springboot_rule//tools/springboot:check_dupe_classes.py",
             "@bazel_tools//tools/jdk:singlejar",
         ],
         tags = tags,
         outs = [_get_springboot_jar_file_name(name)],
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
+    )
+
+    # SUBRULE 3B: RUN THE DUPE CHECKER
+    verify_str = "dont_verify"
+    if fail_on_duplicate_classes:
+        verify_str = "verify"
+    native.genrule(
+        name = dupecheck_rule,
+        srcs = [genjar_rule, duplicate_class_allowlist],
+        outs = ["dupecheck_results.txt"],
+        cmd = "python $(location @bazel_springboot_rule//tools/springboot:check_dupe_classes.py) $(SRCS) " + verify_str + " $@",
+        tools = ["@bazel_springboot_rule//tools/springboot:check_dupe_classes.py"],
     )
 
     # SUBRULE 4: PROVIDE A WELL KNOWN RUNNABLE RULE TYPE FOR IDE SUPPORT
@@ -255,6 +262,7 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
         genmanifest_rule = ":" + genmanifest_rule,
         gengitinfo_rule = ":" + gengitinfo_rule,
         genjar_rule = ":" + genjar_rule,
+        dupecheck_rule = ":" + dupecheck_rule,
         apprun_rule = ":" + apprun_rule,
         deps = deps,
         tags = tags,

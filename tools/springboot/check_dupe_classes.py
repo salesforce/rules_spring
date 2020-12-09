@@ -106,15 +106,16 @@ def _parse_allowlisted_jars_file(allowlist_file):
     """
     allowlisted_jars = set()
 
-    with open(allowlist_file, "r") as lines:
-        for line in lines:
-            line = line.strip()
-            if len(line) == 0 or line.startswith("#"):
-                continue
-            # cannot use the whole jar path as it is different for generated jars on linux and mac
-            # this logic might need to change if two jars with the same name are part of the allowlist
-            jar = os.path.basename(line)
-            allowlisted_jars.add(jar)
+    if allowlist_file != None:
+        with open(allowlist_file, "r") as lines:
+            for line in lines:
+                line = line.strip()
+                if len(line) == 0 or line.startswith("#"):
+                    continue
+                # cannot use the whole jar path as it is different for generated jars on linux and mac
+                # this logic might need to change if two jars with the same name are part of the allowlist
+                jar = os.path.basename(line)
+                allowlisted_jars.add(jar)
 
     #if len(allowlisted_jars) > 0:
     #    print("Springboot duplicate class checker allowlisted jars:")
@@ -141,4 +142,21 @@ def run(springbootzip_path, allowlisted_jar_path):
     run_with_allowlist(springbootzip_path, allowlisted_jars)
 
 if __name__ == "__main__":
-    run(sys.argv[1], sys.argv[2])
+    # arg1  path to the spring boot jar file
+    # arg2  path to the text file containing the jars to ignore as sources of dupes (optional)
+    # arg3  run check? (optional, "verify" to run the check, anything else skips it)
+    # arg4  outputfile (optional, will contain "SUCCESS" if the check passed)
+
+    run_check = True
+    if len(sys.argv) > 3:
+        run_check = False
+        if sys.argv[3] == "verify":
+            run_check = True
+
+    if run_check:
+        run(sys.argv[1], sys.argv[2])
+
+    if len(sys.argv) > 4:
+        f = open(sys.argv[4], "a")
+        f.write("SUCCESS")
+        f.close()

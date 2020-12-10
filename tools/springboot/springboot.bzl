@@ -149,14 +149,16 @@ _springboot_rule = rule(
 #  deps:            the array of upstream dependencies
 #
 # OPTIONAL:
+#  visibility: standard rule visibility, defaults to "private" - https://docs.bazel.build/versions/master/visibility.html
 #  fail_on_duplicated_classes: if enabled, ensures that the final spring boot jar does not contain any duplicate classes (also checks nested jars)
 #  duplicate_class_allowlist: list of jar files that can have dupe classes without failing the rule
 #  tags:            the array of tags to apply to this rule and subrules
 #  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
 #
-def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_classes = False,
-    duplicate_class_allowlist = "@bazel_springboot_rule//tools/springboot:dupe_class_jar_allowlist.txt",
-    tags = [], exclude = []):
+def springboot(name, java_library, boot_app_class, deps,
+               visibility = None, fail_on_duplicate_classes = False,
+               duplicate_class_allowlist = "@bazel_springboot_rule//tools/springboot:dupe_class_jar_allowlist.txt",
+               tags = [], exclude = []):
 
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
@@ -266,6 +268,7 @@ def springboot(name, java_library, boot_app_class, deps, fail_on_duplicate_class
         apprun_rule = ":" + apprun_rule,
         deps = deps,
         tags = tags,
+        visibility = visibility,
     )
 
 # end springboot macro

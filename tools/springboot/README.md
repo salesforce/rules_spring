@@ -67,7 +67,6 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    deps = springboot_deps,
 )
 ```
 
@@ -76,7 +75,6 @@ The required *springboot* rule attributes are as follows:
 -  name:    name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
--  deps:  list of jar file dependencies to add (these get packages as *BOOT-INF/lib* inside the executable jar)
 
 ### Convenience Import Bundles
 
@@ -210,6 +208,14 @@ springboot(
 The dupe class checking feature requires Python3.
 If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
 See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
+
+### Other Attributes
+
+The Spring Boot rule supports other attributes.
+
+- *visibility* standard
+- *tags* standard
+- *deps* will add additional jar files into the Spring Boot jar in addition to what is transitively used by the *java_library*
 
 ### Debugging the Rule Execution
 

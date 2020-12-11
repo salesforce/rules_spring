@@ -8,3 +8,7 @@ setGitOSSUser.sh
 
 # python
 __pycache__
+
+# //tools/python_interpreter
+captive_python3
+bin

@@ -32,7 +32,7 @@ class TestVerifyDupeClasses(unittest.TestCase):
 
         springbootjar = self._create_springboot_jar("sb2.jar", jar_dir)
 
-        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
+        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH, None)
 
     def test_two_jars_with_duplicate_class__same_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
@@ -50,7 +50,7 @@ class TestVerifyDupeClasses(unittest.TestCase):
 
         springbootjar = self._create_springboot_jar("sb3.jar", jar_dir)
 
-        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
+        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH, None)
 
     def test_two_jars_with_duplicate_class__different_content(self):
         classes_dir1 = self._create_fake_class("MyClass.class", "classes1",
@@ -66,7 +66,7 @@ class TestVerifyDupeClasses(unittest.TestCase):
         springbootjar = self._create_springboot_jar("sb4.jar", jar_dir)
 
         with self.assertRaises(Exception) as ctx:
-            check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
+            check_dupe_classes.run(springbootjar, ALLOWLIST_PATH, None)
 
         self.assertIn("Found duplicate classes", str(ctx.exception))
 
@@ -83,7 +83,7 @@ class TestVerifyDupeClasses(unittest.TestCase):
 
         springbootjar = self._create_springboot_jar("sb5.jar", jar_dir)
 
-        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH)
+        check_dupe_classes.run(springbootjar, ALLOWLIST_PATH, None)
 
 
     # HELPERS

@@ -6,7 +6,7 @@ import zipfile
 import tempfile
 
 
-def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
+def _check_for_duplicate_classes(springbootzip_filepath, allowlisted_jars, output_filepath):
     """
     Prints error message and returns True if duplicate classes were found,
     false otherwise.
@@ -22,6 +22,7 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
     # list of paths of classes that are duped and have different hashes
     # use each string entry as a key into the class_catalog dict
     dupe_classes = []
+    dupe_message_lines = ""
 
     # dict that maps the path to a class to all jars (as list) it was found in,
     #   and the hash for each appearance
@@ -36,7 +37,7 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
     # Starting the search....
     # iterate through the springboot jar file, and find inner jars,
     # open each inner jar and catalog each .class file found
-    springbootzip = zipfile.ZipFile(springbootzip_path)
+    springbootzip = zipfile.ZipFile(springbootzip_filepath)
     sprintbootzipentries = springbootzip.infolist()
     for springbootzipentry in sprintbootzipentries:
         if springbootzipentry.filename.endswith(".jar"):
@@ -78,9 +79,9 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
                                 found_illegal_duplicates = True
                                 this_is_a_dupe = True
                             if this_is_a_dupe:
-                                print("Spring Boot MISMATCH for class %s" % (innerjar_zipentry_path))
-                                print("  jar %s hash %s" % (jar_base, digest))
-                                print("  jar %s hash %s" % (other_jar_base, other_digest))
+                                dupe_message_lines += "  class %s\n" % (innerjar_zipentry_path)
+                                dupe_message_lines += "    jar %s hash %s\n" % (jar_base, digest)
+                                dupe_message_lines += "    jar %s hash %s\n" % (other_jar_base, other_digest)
 
                     class_catalog_entry = (jar_path, digest)
                     class_catalog[innerjar_zipentry_path].append(class_catalog_entry)
@@ -89,11 +90,13 @@ def _check_for_duplicate_classes(springbootzip_path, allowlisted_jars):
             innerjar_tmp_fileondisk.close()
 
     if found_illegal_duplicates:
-      print("Spring Boot packaging has failed for %s because multiple copies of the same class, but with different hashes, were found." % springbootzip_path)
-      print("Look for MISMATCH loglines above for more details. You should eliminate the conflicting dependencies, or if that is not possible")
-      print("you can add these jars to the allowlist.txt file:")
+      result = "Spring Boot packaging has failed for %s because multiple copies of the same class, but with different hashes, were found:\n" % springbootzip_filepath
+      result += dupe_message_lines
+      result += "You should eliminate the conflicting dependencies, or if that is not possible you can add these jars to the allowlist.txt file:\n"
       for allowlist_candidate in dupe_containing_jars:
-          print("  " + allowlist_candidate)
+          result += "   %s\n" % allowlist_candidate
+      print(result)
+      _write_result_to_output_file(output_filepath, result)
 
     return found_illegal_duplicates
 
@@ -124,39 +127,41 @@ def _parse_allowlisted_jars_file(allowlist_file):
 
     return allowlisted_jars
 
-def run_with_allowlist(springbootzip_path, allowlisted_jars):
-    found_illegal_duplicates = _check_for_duplicate_classes(springbootzip_path, allowlisted_jars)
+def _write_result_to_output_file(output_filepath, result):
+    if output_filepath != None:
+      f = open(output_filepath, "a")
+      f.write(result)
+      f.close()
+
+def run_with_allowlist(springbootzip_filepath, allowlisted_jars, output_filepath):
+    found_illegal_duplicates = _check_for_duplicate_classes(springbootzip_filepath, allowlisted_jars,
+        output_filepath)
     if found_illegal_duplicates:
         raise Exception("Found duplicate classes in the packaged springboot jar")
+    else:
+        _write_result_to_output_file(output_filepath, "SUCCESS")
+    return found_illegal_duplicates
 
-def run(springbootzip_path, allowlisted_jar_path):
+def run(springbootzip_filepath, allowlist_file, output_filepath):
     """
     Iterates through a Spring Boot jar and looks for classes in inner jars. If the same
     class (package name + class name) appears more than once, verify that the .class files
     have the same hash code. If there is a conflict, this invocation will fail with an error.
     If both jars are listed in the allowlist, the conflict will be ignored.
     """
-    #print("SpringBoot jar file path: "+os.path.realpath(springbootzip_path))
-    #print("SpringBoot allowlist (for dupes) file path: "+os.path.realpath(allowlisted_jar_path))
-    allowlisted_jars = _parse_allowlisted_jars_file(allowlisted_jar_path)
-    run_with_allowlist(springbootzip_path, allowlisted_jars)
+    allowlisted_jars = _parse_allowlisted_jars_file(allowlist_file)
+    run_with_allowlist(springbootzip_filepath, allowlisted_jars, output_filepath)
 
 if __name__ == "__main__":
-    # arg1  path to the spring boot jar file
+    # arg1  path to the spring boot jar file (required)
     # arg2  path to the text file containing the jars to ignore as sources of dupes (optional)
-    # arg3  run check? (optional, "verify" to run the check, anything else skips it)
-    # arg4  outputfile (optional, will contain "SUCCESS" if the check passed)
+    # arg3  outputfile (optional, will contain "SUCCESS" if the check passed, or the list of errors)
+    allowlist_file = None
+    if len(sys.argv) > 2:
+      allowlist_file = sys.argv[2]
 
-    run_check = True
+    output_file = None
     if len(sys.argv) > 3:
-        run_check = False
-        if sys.argv[3] == "verify":
-            run_check = True
+      output_file = sys.argv[3]
 
-    if run_check:
-        run(sys.argv[1], sys.argv[2])
-
-    if len(sys.argv) > 4:
-        f = open(sys.argv[4], "a")
-        f.write("SUCCESS")
-        f.close()
+    run(sys.argv[1], allowlist_file, output_file)

@@ -14,6 +14,8 @@ lib_deps = [
   "//samples/helloworld/libs/lib2",
 ]
 
+# service specific list of jars that we dont want to trigger errors for the
+# dupe class checker (these jars have known dupe classes)
 filegroup(
     name = "dupe_class_allowlist",
     srcs = glob([
@@ -45,7 +47,7 @@ springboot(
 
     # TO TEST THE DUPE CLASSES FEATURE:
     #   There is an intentionally duplicated class in lib1 and lib2. Do this:
-    #   1. change this to fail_on_duplicate_classes = True
+    #   1. set fail_on_duplicate_classes = True
     #   2. comment out lib1 or lib2 in helloworld_dupeclass_allowlist.txt
     #   Build should fail due to the duplicate class.
     fail_on_duplicate_classes = True,

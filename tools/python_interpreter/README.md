@@ -1,7 +1,19 @@
 ## Captive Python
 
-This package sets up the captive python environment for Bazel builds for this workspace.
-To ensure hermetic results, we don't rely on the system python for builds.
+There are two ways to invoke Python from Bazel:
+
+- **System Python** - use the python installed on the host
+- **Captive Python** - use a dedicated python installed for the Bazel workspace
+
+Setting up a build machine with system Python is the easiest.
+Just ```brew install python3```, ```apt-get install python3.8```, install Anaconda, etc.
+But the problem with using system Python is lack of hermeticity.
+Developer A may have installed Python 3.6, while Developer B may have Python 3.8, and your CI farm may be on Python 3.9.
+Also, system Python can drift over time after install, as a developer upgrades it to satisfy other usages of it on their host.
+
+For hermeticity, it is better to have a captive Python.
+But there is more work required to achieve this.
+This package shows how to set up a captive python environment for Bazel builds for this workspace.
 
 ### Setup
 
@@ -10,8 +22,14 @@ Within Salesforce, we have a setup script that developers/CI systems run after c
 That script installs Python3 into a *captive_python3* subdirectory of this package.
 Then, *BUILD* and *WORKSPACE* rules install the captive python3 binary as the python toolchain.
 
+This step is left as an exercise to the reader.
+Some options:
 
-### Python Toolchain Registration
+- Do you already have a setup script? Can you add captive python3 install to it?
+- Are you using Ansible? Can you add captive python3 to your playbook?
+- Are you familiar with the //tools/bazel wrapper script (it is not really documented)? You could insert an install step there. 
+
+### Python Toolchain Registration in BUILD and WORKSPACE
 
 The [BUILD](BUILD) file defines the python toolchain.
 You will need to uncomment the rules in the BUILD file once you have performed the setup step.
@@ -21,7 +39,7 @@ The key step is this invocation in the [WORKSPACE](../../WORKSPACE) file.
 
 ```
 register_toolchains(
-    "//tools/python_interpreter:sfdc_python_toolchain",
+    "//tools/python_interpreter:captive_python_toolchain",
 )
 ```
 

@@ -24,6 +24,7 @@ py_binary(
     srcs = [
         "check_dupe_classes.py",
     ],
+    visibility = ["//visibility:public"],
 )
 
 py_test(

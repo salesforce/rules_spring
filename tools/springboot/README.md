@@ -207,6 +207,10 @@ springboot(
 )
 ```
 
+The dupe class checking feature requires Python3.
+If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
+See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
+
 ### Debugging the Rule Execution
 
 If the environment variable `DEBUG_SPRINGBOOT_RULE` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`. If `$TMPDIR` is not defined, it defaults to `/tmp`.

@@ -23,3 +23,14 @@ external_maven_jars()
 
 load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
+
+
+#
+# CAPTIVE PYTHON
+#
+# Install a specific version of python to be used by the Bazel build with the invocation below.
+# Before this will work, you need to follow the instructions in //tools/python_interpreter.
+
+#register_toolchains(
+#    "//tools/python_interpreter:captive_python_toolchain",
+#)

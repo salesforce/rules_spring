@@ -19,13 +19,12 @@ This package shows how to set up a captive python environment for Bazel builds f
 
 Within Salesforce, we have a setup script that developers/CI systems run after cloning the repository,
   but before running a Bazel build.
-That script installs Python3 into a *captive_python3* subdirectory of this package.
-Then, *BUILD* and *WORKSPACE* rules install the captive python3 binary as the python toolchain.
+That script does a set of work, including installing Python3 into a *captive_python3* subdirectory in our *//tools/python_interpreter* package.
 
 This step is left as an exercise to the reader.
 Some options:
 
-- Do you already have a setup script? Can you add captive python3 install to it?
+- Do you have a setup script? Can you add captive python3 install to it?
 - Are you using Ansible? Can you add captive python3 to your playbook?
 - Are you familiar with the //tools/bazel wrapper script (it is not really documented)? You could insert an install step there. 
 

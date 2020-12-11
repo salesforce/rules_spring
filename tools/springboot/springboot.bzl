@@ -77,8 +77,11 @@ def _dupeclasses_rule_impl(ctx):
   input_args.add(ctx.attr.script.files.to_list()[0].path)
   inputs.append(ctx.attr.springbootjar.files.to_list()[0])
   input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
-  inputs.append(ctx.attr.allowlist.files.to_list()[0])
-  input_args.add(ctx.attr.allowlist.files.to_list()[0].path)
+  if ctx.attr.allowlist != None:
+    inputs.append(ctx.attr.allowlist.files.to_list()[0])
+    input_args.add(ctx.attr.allowlist.files.to_list()[0].path)
+  else:
+    input_args.add("no_allowlist")
 
   # add the output file to the args, so python script knows where to write result
   input_args.add(output.path)
@@ -227,7 +230,7 @@ _springboot_rule = rule(
 #
 def springboot(name, java_library, boot_app_class, deps,
                visibility = None, fail_on_duplicate_classes = False,
-               duplicate_class_allowlist = "@bazel_springboot_rule//tools/springboot:dupe_class_jar_allowlist.txt",
+               duplicate_class_allowlist = None,
                tags = [], exclude = [], toolchains = []):
 
     # Create the subrule names

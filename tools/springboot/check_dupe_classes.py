@@ -159,6 +159,8 @@ if __name__ == "__main__":
     allowlist_file = None
     if len(sys.argv) > 2:
       allowlist_file = sys.argv[2]
+      if allowlist_file == "no_allowlist":
+          allowlist_file = None
 
     output_file = None
     if len(sys.argv) > 3:

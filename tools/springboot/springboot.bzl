@@ -228,7 +228,7 @@ _springboot_rule = rule(
 #  tags:            the array of tags to apply to this rule and subrules
 #  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
 #
-def springboot(name, java_library, boot_app_class, deps,
+def springboot(name, java_library, boot_app_class, deps=None,
                visibility = None, fail_on_duplicate_classes = False,
                duplicate_class_allowlist = None,
                tags = [], exclude = [], toolchains = []):
@@ -241,11 +241,17 @@ def springboot(name, java_library, boot_app_class, deps,
     dupecheck_rule = native.package_name() + "_dupecheck"
     apprun_rule = native.package_name() + "_apprun"
 
+    # assemble deps; generally all deps will come transtiviely through the java_library
+    # but a user may choose to add in more deps directly into the springboot jar (rare)
+    java_deps = [java_library]
+    if deps != None:
+      java_deps = [java_library] + deps
+
     # SUBRULE 1: AGGREGATE UPSTREAM DEPS
     #  Aggregate transitive closure of upstream Java deps
     _depaggregator_rule(
         name = dep_aggregator_rule,
-        deps = deps,
+        deps = java_deps,
         exclude = exclude,
     )
 
@@ -323,7 +329,7 @@ def springboot(name, java_library, boot_app_class, deps,
     native.java_binary(
         name = apprun_rule,
         main_class = boot_app_class,
-        runtime_deps = [java_library] + deps,
+        runtime_deps = java_deps,
         tags = tags,
     )
 

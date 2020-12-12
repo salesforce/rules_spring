@@ -8,6 +8,8 @@ The Salesforce *springboot* rule is contained in a directory that is designed to
 It can be found, along with documentation, in this location:
 - [bazel-springboot-rule](tools/springboot): a Bazel extension to build and package Spring Boot applications
 
+The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
+
 ### Support
 
 This rule was developed by Salesforce.

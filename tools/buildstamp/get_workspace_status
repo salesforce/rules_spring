@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2017-2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+#
+
 # This script is executed with every 'bazel build' command if .bazelrc (or included file)
 # has these settings:
 #   build --stamp
@@ -10,12 +17,11 @@
 # If anything in stable-status.txt changes, it will trigger a rebuild of any target that
 #   has stamp=1 as an attribute (such as the Spring Boot rule).
 # Changes to volatile-status.txt do not trigger rebuilds of those targets.
-# See W-5070211 and the Bazel docs for more details on why some properties go in stable, and some in volatile.
 #
 # More information:
 # Bazel stamping: https://docs.bazel.build/versions/master/user-manual.html#flag--workspace_status_command
-# Spring Boot git.properties:  https://git.soma.salesforce.com/services/sfdc-bazel/blob/master/tools/springboot/write_gitinfo_properties.sh
-# Troublehooting:  https://git.soma.salesforce.com/services/sfdc-bazel/tree/master/projects/libs/scone/scone-starter-webadmin#troubleshooting
+# Spring Boot git.properties:  //tools/springboot/write_gitinfo_properties.sh
+# Spring Boot info actuator endpoint: ttps://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints
 
 # First, make sure the current working directory is the Bazel workspace root.
 # (assumes you do not have nested workspaces!)
@@ -24,16 +30,6 @@ if [[ ! -f WORKSPACE ]]; then
     echo "No WORKSPACE found"
     exit 1
 fi
-
-# ********************************
-# TEAM
-# ********************************
-# This piece of data is added to stable-status.txt, which ultimately gets consumed into
-# every cache key. This, in effect, allows you to configure your remote cache to be
-# team specific. If you change team_cache.txt, all cache keys will be different.
-# Security has stated that this is what they want. See SA-001149.
-cache_team=$(tail -n 1 team_cache.txt)
-echo "STABLE_cache_team $cache_team"
 
 
 # ********************************
@@ -62,7 +58,7 @@ echo "Full Bazel build stamping enabled. Adding Git properties to stamp. See //t
 
 # This data is then later consumed by the //tools/springboot rule (perhaps other rules as well) to write
 #   a git.properties file into the Spring Boot jar, which is then surfaced in the Spring Boot
-#   /manage/info endpoint.
+#   actuator info endpoint.
 
 # BUILD ENVIRONMENT PROPERTIES
 # git.build.user.email

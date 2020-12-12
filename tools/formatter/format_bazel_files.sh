@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2019-2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+#
+
 echo "This script will format all repo BUILD and .bzl files according to style standards."
 echo ""
 echo "NOTE: It requires that you have Go installed.  https://golang.org/doc/install"

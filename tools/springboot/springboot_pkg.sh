@@ -125,7 +125,7 @@ cd $WORKING_DIR/BOOT-INF/classes
 $JAR_COMMAND -xf $RULEDIR/$APPJAR
 
 # Copy all transitive upstream dependencies into BOOT-INF/lib
-#   The dependencies are passed as arguments to the script, starting at index 5
+#   The dependencies are passed as arguments to the script, starting at index $FIRST_JAR_ARG
 cd $WORKING_DIR
 
 i=$FIRST_JAR_ARG
@@ -137,13 +137,35 @@ while [ "$i" -le "$#" ]; do
   if [[ $libname == *jar ]]; then
     # we only want to process .jar files as libs
     if [[ $libname == *spring-boot-loader* ]]; then
-      # if libname is prefixed with the string 'spring-boot-loader' then...
+      # if libname contains the string 'spring-boot-loader' then...
       # the Spring Boot Loader classes are special, they must be extracted at the root level /,
       #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class
       # we only extract org/* since we don't want the toplevel META-INF files
       $JAR_COMMAND xf $RULEDIR/$lib org
     else
-      libdestdir="BOOT-INF/lib/${libdir}"
+      # copy the jar into BOOT-INF/lib, being mindful to prevent name collisions by using subdirectories (see Issue #61)
+      # the logic to truncate paths below doesnt need to be perfect, it just hopes to simplify the jar paths so they look better for most cases
+      # for maven_install deps, the algorithm to correctly identify the end of the server path and the groupId is not defined
+      if [[ ${libdir} == *external*maven2* ]]; then
+        # this is a maven_install jar probably from maven central
+        # libdir:      bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/springframework/boot/spring-boot-starter-logging/2.2.1.RELEASE/spring-boot-starter-logging-2.2.1.RELEASE.jar
+        # libdestdir:  BOOT-INF/lib/org/springframework/boot/spring-boot-starter-logging/2.2.1.RELEASE/spring-boot-starter-logging-2.2.1.RELEASE.jar
+        libdestdir="BOOT-INF/lib/${libdir#*maven2}"
+      elif [[ ${libdir} == *external*public* ]]; then
+        # this is a maven_install jar probably from Sonatype Nexus
+        # libdir:      bazel-out/darwin-fastbuild/bin/external/maven/v1/https/ournexus.acme.com/nexus/content/groups/public/org/springframework/boot/spring-boot-starter-logging/2.2.1.RELEASE/spring-boot-starter-logging-2.2.1.RELEASE.jar
+        # libdestdir:  BOOT-INF/lib/org/springframework/boot/spring-boot-starter-logging/2.2.1.RELEASE/spring-boot-starter-logging-2.2.1.RELEASE.jar
+        libdestdir="BOOT-INF/lib/${libdir#*public}"
+      elif [[ ${libdir} == bazel-out* ]]; then
+        # this is an internally built jar from the workspace, use the Bazel package name as the path to prevent name collisions
+        # libdir:      bazel-out/darwin-fastbuild/bin/projects/libs/acme/blue_lib/liblue_lib.jar
+        # libdestdir:  BOOT-INF/lib/projects/libs/acme/blue_lib/liblue_lib.jar
+        libdestdir="BOOT-INF/lib/${libdir#*bin}"
+      else
+        # something else, just copy into BOOT-INF/lib using the full path as it exists
+        # this works fine, but you will see some Bazel internal output dirs as part of the path in the jar
+        libdestdir="BOOT-INF/lib/${libdir}"
+      fi
       mkdir -p ${libdestdir}
       cp -f $RULEDIR/$lib ${libdestdir}
     fi

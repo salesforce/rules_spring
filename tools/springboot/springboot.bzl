@@ -34,7 +34,6 @@ def _depaggregator_rule_impl(ctx):
         for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
             excludes[compile_jar.path] = True
 
-
     for dep in merged.transitive_runtime_jars.to_list():
         if excludes.get(dep.path, None) == None:
             # print("include ", dep.path)
@@ -61,45 +60,44 @@ _depaggregator_rule = rule(
 # Check Dupe Classes Rule
 
 def _dupeclasses_rule_impl(ctx):
-  # setup the output file (contains SUCCESS, NOT_RUN, or the list of errors)
-  output = ctx.actions.declare_file(ctx.attr.out)
-  outputs = [output]
+    # setup the output file (contains SUCCESS, NOT_RUN, or the list of errors)
+    output = ctx.actions.declare_file(ctx.attr.out)
+    outputs = [output]
 
-  if not ctx.attr.fail_on_duplicate_classes:
-    ctx.actions.write(output, "NOT_RUN", is_executable = False)
+    if not ctx.attr.fail_on_duplicate_classes:
+        ctx.actions.write(output, "NOT_RUN", is_executable = False)
+        return [DefaultInfo(files = depset(outputs))]
+
+    inputs = []
+    input_args = ctx.actions.args()
+
+    # inputs (dupe checker python script, spring boot jar file, allowlist)
+    inputs.append(ctx.attr.script.files.to_list()[0])
+    input_args.add(ctx.attr.script.files.to_list()[0].path)
+    inputs.append(ctx.attr.springbootjar.files.to_list()[0])
+    input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
+    if ctx.attr.allowlist != None:
+        inputs.append(ctx.attr.allowlist.files.to_list()[0])
+        input_args.add(ctx.attr.allowlist.files.to_list()[0].path)
+    else:
+        input_args.add("no_allowlist")
+
+    # add the output file to the args, so python script knows where to write result
+    input_args.add(output.path)
+
+    # compute the location of python
+    python_interpreter = _compute_python_executable(ctx)
+
+    # run the dupe checker
+    ctx.actions.run(
+        executable = python_interpreter,
+        outputs = outputs,
+        inputs = inputs,
+        arguments = [input_args],
+        progress_message = "Checking for duplicate classes in the Spring Boot jar...",
+        mnemonic = "DupeCheck",
+    )
     return [DefaultInfo(files = depset(outputs))]
-
-  inputs = []
-  input_args = ctx.actions.args()
-
-  # inputs (dupe checker python script, spring boot jar file, allowlist)
-  inputs.append(ctx.attr.script.files.to_list()[0])
-  input_args.add(ctx.attr.script.files.to_list()[0].path)
-  inputs.append(ctx.attr.springbootjar.files.to_list()[0])
-  input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
-  if ctx.attr.allowlist != None:
-    inputs.append(ctx.attr.allowlist.files.to_list()[0])
-    input_args.add(ctx.attr.allowlist.files.to_list()[0].path)
-  else:
-    input_args.add("no_allowlist")
-
-  # add the output file to the args, so python script knows where to write result
-  input_args.add(output.path)
-
-  # compute the location of python
-  python_interpreter = _compute_python_executable(ctx)
-
-  # run the dupe checker
-  ctx.actions.run(
-    executable = python_interpreter,
-    outputs = outputs,
-    inputs = inputs,
-    arguments = [input_args],
-    progress_message = "Checking for duplicate classes in the Spring Boot jar...",
-    mnemonic = "DupeCheck",
-  )
-  return [DefaultInfo(files = depset(outputs))]
-
 
 _dupeclasses_rule = rule(
     implementation = _dupeclasses_rule_impl,
@@ -115,20 +113,20 @@ _dupeclasses_rule = rule(
 )
 
 def _compute_python_executable(ctx):
-  python_interpreter = None
+    python_interpreter = None
 
-  # hard requirement on python3 being available
-  python_runtime = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py3_runtime
-  if python_runtime != None:
-    if python_runtime.interpreter != None:
-      # registered python toolchain, or the Bazel python wrapper script (for system python)
-      python_interpreter = python_runtime.interpreter
-    elif python_runtime.interpreter_path != None:
-      # legacy python only?
-      python_interpreter = python_runtime.interpreter_path
+    # hard requirement on python3 being available
+    python_runtime = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py3_runtime
+    if python_runtime != None:
+        if python_runtime.interpreter != None:
+            # registered python toolchain, or the Bazel python wrapper script (for system python)
+            python_interpreter = python_runtime.interpreter
+        elif python_runtime.interpreter_path != None:
+            # legacy python only?
+            python_interpreter = python_runtime.interpreter_path
 
-  # print(python_interpreter)
-  return python_interpreter
+    # print(python_interpreter)
+    return python_interpreter
 
 # ***************************************************************
 # Entry point script for "bazel run"
@@ -189,9 +187,9 @@ def _springboot_rule_impl(ctx):
 
     # setup the script that runs "java -jar <springboot.jar>" when calling
     # "bazel run" with the springboot target
-    jvm_flags = ''
+    jvm_flags = ""
     if ctx.attr.jvm_flags != None:
-      jvm_flags = ctx.attr.jvm_flags
+        jvm_flags = ctx.attr.jvm_flags
     script = _run_script_template \
         .replace("%path%", ctx.label.package) \
         .replace("%jar%", _get_springboot_jar_file_name(str(ctx.label.name))) \
@@ -243,11 +241,18 @@ _springboot_rule = rule(
 #  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
 #  jvm_flags:       flags to pass to the java command when the spring boot application is invoked with 'bazel run'
 #
-def springboot(name, java_library, boot_app_class, deps=None,
-               visibility = None, fail_on_duplicate_classes = False,
-               duplicate_class_allowlist = None,
-               tags = [], exclude = [], toolchains = [], jvm_flags = None):
-
+def springboot(
+        name,
+        java_library,
+        boot_app_class,
+        deps = None,
+        visibility = None,
+        fail_on_duplicate_classes = False,
+        duplicate_class_allowlist = None,
+        tags = [],
+        exclude = [],
+        toolchains = [],
+        jvm_flags = None):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -260,7 +265,7 @@ def springboot(name, java_library, boot_app_class, deps=None,
     # but a user may choose to add in more deps directly into the springboot jar (rare)
     java_deps = [java_library]
     if deps != None:
-      java_deps = [java_library] + deps
+        java_deps = [java_library] + deps
 
     # SUBRULE 1: AGGREGATE UPSTREAM DEPS
     #  Aggregate transitive closure of upstream Java deps
@@ -268,6 +273,7 @@ def springboot(name, java_library, boot_app_class, deps=None,
         name = dep_aggregator_rule,
         deps = java_deps,
         exclude = exclude,
+        tags = tags,
     )
 
     # SUBRULE 2: GENERATE THE MANIFEST
@@ -310,8 +316,12 @@ def springboot(name, java_library, boot_app_class, deps=None,
     #    param9-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
-        srcs = [java_library, ":" + genmanifest_rule, ":" + gengitinfo_rule,
-                ":" + dep_aggregator_rule,],
+        srcs = [
+            java_library,
+            ":" + genmanifest_rule,
+            ":" + gengitinfo_rule,
+            ":" + dep_aggregator_rule,
+        ],
         cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) " +
               "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
               " $(JAVABASE) " + name + " $@ $(SRCS)",
@@ -330,15 +340,16 @@ def springboot(name, java_library, boot_app_class, deps=None,
     # Python3 available, they can just never enable fail_on_duplicate_classes and be ok
     dupecheck_rule_label = None
     if fail_on_duplicate_classes:
-      _dupeclasses_rule(
-          name = dupecheck_rule,
-          script = "@bazel_springboot_rule//tools/springboot:check_dupe_classes",
-          springbootjar = genjar_rule,
-          allowlist = duplicate_class_allowlist,
-          fail_on_duplicate_classes = fail_on_duplicate_classes,
-          out = "dupecheck_results.txt",
-      )
-      dupecheck_rule_label = ":"+dupecheck_rule
+        _dupeclasses_rule(
+            name = dupecheck_rule,
+            script = "@bazel_springboot_rule//tools/springboot:check_dupe_classes",
+            springbootjar = genjar_rule,
+            allowlist = duplicate_class_allowlist,
+            fail_on_duplicate_classes = fail_on_duplicate_classes,
+            out = "dupecheck_results.txt",
+            tags = tags,
+        )
+        dupecheck_rule_label = ":" + dupecheck_rule
 
     # SUBRULE 5: PROVIDE A WELL KNOWN RUNNABLE RULE TYPE FOR IDE SUPPORT
     # The presence of this rule  makes a Spring Boot entry point class runnable

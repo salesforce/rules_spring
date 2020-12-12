@@ -1,5 +1,3 @@
-load("@bazel_tools//tools/python:toolchain.bzl", "py_runtime_pair")
-
 #
 # What Python is being used?
 #
@@ -12,7 +10,6 @@ py_binary(
         "check_python_path.py",
     ],
 )
-
 
 #
 # CAPTIVE PYTHON

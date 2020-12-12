@@ -10,8 +10,8 @@ load("//tools/springboot:springboot.bzl", "springboot")
 
 # dependencies from other packages in the workspace
 lib_deps = [
-  "//samples/helloworld/libs/lib1",
-  "//samples/helloworld/libs/lib2",
+    "//samples/helloworld/libs/lib1",
+    "//samples/helloworld/libs/lib2",
 ]
 
 # service specific list of jars that we dont want to trigger errors for the
@@ -42,7 +42,7 @@ java_library(
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
-    java_library = ":helloworld_lib",
+    duplicate_class_allowlist = ":dupe_class_allowlist",
 
     # TO TEST THE DUPE CLASSES FEATURE:
     #   There is an intentionally duplicated class in lib1 and lib2. Do this:
@@ -50,7 +50,7 @@ springboot(
     #   2. comment out lib1 or lib2 in helloworld_dupeclass_allowlist.txt
     #   Build should fail due to the duplicate class.
     fail_on_duplicate_classes = True,
-    duplicate_class_allowlist = ":dupe_class_allowlist",
+    java_library = ":helloworld_lib",
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     jvm_flags = "-Dcustomprop=gold",

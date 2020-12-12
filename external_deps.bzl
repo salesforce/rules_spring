@@ -14,7 +14,6 @@
 # After updating the list below, you need to regenerate the pinned target list:
 #  bazel run @unpinned_maven//:pin
 
-
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven")
 

@@ -31,8 +31,8 @@ py_test(
     name = "check_dupe_classes_test",
     size = "small",
     srcs = [
-        "tests/check_dupe_classes_test.py",
         "check_dupe_classes.py",
+        "tests/check_dupe_classes_test.py",
     ],
     imports = ["."],
 )

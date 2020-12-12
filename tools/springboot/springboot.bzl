@@ -324,15 +324,21 @@ def springboot(name, java_library, boot_app_class, deps=None,
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
 
-    # SUBRULE 4: RUN THE DUPE CHECKER
-    _dupeclasses_rule(
-        name = dupecheck_rule,
-        script = "@bazel_springboot_rule//tools/springboot:check_dupe_classes",
-        springbootjar = genjar_rule,
-        allowlist = duplicate_class_allowlist,
-        fail_on_duplicate_classes = fail_on_duplicate_classes,
-        out = "dupecheck_results.txt",
-    )
+    # SUBRULE 4: RUN THE DUPE CHECKER (if enabled)
+    # Skip the dupecheck_rule instantiation entirely if disabled because
+    # running this rule requires Python3 installed. If a workspace does not have
+    # Python3 available, they can just never enable fail_on_duplicate_classes and be ok
+    dupecheck_rule_label = None
+    if fail_on_duplicate_classes:
+      _dupeclasses_rule(
+          name = dupecheck_rule,
+          script = "@bazel_springboot_rule//tools/springboot:check_dupe_classes",
+          springbootjar = genjar_rule,
+          allowlist = duplicate_class_allowlist,
+          fail_on_duplicate_classes = fail_on_duplicate_classes,
+          out = "dupecheck_results.txt",
+      )
+      dupecheck_rule_label = ":"+dupecheck_rule
 
     # SUBRULE 5: PROVIDE A WELL KNOWN RUNNABLE RULE TYPE FOR IDE SUPPORT
     # The presence of this rule  makes a Spring Boot entry point class runnable
@@ -356,7 +362,7 @@ def springboot(name, java_library, boot_app_class, deps=None,
         genmanifest_rule = ":" + genmanifest_rule,
         gengitinfo_rule = ":" + gengitinfo_rule,
         genjar_rule = ":" + genjar_rule,
-        dupecheck_rule = ":" + dupecheck_rule,
+        dupecheck_rule = dupecheck_rule_label,
         apprun_rule = ":" + apprun_rule,
         deps = deps,
         tags = tags,

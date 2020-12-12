@@ -51,4 +51,7 @@ springboot(
     #   Build should fail due to the duplicate class.
     fail_on_duplicate_classes = True,
     duplicate_class_allowlist = ":dupe_class_allowlist",
+
+    # Specify optional JVM args to use when the application is launched with 'bazel run'
+    jvm_flags = "-Dcustomprop=gold",
 )

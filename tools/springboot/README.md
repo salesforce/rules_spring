@@ -76,37 +76,23 @@ The required *springboot* rule attributes are as follows:
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
 
-### Convenience Import Bundles
-
-The [//tools/springboot/import_bundles](import_bundles) package contains some useful bundles of imports.
-There are bundles for the Spring Boot framework, as well as bundles for the various starters.
-
-Since Spring Boot apps all need similar groups of dependencies, prefer to create/curate those import bundles if a
-  dependency is coming as a transitive for a Spring Boot class.
-
-### Manage External Dependencies in your WORKSPACE
-
-This repository has an example [WORKSPACE](../../external_deps.bzl) file that lists necessary and some optional Spring Boot dependencies.
-These will come from a Nexus/Artifactory repository, or Maven Central.
-Because the version of each dependency needs to be explicitly defined, it is left for you to review and add to your *WORKSPACE* file.
-
 ## Build and Run
 
 After installing the rule into your workspace at *tools/springboot*, you are ready to build.
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
-You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds and runs.
-
-You can easily run it with *bazel run*:
-
 ```
+# Build
+bazel build //samples/helloworld
+# Run
 bazel run //samples/helloworld
+# Run with arguments
+bazel run //samples/helloworld red green blue
 ```
 
 In production environments, you will likely not have Bazel installed nor the Bazel workspace files.
 This is the primary use case for the executable jar file.
-The build will run and create the executable jar file in the *bazel-bin* directory.
+The build will create the executable jar file in the *bazel-bin* directory.
 Run the jar file locally using *java* like so:
-
 ```
 java -jar bazel-bin/samples/helloworld/helloworld.jar
 ```
@@ -115,6 +101,23 @@ The executable jar file is ready to be copied to your production environment.
 
 
 ## In Depth
+
+### Manage External Dependencies in your WORKSPACE
+
+This repository has an example [WORKSPACE](../../external_deps.bzl) file that lists necessary and some optional Spring Boot dependencies.
+These will come from a Nexus/Artifactory repository, or Maven Central.
+Because the version of each dependency needs to be explicitly defined, it is left for you to review and add to your *WORKSPACE* file.
+You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds and runs.
+
+### Convenience Import Bundles
+
+The [//tools/springboot/import_bundles](import_bundles) package contains some example bundles of imports.
+There are bundles for the Spring Boot framework, as well as bundles for the various starters.
+The ones provided in this repository are just examples.
+
+Since Spring Boot apps all need similar groups of dependencies, prefer to create/curate those import bundles if a
+  dependency is coming as a transitive for a Spring Boot class.
+
 
 ### Build Stamping of the Spring Boot jar
 
@@ -139,7 +142,6 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    deps = springboot_deps,
     exclude = [
       "@maven//:com_google_protobuf_protobuf_java",
       "//protos/third-party/google/protobuf:any_java_proto",
@@ -162,7 +164,6 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    deps = springboot_deps,
     fail_on_duplicate_classes = True,
 )
 ```
@@ -199,7 +200,6 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    deps = springboot_deps,
     fail_on_duplicate_classes = True,
     duplicate_class_allowlist = ":dupe_class_allowlist",
 )
@@ -209,9 +209,45 @@ The dupe class checking feature requires Python3.
 If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
 See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
 
-### Other Attributes
+### Customizing Bazel Run
 
-The Spring Boot rule supports other attributes.
+As shown above, you can launch the Spring Boot application directly from Bazel using the *bazel run* idiom:
+
+```
+bazel run //samples/helloworld
+```
+
+But you may wish to customize the launch with JVM arguments.
+There are two mechanisms that are supported for this - *jvm_flags* and *JAVA_OPTS*.
+They are injected into the command line launcher like this:
+
+```
+java [jvm_flags] [JAVA_OPTS] -jar [springboot jar]
+```
+
+The attribute *jvm_flags* is for cases in which you always want the flags to apply when the application is launched from Bazel.
+It is specified as an attribute on the springboot rule invocation:
+
+```
+springboot(
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+    jvm_flags = "-Dcustomprop=gold",
+)
+```
+
+The environment variable JAVA_OPTS is useful when a developer wants to make a local override.
+It is set in your shell before launching the application:
+
+```
+export JAVA_OPTS='-Dcustomprop=silver'
+bazel run //samples/helloworld
+```
+
+### Other Rule Attributes
+
+The Spring Boot rule supports other attributes for use in the BUILD file:
 
 - *visibility* standard
 - *tags* standard

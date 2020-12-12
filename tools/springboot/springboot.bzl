@@ -136,7 +136,7 @@ def _compute_python_executable(ctx):
 _run_script_template = """
 #!/bin/bash
 
-# should (can?) we use one of the jdk locations already known to Bazel?
+# soon we will use one of the jdk locations already known to Bazel, see Issue #16
 if [ -z ${JAVA_HOME} ]; then
   java_cmd="$(which java)"
 else
@@ -147,15 +147,24 @@ if [ -z "${java_cmd}" ]; then
   echo "ERROR: no java found, either set JAVA_HOME or add the java executable to your PATH"
   exit 1
 fi
-
 echo "Using Java at ${java_cmd}"
 ${java_cmd} -version
 echo ""
 
+# java args
+echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
+echo "Using jvm_flags from the BUILD file: %jvm_flags%"
+
+# main args
+main_args="$@"
+
+# spring boot jar; these are replaced by the springboot starlark code:
 path=%path%
 jar=%jar%
 
-cmd="${java_cmd} ${JAVA_OPTS} -jar ${path}/${jar} ${MAIN_ARGS}"
+# assemble the command
+cmd="${java_cmd} %jvm_flags% ${JAVA_OPTS} -jar ${path}/${jar} ${main_args}"
+
 echo "Running ${cmd}"
 echo "In directory $(pwd)"
 echo ""
@@ -180,9 +189,13 @@ def _springboot_rule_impl(ctx):
 
     # setup the script that runs "java -jar <springboot.jar>" when calling
     # "bazel run" with the springboot target
+    jvm_flags = ''
+    if ctx.attr.jvm_flags != None:
+      jvm_flags = ctx.attr.jvm_flags
     script = _run_script_template \
         .replace("%path%", ctx.label.package) \
-        .replace("%jar%", _get_springboot_jar_file_name(str(ctx.label.name)))
+        .replace("%jar%", _get_springboot_jar_file_name(str(ctx.label.name))) \
+        .replace("%jvm_flags%", jvm_flags)
 
     script_out = ctx.actions.declare_file("%s-run" % ctx.label.name)
     ctx.actions.write(script_out, script, is_executable = True)
@@ -208,6 +221,7 @@ _springboot_rule = rule(
         "dupecheck_rule": attr.label(),
         "apprun_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
+        "jvm_flags": attr.string(),
     },
 )
 
@@ -227,11 +241,12 @@ _springboot_rule = rule(
 #  duplicate_class_allowlist: list of jar files that can have dupe classes without failing the rule
 #  tags:            the array of tags to apply to this rule and subrules
 #  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
+#  jvm_flags:       flags to pass to the java command when the spring boot application is invoked with 'bazel run'
 #
 def springboot(name, java_library, boot_app_class, deps=None,
                visibility = None, fail_on_duplicate_classes = False,
                duplicate_class_allowlist = None,
-               tags = [], exclude = [], toolchains = []):
+               tags = [], exclude = [], toolchains = [], jvm_flags = None):
 
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
@@ -346,6 +361,7 @@ def springboot(name, java_library, boot_app_class, deps=None,
         deps = deps,
         tags = tags,
         visibility = visibility,
+        jvm_flags = jvm_flags,
     )
 
 # end springboot macro

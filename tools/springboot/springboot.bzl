@@ -202,16 +202,21 @@ def _springboot_rule_impl(ctx):
         .replace("%jar%", _get_springboot_jar_file_name(str(ctx.label.name))) \
         .replace("%jvm_flags%", jvm_flags)
 
-    script_out = ctx.actions.declare_file("%s-run" % ctx.label.name)
+    script_out = ctx.actions.declare_file("%s" % ctx.label.name)
     ctx.actions.write(script_out, script, is_executable = True)
 
     # the jar we build needs to be part of runfiles so that it ends up in the
     # working directory that "bazel run" uses
-    runfiles = ctx.runfiles(files = ctx.attr.genjar_rule.files.to_list())
+    runfiles_list = ctx.attr.genjar_rule.files.to_list()
+    # and add any data files to runfiles
+    if ctx.attr.data != None:
+      for data_target in ctx.attr.data:
+        runfiles_list.append(data_target.files.to_list()[0])
+
     return [DefaultInfo(
         files = outs,
         executable = script_out,
-        runfiles = runfiles,
+        runfiles = ctx.runfiles(files = runfiles_list),
     )]
 
 _springboot_rule = rule(
@@ -227,6 +232,7 @@ _springboot_rule = rule(
         "apprun_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
         "jvm_flags": attr.string(),
+        "data": attr.label_list(allow_files=True),
     },
 )
 
@@ -259,7 +265,8 @@ def springboot(
         tags = [],
         exclude = [],
         toolchains = [],
-        jvm_flags = None):
+        jvm_flags = None,
+        data = []):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -386,6 +393,7 @@ def springboot(
         tags = tags,
         visibility = visibility,
         jvm_flags = jvm_flags,
+        data = data,
     )
 
 # end springboot macro

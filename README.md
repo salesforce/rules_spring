@@ -4,8 +4,7 @@ This repository contains the [Spring Boot](https://spring.io/guides/gs/spring-bo
 It enables Bazel to build Spring Boot applications and package them as an executable jar file.
 The executable jar is the best way to deploy your Spring Boot application in production environments.
 
-The Salesforce *springboot* rule is contained in a directory that is designed to be copied into your workspace.
-It can be found, along with documentation, in this location:
+The Salesforce *springboot* rule can be found, along with documentation, in this location:
 - [bazel-springboot-rule](tools/springboot): a Bazel extension to build and package Spring Boot applications
 
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.

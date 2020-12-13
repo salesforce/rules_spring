@@ -249,9 +249,10 @@ bazel run //samples/helloworld
 
 The Spring Boot rule supports other attributes for use in the BUILD file:
 
-- *visibility* standard
-- *tags* standard
-- *deps* will add additional jar files into the Spring Boot jar in addition to what is transitively used by the *java_library*
+- *visibility*: standard
+- *tags*: standard
+- *data*: behaves like the same attribute for *java_binary*
+- *deps*: will add additional jar files into the Spring Boot jar in addition to what is transitively used by the *java_library*
 
 ### Debugging the Rule Execution
 

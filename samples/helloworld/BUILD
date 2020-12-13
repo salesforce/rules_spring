@@ -54,4 +54,7 @@ springboot(
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     jvm_flags = "-Dcustomprop=gold",
+
+    # data files can be made available in the working directory for when the app is launched with bazel run
+    data = ["example_data.txt"],
 )

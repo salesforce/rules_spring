@@ -9,10 +9,12 @@ It can be found, along with documentation, in this location:
 - [bazel-springboot-rule](tools/springboot): a Bazel extension to build and package Spring Boot applications
 
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
+Please do not link to the *master* branch of this rule in your Bazel workspace, use an official release instead:
+- [rules_springboot releases](https://github.com/salesforce/bazel-springboot-rule/releases)
 
-### Support
+### Support and Ongoing Development
 
-This rule was developed by Salesforce.
+This rule was developed and is supported by Salesforce.
 If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/bazel-springboot-rule/issues).
 We will try to quickly address problems and answer questions.
 
@@ -31,7 +33,7 @@ At Salesforce, Bazel is not available in production environments, and so this al
 
 ### Are you refreshing your fork for the first time since September 29, 2020?
 
-On that date I switched the repo to use *maven_install* style dependencies, instead of the obsolete *maven_jar*.
+On that date I switched the repo to use *maven_install* style dependencies, instead of the obsolete *maven_jar* ([removed as of Bazel 2.x](https://github.com/bazelbuild/bazel/issues/6799)).
 I tagged the old code line as 1.0.2.
 To restore the old style, please use the following stanza in your WORKSPACE (to replace whatever you have there).
 

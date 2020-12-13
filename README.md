@@ -16,7 +16,10 @@ This rule was developed by Salesforce.
 If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/bazel-springboot-rule/issues).
 We will try to quickly address problems and answer questions.
 
-:octocat: Please do us a huge favor. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top. That helps us advocate for more resources on this project. Thanks!
+Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/bazel-springboot-rule/projects).
+To see what bug fixes and new features are planned, consult the roadmaps located there.
+
+:octocat: Please do us a **huge favor**. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top. That helps us advocate for more time and resources on this project. Thanks!
 
 ### Alternate Approach
 

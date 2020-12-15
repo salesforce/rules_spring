@@ -44,7 +44,7 @@ java_library(
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
-    duplicate_class_allowlist = ":dupe_class_allowlist",
+    java_library = ":helloworld_lib",
 
     # TO TEST THE DUPE CLASSES FEATURE:
     #   There is an intentionally duplicated class in lib1 and lib2. Do this:
@@ -52,7 +52,7 @@ springboot(
     #   2. comment out lib1 or lib2 in helloworld_dupeclass_allowlist.txt
     #   Build should fail due to the duplicate class.
     fail_on_duplicate_classes = True,
-    java_library = ":helloworld_lib",
+    duplicate_class_allowlist = ":dupe_class_allowlist",
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     jvm_flags = "-Dcustomprop=gold",

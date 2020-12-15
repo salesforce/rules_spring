@@ -230,7 +230,7 @@ _springboot_rule = rule(
         "genjar_rule": attr.label(),
         "dupecheck_rule": attr.label(),
         "apprun_rule": attr.label(),
-        "deps": attr.label_list(providers = [java_common.provider]),
+
         "jvm_flags": attr.string(),
         "data": attr.label_list(allow_files=True),
     },
@@ -252,7 +252,8 @@ _springboot_rule = rule(
 #  duplicate_class_allowlist: list of jar files that can have dupe classes without failing the rule
 #  tags:            the array of tags to apply to this rule and subrules
 #  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
-#  jvm_flags:       flags to pass to the java command when the spring boot application is invoked with 'bazel run'
+#  jvm_flags:       flags to pass to the java command when the spring boot application is invoked with 'bazel run
+#  classpath_index: file that contains the load order of jars (see Spring Boot Classpath Index docs)
 #
 def springboot(
         name,
@@ -264,9 +265,9 @@ def springboot(
         duplicate_class_allowlist = None,
         tags = [],
         exclude = [],
-        toolchains = [],
         jvm_flags = None,
-        data = []):
+        data = [],
+        classpath_index = None):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -314,6 +315,10 @@ def springboot(
         stamp = 1,
     )
 
+    # SUBRULE 2C: CLASSPATH INDEX
+    if classpath_index == None:
+        classpath_index = "@bazel_springboot_rule//tools/springboot:empty.txt"
+
     # SUBRULE 3: INVOKE THE BASH SCRIPT THAT DOES THE PACKAGING
     # The resolved input_file_paths array is made available as the $(SRCS) token in the cmd string.
     # Skylark will convert the logical input_file_paths into real file system paths when surfaced in $(SRCS)
@@ -327,13 +332,15 @@ def springboot(
     #    param6: compiled application jar
     #    param7: manifest file
     #    param8: git.properties file
-    #    param9-N: upstream transitive dependency jar(s)
+    #    param9: classpath_index file
+    #    param10-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
         srcs = [
             java_library,
             ":" + genmanifest_rule,
             ":" + gengitinfo_rule,
+            classpath_index,
             ":" + dep_aggregator_rule,
         ],
         cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) " +
@@ -389,11 +396,12 @@ def springboot(
         genjar_rule = ":" + genjar_rule,
         dupecheck_rule = dupecheck_rule_label,
         apprun_rule = ":" + apprun_rule,
-        deps = deps,
-        tags = tags,
-        visibility = visibility,
+
         jvm_flags = jvm_flags,
         data = data,
+
+        tags = tags,
+        visibility = visibility,
     )
 
 # end springboot macro

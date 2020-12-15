@@ -15,16 +15,18 @@ public class SampleMain {
 
   // both //samples/helloworld/libs/lib1 and //samples/helloworld/libs/lib2 have this class
   // this is only a problem if the springboot rule is configured to fail on dupes.
-  private IntentionalDupedClass dupedClass = new IntentionalDupedClass();
+  static private IntentionalDupedClass dupedClass = new IntentionalDupedClass();
 
   public static void main(String[] args) {
-    System.out.println("Launching the sample SpringBoot demo application...");
+    System.out.println("SampleMain: Launching the sample SpringBoot demo application...");
     StringBuffer sb = new StringBuffer();
     for (String arg : args) {
       sb.append(arg);
       sb.append(" ");
     }
-    System.out.println("  Command line args: "+sb.toString());
+    System.out.println("SampleMain:  Command line args: "+sb.toString());
+
+    System.out.println("\nSampleMain:  Intentional duped class version: "+dupedClass.hello());
 
     SpringApplication.run(SampleMain.class, args);
   }

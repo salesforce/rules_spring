@@ -17,6 +17,7 @@ exports_files([
     "write_gitinfo_properties.sh",
     "write_manifest.sh",
     "dupe_class_jar_allowlist.txt",
+    "empty.txt",
 ])
 
 py_binary(

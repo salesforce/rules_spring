@@ -24,7 +24,8 @@ OUTPUTJAR=$5
 APPJAR=$6
 MANIFEST=$7
 #GITPROPSFILE=$8 (these assignments have to wait, see below)
-#FIRST_JAR_ARG=9
+#CLASSPATH_INDEX=$9
+#FIRST_JAR_ARG=10
 
 #The coverage variable is used to make sure that the correct files are picked in case bazel coverage is run with this springboot rule
 COVERAGE=1
@@ -34,13 +35,15 @@ COVERAGE=1
 # This is a workaround to ensure that the MANIFEST is picked correctly.
 if [[ $MANIFEST = *"MANIFEST.MF" ]]; then
     GITPROPSFILE=$8
+    CLASSPATH_INDEX=$9
     COVERAGE=0
-    FIRST_JAR_ARG=9
+    FIRST_JAR_ARG=10
 else
     # move these args down one slot, the code cov introduced something in the manifest slot
     MANIFEST=$8
     GITPROPSFILE=$9
-    FIRST_JAR_ARG=10
+    CLASSPATH_INDEX=${10}
+    FIRST_JAR_ARG=11
 fi
 
 # package name (not guaranteed to be globally unique)
@@ -90,6 +93,7 @@ echo "  JAVABASE        $JAVABASE    (the path to the JDK2)" >> $DEBUGFILE
 echo "  APPJAR          $APPJAR      (contains the .class files for the Spring Boot application)" >> $DEBUGFILE
 echo "  APPJAR_NAME     $APPJAR_NAME (unused, is the appjar filename without the .jar extension)" >> $DEBUGFILE
 echo "  MANIFEST        $MANIFEST    (the location of the generated MANIFEST.MF file)" >> $DEBUGFILE
+echo "  CLASSPATH_INDEX $CLASSPATH_INDEX (the location of the classpath index file - optional)" >> $DEBUGFILE
 echo "  DEPLIBS         (list of upstream transitive dependencies, these will be incorporated into the jar file in BOOT-INF/lib )" >> $DEBUGFILE
 
 # compute path to jar utility
@@ -183,6 +187,12 @@ echo "DEBUG: finished copying transitives into BOOT-INF/lib, elapsed time (secon
 echo "DEBUG: adding git.properties" >> $DEBUGFILE
 cat $RULEDIR/$GITPROPSFILE >> $DEBUGFILE
 cp -f $RULEDIR/$GITPROPSFILE $WORKING_DIR/BOOT-INF/classes
+
+# Inject the classpath index (unless it is the default empty.txt file). Requires Spring Boot version 2.3+
+# https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
+if [[ ! $CLASSPATH_INDEX = *empty.txt ]]; then
+  cp $RULEDIR/$CLASSPATH_INDEX $WORKING_DIR/BOOT-INF/classpath.idx
+fi
 
 # Create the output jar
 cd $WORKING_DIR

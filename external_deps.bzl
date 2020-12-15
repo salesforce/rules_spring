@@ -47,8 +47,22 @@ def external_maven_jars():
             "org.springframework.boot:spring-boot-test-autoconfigure:2.4.1",
             "org.springframework.boot:spring-boot-starter-thymeleaf:2.4.1",
 
+            "org.springframework:spring-aop:5.3.2",
+            "org.springframework:spring-aspects:5.3.2",
+            "org.springframework:spring-beans:5.3.2",
+            "org.springframework:spring-context:5.3.2",
+            "org.springframework:spring-context-support:5.3.2",
+            "org.springframework:spring-core:5.3.2",
+            "org.springframework:spring-expression:5.3.2",
+            "org.springframework:spring-jdbc:5.3.2",
+            "org.springframework:spring-test:5.3.2",
+            "org.springframework:spring-tx:5.3.2",
             "org.springframework:spring-web:5.3.2",
             "org.springframework:spring-webmvc:5.3.2",
+
+
+            "javax.annotation:javax.annotation-api:1.3.2",
+            "javax.servlet:javax.servlet-api:4.0.1",
 
             "com.fasterxml:classmate:1.5.1",
             "commons-logging:commons-logging:1.2",

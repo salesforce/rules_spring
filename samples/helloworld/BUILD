@@ -59,4 +59,8 @@ springboot(
 
     # data files can be made available in the working directory for when the app is launched with bazel run
     data = ["example_data.txt"],
+
+    # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
+    #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
+    classpath_index = "helloworld_classpath.idx",
 )

@@ -28,6 +28,8 @@ springboot_deps = [
     "//tools/springboot/import_bundles:springboot_required_deps",
     "//tools/springboot/import_bundles:springboot_jetty_starter_deps",
     "//tools/springboot/import_bundles:springboot_web_starter_deps",
+    "@maven//:org_springframework_spring_web",
+    "@maven//:org_springframework_spring_webmvc",
 ]
 
 # This Java library contains the app code

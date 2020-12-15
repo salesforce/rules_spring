@@ -115,9 +115,6 @@ The [//tools/springboot/import_bundles](import_bundles) package contains some ex
 There are bundles for the Spring Boot framework, as well as bundles for the various starters.
 The ones provided in this repository are just examples.
 
-Since Spring Boot apps all need similar groups of dependencies, prefer to create/curate those import bundles if a
-  dependency is coming as a transitive for a Spring Boot class.
-
 
 ### Build Stamping of the Spring Boot jar
 

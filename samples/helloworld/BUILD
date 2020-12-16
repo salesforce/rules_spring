@@ -14,15 +14,6 @@ lib_deps = [
     "//samples/helloworld/libs/lib2",
 ]
 
-# service specific list of jars that we dont want to trigger errors for the
-# dupe class checker (these jars have known dupe classes)
-filegroup(
-    name = "dupe_class_allowlist",
-    srcs = glob([
-        "helloworld_dupeclass_allowlist.txt",
-    ]),
-)
-
 # create our deps list for Spring Boot
 springboot_deps = [
     "//tools/springboot/import_bundles:springboot_required_deps",
@@ -51,7 +42,7 @@ springboot(
     #   2. comment out lib1 or lib2 in helloworld_dupeclass_allowlist.txt
     #   Build should fail due to the duplicate class.
     fail_on_duplicate_classes = True,
-    duplicate_class_allowlist = ":dupe_class_allowlist",
+    duplicate_class_allowlist = "helloworld_dupeclass_allowlist.txt",
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     jvm_flags = "-Dcustomprop=gold",

@@ -112,7 +112,7 @@ _dupeclasses_rule = rule(
         "dupeclasses_rule": attr.label(),
         "script": attr.label(),
         "springbootjar": attr.label(),
-        "allowlist": attr.label(),
+        "allowlist": attr.label(allow_files=True),
         "fail_on_duplicate_classes": attr.bool(),
         "out": attr.string(),
     },

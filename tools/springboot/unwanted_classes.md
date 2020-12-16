@@ -36,10 +36,12 @@ It will scan all inner jars file, and fail the build if:
 - the same class (package + classname) is found in more than one inner jar, AND...
 - the MD5 hash of the classfile bytes differ
 
+The dupe class checking feature requires Python3.
+If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
+See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
+
 But sometimes you have transitives that are out of your control that bring in duplicate classes.
-If you cannot use the *exclude* attribute as shown below, there is another solution.
-To ignore certain jars from the dupe checker, create a text file in the same directory
-  as the BUILD file.
+To ignore certain jars from the dupe checker, create a text file in the same directory as the BUILD file.
 Add a jar filename on each line like this:
 
 ```
@@ -62,9 +64,9 @@ springboot(
 )
 ```
 
-The dupe class checking feature requires Python3.
-If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
-See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
+:boom: The allowlist feature is meant to be a short term workaround.
+It allows the dupe class checker to succeed when there are duplicate classes, but it is masking a real problem.
+We recommend that you employ the *Exclude List* or *Classpath Index* features to actually fix the underlying issue.
 
 
 ### Exclude List
@@ -84,7 +86,6 @@ springboot(
 )
 ```
 
-
 ### Classpath Index
 
 Another approach for suppressing unwanted classes is to establish a particular classpath order with a *classpath index*.
@@ -95,7 +96,8 @@ This can be used to load the preferred classes first, which will occlude the unw
 The feature is explained in the Spring Boot documentation:
 - [Spring Boot Classpath Index](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)
 
-The Spring Boot rule exposes the *classpath_index* attribute:
+The Spring Boot rule exposes the *classpath_index* attribute.
+Pass in the name of the file that has the jars listed as per the Spring Boot documentation:
 
 ```
 springboot(

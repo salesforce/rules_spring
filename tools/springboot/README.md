@@ -8,14 +8,13 @@ The output of this rule is a jar file that can be copied to production environme
 ### Add the rule to your WORKSPACE
 
 There are two approaches to doing this.
-We recommend the first.
 
 **Copy the rule into your workspace**
-We recommend this approach because this rule is not currently setup well for the second approach.
-On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging idioms.
-Until that is done, copying in the bits you need and customizing it is probably the best way to go.
-Make sure to review the [buildstamp](../buildstamp) documentation as well.
+This may be the quickest option.
+It allows you to bring in the rule, and make customizations as necessary.
 We recommend copying it into location *//tools/springboot* but you are free to change this if you like.
+
+Make sure to review the [buildstamp](../buildstamp) documentation as well.
 
 Once it is copied in, add this to your WORKSPACE:
 ```
@@ -28,13 +27,14 @@ local_repository(
 **Reference an official release**
 This copies a pre-built version of this rule into your workspace.
 It may or may not work for you, as it does not allow you to customize it.
+On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging idioms.
 
 ```
 http_archive(
     name = "bazel_springboot_rule",
-    sha256 = "a193ff7d502d153a1ed74bfe0cf8c1c1abad6dddc8b28cb57afa9d99e287949d",
+    sha256 = "2740456f3d7eb8400b9832a44d60df1b0ecf0ff3e8b3086faa029e4df2d8ac88",
     urls = [
-        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.0.0/bazel-springboot-rule-1.0.0.zip",
+        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.0.8/bazel-springboot-rule-1.0.8.zip",
     ],
 )
 ```
@@ -50,8 +50,9 @@ load("//tools/springboot:springboot.bzl", "springboot",)
 # create our deps list for Spring Boot, we have some convenience targets for this
 springboot_deps = [
   "//tools/springboot/import_bundles:springboot_required_deps",
-  "//tools/springboot/import_bundles:springboot_jetty_starter_deps",
-  "//tools/springboot/import_bundles:springboot_web_starter_deps",
+  "@maven//:org_springframework_boot_spring_boot_starter_jetty",
+  "@maven//:org_springframework_boot_spring_boot_starter_web",
+  "@maven//:org_springframework_spring_webmvc",
 ]
 
 # this Java library contains your service code

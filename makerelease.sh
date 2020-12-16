@@ -12,7 +12,10 @@ mkdir $TMPDIR
 mv tools/python_interpreter/bin $TMPDIR
 mv tools/python_interpreter/captive_python3 $TMPDIR
 
-jar -cvf bazel-springboot-rule-1.0.7.zip *
+rm -rf tools/springboot/tests/__pycache__
+rm -rf tools/springboot/__pycache__
+
+jar -cvf bazel-springboot-rule-1.0.8.zip *
 
 mv $TMPDIR/bin tools/python_interpreter
 mv $TMPDIR/captive_python3 tools/python_interpreter

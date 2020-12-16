@@ -118,10 +118,15 @@ echo "Unique identifier for this build: [$PACKAGESHA] computed from [$PACKAGESHA
 
 # Setup working directories. Working directory is unique to this package path (uses SHA of path)
 # to tolerate non-sandboxed builds if so configured.
-WORKING_DIR=$RULEDIR/$PACKAGESHA/working
+BASE_WORKING_DIR=$RULEDIR/$PACKAGESHA
+WORKING_DIR=$BASE_WORKING_DIR/working
 echo "DEBUG: packaging working directory $WORKING_DIR" >> $DEBUGFILE
 mkdir -p $WORKING_DIR/BOOT-INF/lib
 mkdir -p $WORKING_DIR/BOOT-INF/classes
+
+# We need a unique scratch work area
+TMP_WORKING_DIR=$BASE_WORKING_DIR/tmp
+mkdir -p $TMP_WORKING_DIR
 
 # Extract the compiled Boot application classes into BOOT-INF/classes
 #    this must include the application's main class (annotated with @SpringBootApplication)
@@ -197,22 +202,54 @@ fi
 # Create the output jar
 cd $WORKING_DIR
 
-# write debug telemetry data
+# Write debug telemetry data
 echo "DEBUG: Creating the JAR file $WORKING_DIR" >> $DEBUGFILE
 echo "DEBUG: jar contents:" >> $DEBUGFILE
 find . >> $DEBUGFILE
 ELAPSED_PRE_JAR=$(( $SECONDS - BUILD_TIME_START ))
 echo "DEBUG: elapsed time (seconds): $ELAPSED_PRE_JAR" >> $DEBUGFILE
 
-# first use jar to create a correct jar file for Spring Boot
+# First use jar to create a correct jar file for Spring Boot
 # Note that a critical part of this step is to pass option 0 into the jar command
 # that tells jar not to compress the jar, only package it. Spring Boot does not
 # allow the jar file to be compressed (it will fail at startup).
 RAW_OUTPUT=$RULEDIR/${OUTPUTJAR}.raw
 echo "DEBUG: Running jar command to produce $RAW_OUTPUT" >> $DEBUGFILE
-$JAR_COMMAND -cfm0 $RAW_OUTPUT $RULEDIR/$MANIFEST .  2>&1 | tee -a $DEBUGFILE
 
-# now use Bazel's singlejar to re-jar it which normalizes timestamps as Jan 1 2010
+# The current working directory now has exactly the structure we want to jar up
+# HOWEVER, instead of running jar just once, we run jar multiple times to ensure
+# that the jar entries are added in the required order to the jar:
+# Spring Boot Loader -> BOOT-INF/classes -> BOOT-INF/lib
+# A different order can create confusing classpath ordering issues when
+# the uber jar is executed using java -jar
+
+# Move BOOT-INF/classes and BOOT-INF/lib out of the way, into this tmp directory
+TMP_BOOT_INF_DIR=$TMP_WORKING_DIR/boot_inf
+# We need this directory to be clean (we'll re-create it below)
+rm -rf $TMP_BOOT_INF_DIR
+
+# Move BOOT-INF/classes
+TMP_CLASSES_DIR=$TMP_BOOT_INF_DIR/classes
+mkdir -p "${TMP_CLASSES_DIR}/BOOT-INF"
+mv BOOT-INF/classes "${TMP_CLASSES_DIR}/BOOT-INF"
+# Move BOOT-INF/lib
+TMP_LIB_DIR=$TMP_BOOT_INF_DIR/lib
+mkdir -p "${TMP_LIB_DIR}/BOOT-INF"
+mv BOOT-INF/lib "${TMP_LIB_DIR}/BOOT-INF"
+
+# Given the mv cmds above, we now jar everything EXCEPT BOOT-INF/classes and BOOT-INF/lib
+$JAR_COMMAND -cfm0 $RAW_OUTPUT $RULEDIR/$MANIFEST .  2>&1 | tee -a $DEBUGFILE
+# Now add BOOT-INF/classes
+cd $TMP_CLASSES_DIR
+$JAR_COMMAND -uf0 $RAW_OUTPUT .  2>&1 | tee -a $DEBUGFILE
+cd $WORKING_DIR
+# Finally add BOOT-INF/lib
+cd $TMP_LIB_DIR
+$JAR_COMMAND -uf0 $RAW_OUTPUT .  2>&1 | tee -a $DEBUGFILE
+cd $WORKING_DIR
+
+
+# Use Bazel's singlejar to re-jar it which normalizes timestamps as Jan 1 2010
 # note that it does not use the MANIFEST from the jar file, which is a bummer
 # so we have to respecify the manifest data
 # TODO we could rewrite the write_manfiest.sh to produce inputs compatible for singlejar

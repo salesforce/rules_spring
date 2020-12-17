@@ -5,6 +5,8 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
+RELEASE_VERSION=1.0.9
+
 rm -rf bazel-*
 
 TMPDIR=/tmp/bazel-springboot-rule-release
@@ -15,7 +17,7 @@ mv tools/python_interpreter/captive_python3 $TMPDIR
 rm -rf tools/springboot/tests/__pycache__
 rm -rf tools/springboot/__pycache__
 
-jar -cvf bazel-springboot-rule-1.0.8.zip *
+jar -cvf bazel-springboot-rule-${RELEASE_VERSION}.zip *
 
 mv $TMPDIR/bin tools/python_interpreter
 mv $TMPDIR/captive_python3 tools/python_interpreter

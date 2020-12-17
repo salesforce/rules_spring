@@ -97,10 +97,10 @@ echo "  CLASSPATH_INDEX $CLASSPATH_INDEX (the location of the classpath index fi
 echo "  DEPLIBS         (list of upstream transitive dependencies, these will be incorporated into the jar file in BOOT-INF/lib )" >> $DEBUGFILE
 
 # compute path to jar utility
-pushd .
+pushd . > /dev/null
 cd $JAVABASE/bin
 JAR_COMMAND=$(pwd)/jar
-popd
+popd > /dev/null
 echo "Jar command:" >> $DEBUGFILE
 echo $JAR_COMMAND >> $DEBUGFILE
 

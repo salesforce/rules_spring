@@ -36,6 +36,10 @@ springboot(
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
 
+    # DEPS ARE OPTIONAL HERE
+    #  The springboot rule inherits all deps and runtime_deps from the java_library
+    # deps = [],
+
     # TO TEST THE DUPE CLASSES FEATURE:
     #   There is an intentionally duplicated class in lib1 and lib2. Do this:
     #   1. set fail_on_duplicate_classes = True

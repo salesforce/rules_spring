@@ -184,6 +184,7 @@ The Spring Boot rule supports other attributes for use in the BUILD file:
 - *tags*: standard
 - *data*: behaves like the same attribute for *java_binary*
 - *deps*: will add additional jar files into the Spring Boot jar in addition to what is transitively used by the *java_library*
+- *use_build_dependency_order*: see [below](#dependency-classpath-ordering)
 
 ### Debugging the Rule Execution
 
@@ -195,6 +196,32 @@ In order to pass this environment variable to Bazel, use the `--action_env` argu
 bazel build //... --action_env=DEBUG_SPRINGBOOT_RULE=1
 ```
 
+### Dependency classpath ordering
+
+When the jar file built by the Spring Boot rule is executed using `java -jar`, the runtime classpath is based on the order of the jar entries written. The high level order of the jar entries is:
+  - Internal Spring Boot classes
+  - Service classes (`srcs` of the `java_libary` rule that the `springboot` rule references)
+  - Dependencies (`deps` and `runtimes_deps` of the `java_library` rule the `springboot` rule references)
+
+The order of the dependencies is based on Bazel's `depset` order, which roughly translates to BUILD file ordering. This is useful if your dependencies have jar files with conflicting classes - changing the order in which these dependencies are listed in the BUILD file will affect the order in which they are listed in the classpath at runtime.
+
+#### Example
+
+[lib1](../../samples/helloworld/libs/lib1) and [lib2](../../samples/helloworld/libs/lib2) have a duplicate class: [lib1's IntentionalDupedClass](../../samples/helloworld/libs/lib1/src/main/java/com/bazel/demo/IntentionalDupedClass.java) and [lib2's IntentionalDupedClass](../../samples/helloworld/libs/lib2/src/main/java/com/bazel/demo/IntentionalDupedClass.java). In the example's [BUILD file](../../samples/helloworld/BUILD), if `lib1` appears before `lib2` in `lib_deps`, you will see the following output when running `bazel run sample/helloworld`:
+```
+SampleMain:  Intentional duped class version: Hello LIB1!
+```
+
+In the BUILD file, if you move `lib2` in front of `lib1` and re-run, you will see:
+```
+SampleMain:  Intentional duped class version: Hello LIB2!
+```
+
+#### Disabling explicit classpath dependency ordering
+
+The current implementation of this feature uses the `jar` command line utility. Explicit jar entry ordering is implemented by specifying an explicit file list when running `jar`.  Very large dependency sets may cause the jar command to exceed the system command line length limit. This limitation will be addressed when [Issue 3](https://github.com/salesforce/bazel-springboot-rule/issues/3) is resolved. Until then, if you run into errors, you can disable this feature by setting the attribute `use_build_dependency_order` to `False`.
+
 ### Customizing the Spring Boot rule
 
 To understand how this rule works, start by reading the [springboot.bzl file](springboot.bzl).
+

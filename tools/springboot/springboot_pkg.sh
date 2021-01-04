@@ -42,13 +42,13 @@ COVERAGE=1
 # This is a workaround to ensure that the MANIFEST is picked correctly.
 if [[ $MANIFEST = *"MANIFEST.MF" ]]; then
     GITPROPSFILE=$9
-    CLASSPATH_INDEX=$10
+    CLASSPATH_INDEX=${10}
     FIRST_JAR_ARG=11
     COVERAGE=0
 else
     # move these args down one slot, the code cov introduced something in the manifest slot
     MANIFEST=$9
-    GITPROPSFILE=$10
+    GITPROPSFILE=${10}
     CLASSPATH_INDEX=${11}
     FIRST_JAR_ARG=12
 fi
@@ -259,6 +259,8 @@ cd $WORKING_DIR
 # Finally add BOOT-INF/lib
 cd $TMP_LIB_DIR
 if [ "$USE_BUILD_DEPENDENCY_ORDER" == true ]; then
+  # if this command fails due to the command line being too long, please see the docs
+  # about setting use_build_dependency_order=False as a workaround
   $JAR_COMMAND -uf0 $RAW_OUTPUT $BOOT_INF_LIB_JARS  2>&1 | tee -a $DEBUGFILE
 else
   $JAR_COMMAND -uf0 $RAW_OUTPUT .  2>&1 | tee -a $DEBUGFILE
@@ -269,7 +271,7 @@ cd $WORKING_DIR
 # Use Bazel's singlejar to re-jar it which normalizes timestamps as Jan 1 2010
 # note that it does not use the MANIFEST from the jar file, which is a bummer
 # so we have to respecify the manifest data
-# TODO we could rewrite the write_manfiest.sh to produce inputs compatible for singlejar
+# TODO we should rewrite write_manfiest.sh to produce inputs compatible for singlejar (Issue #27)
 SINGLEJAR_OPTIONS="--normalize --dont_change_compression" # add in --verbose for more details from command
 SINGLEJAR_MAINCLASS="--main_class org.springframework.boot.loader.JarLauncher"
 $SINGLEJAR_CMD $SINGLEJAR_OPTIONS $SINGLEJAR_MAINCLASS \

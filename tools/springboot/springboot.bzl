@@ -267,7 +267,8 @@ def springboot(
         exclude = [],
         jvm_flags = None,
         data = [],
-        classpath_index = None):
+        classpath_index = None,
+        use_build_dependency_order = True):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     genmanifest_rule = native.package_name() + "_genmanifest"
@@ -328,12 +329,13 @@ def springboot(
     #    param2: boot application main classname (the @SpringBootApplication class)
     #    param3: jdk path for running java tools e.g. jar; $(JAVABASE)
     #    param4: compiled application jar name
-    #    param5: executable jar output filename to write to
-    #    param6: compiled application jar
-    #    param7: manifest file
-    #    param8: git.properties file
-    #    param9: classpath_index file
-    #    param10-N: upstream transitive dependency jar(s)
+    #    param5: use build file deps order [True|False]
+    #    param6: executable jar output filename to write to
+    #    param7: compiled application jar
+    #    param8: manifest file
+    #    param9: git.properties file
+    #    param10: classpath_index file
+    #    param11-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
         srcs = [
@@ -345,7 +347,7 @@ def springboot(
         ],
         cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) " +
               "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
-              " $(JAVABASE) " + name + " $@ $(SRCS)",
+              " $(JAVABASE) " + name + " " + str(use_build_dependency_order) + " $@ $(SRCS)",
         tools = [
             "@bazel_springboot_rule//tools/springboot:springboot_pkg.sh",
             "@bazel_tools//tools/jdk:singlejar",

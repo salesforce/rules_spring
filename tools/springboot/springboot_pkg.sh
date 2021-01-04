@@ -20,12 +20,19 @@ SINGLEJAR_CMD=$(pwd)/$1
 MAINCLASS=$2
 JAVABASE=$3
 APPJAR_NAME=$4
-OUTPUTJAR=$5
-APPJAR=$6
-MANIFEST=$7
-#GITPROPSFILE=$8 (these assignments have to wait, see below)
-#CLASSPATH_INDEX=$9
-#FIRST_JAR_ARG=10
+USE_BUILD_DEPENDENCY_ORDER=$5
+OUTPUTJAR=$6
+APPJAR=$7
+MANIFEST=$8
+#GITPROPSFILE=$9 (these assignments have to wait, see below)
+#CLASSPATH_INDEX=$10
+#FIRST_JAR_ARG=11
+
+if [ $USE_BUILD_DEPENDENCY_ORDER = "True" ]; then
+  USE_BUILD_DEPENDENCY_ORDER=true
+else
+USE_BUILD_DEPENDENCY_ORDER=false
+fi
 
 #The coverage variable is used to make sure that the correct files are picked in case bazel coverage is run with this springboot rule
 COVERAGE=1
@@ -34,16 +41,16 @@ COVERAGE=1
 # "bazel-out/darwin-fastbuild/bin/projects/services/basic-rest-service/coverage_runtime_classpath/projects/services/basic-rest-service_app/runtime-classpath.txt"
 # This is a workaround to ensure that the MANIFEST is picked correctly.
 if [[ $MANIFEST = *"MANIFEST.MF" ]]; then
-    GITPROPSFILE=$8
-    CLASSPATH_INDEX=$9
+    GITPROPSFILE=$9
+    CLASSPATH_INDEX=$10
+    FIRST_JAR_ARG=11
     COVERAGE=0
-    FIRST_JAR_ARG=10
 else
     # move these args down one slot, the code cov introduced something in the manifest slot
-    MANIFEST=$8
-    GITPROPSFILE=$9
-    CLASSPATH_INDEX=${10}
-    FIRST_JAR_ARG=11
+    MANIFEST=$9
+    GITPROPSFILE=$10
+    CLASSPATH_INDEX=${11}
+    FIRST_JAR_ARG=12
 fi
 
 # package name (not guaranteed to be globally unique)
@@ -137,6 +144,10 @@ $JAR_COMMAND -xf $RULEDIR/$APPJAR
 #   The dependencies are passed as arguments to the script, starting at index $FIRST_JAR_ARG
 cd $WORKING_DIR
 
+# Below we iterate over all deps and build a string that contains all jar paths,
+# space separated
+BOOT_INF_LIB_JARS=""
+
 i=$FIRST_JAR_ARG
 while [ "$i" -le "$#" ]; do
   eval "lib=\${$i}"
@@ -176,7 +187,9 @@ while [ "$i" -le "$#" ]; do
         libdestdir="BOOT-INF/lib/${libdir}"
       fi
       mkdir -p ${libdestdir}
-      cp -f $RULEDIR/$lib ${libdestdir}
+      libdestpath=${libdestdir}/$libname
+      BOOT_INF_LIB_JARS="${BOOT_INF_LIB_JARS} ${libdestpath}"
+      cp -f $RULEDIR/$lib $libdestpath
     fi
   fi
 
@@ -245,7 +258,11 @@ $JAR_COMMAND -uf0 $RAW_OUTPUT .  2>&1 | tee -a $DEBUGFILE
 cd $WORKING_DIR
 # Finally add BOOT-INF/lib
 cd $TMP_LIB_DIR
-$JAR_COMMAND -uf0 $RAW_OUTPUT .  2>&1 | tee -a $DEBUGFILE
+if [ "$USE_BUILD_DEPENDENCY_ORDER" == true ]; then
+  $JAR_COMMAND -uf0 $RAW_OUTPUT $BOOT_INF_LIB_JARS  2>&1 | tee -a $DEBUGFILE
+else
+  $JAR_COMMAND -uf0 $RAW_OUTPUT .  2>&1 | tee -a $DEBUGFILE
+fi
 cd $WORKING_DIR
 
 

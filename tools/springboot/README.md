@@ -3,43 +3,9 @@
 This implements a Bazel rule for packaging a Spring Boot application as an executable jar file.
 The output of this rule is a jar file that can be copied to production environments and run.
 
-## How to Use:
+See the [top-level README](../../README.md) for the stanza to add to your *WORKSPACE* file to load the rule.
 
-### Add the rule to your WORKSPACE
-
-There are two approaches to doing this.
-
-**Copy the rule into your workspace**
-This may be the quickest option.
-It allows you to bring in the rule, and make customizations as necessary.
-We recommend copying it into location *//tools/springboot* but you are free to change this if you like.
-
-Make sure to review the [buildstamp](../buildstamp) documentation as well.
-
-Once it is copied in, add this to your WORKSPACE:
-```
-local_repository(
-    name = "bazel_springboot_rule",
-    path = "tools/springboot",
-)
-```
-
-**Reference an official release**
-This copies a pre-built version of this rule into your workspace.
-It may or may not work for you, as it does not allow you to customize it.
-On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging idioms.
-
-```
-http_archive(
-    name = "bazel_springboot_rule",
-    sha256 = "2740456f3d7eb8400b9832a44d60df1b0ecf0ff3e8b3086faa029e4df2d8ac88",
-    urls = [
-        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.0.8/bazel-springboot-rule-1.0.8.zip",
-    ],
-)
-```
-
-### Create your BUILD file
+### Use the rule in your BUILD file
 
 This is a *BUILD* file code snippet of how to invoke the rule:
 

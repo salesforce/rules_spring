@@ -21,3 +21,6 @@ jar -cvf bazel-springboot-rule-${RELEASE_VERSION}.zip *
 
 mv $TMPDIR/bin tools/python_interpreter
 mv $TMPDIR/captive_python3 tools/python_interpreter
+
+echo "RELEASE built: bazel-springboot-rule-${RELEASE_VERSION}.zip"
+echo "Remember to update the http_archive stanza in the top level README.md"

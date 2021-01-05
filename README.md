@@ -22,10 +22,45 @@ To see what bug fixes and new features are planned, consult the roadmaps located
 
 :octocat: Please do us a **huge favor**. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top. That helps us advocate for more time and resources on this project. Thanks!
 
-### Alternate Approach
+### Loading the Rule in your WORKSPACE
+
+Before you can use the rule in your BUILD files, you need to add it to your workspace.
+There are two approaches to doing this.
+
+**Reference an official release**
+This loads a pre-built version of this rule into your workspace during the build.
+It may or may not work for you, as it does not allow you to customize it.
+On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging idioms.
+
+```
+http_archive(
+    name = "bazel_springboot_rule",
+    sha256 = "8b47059742f3c93d4bc172027db4f430938a95f37e7b9b08c84262e8969871fa",
+    urls = [
+        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.1.0-rc1/bazel-springboot-rule-1.1.0-rc1.zip",
+    ],
+)
+```
+
+**Copy the rule into your workspace (aka vendoring)**
+This may be the quickest option.
+It allows you to bring in the rule, and make customizations as necessary.
+We recommend copying it into location *//tools/springboot* in your workspace but you are free to change this if you like.
+
+Once it is copied in, add this to your WORKSPACE:
+```
+local_repository(
+    name = "bazel_springboot_rule",
+    path = "tools/springboot",
+)
+```
+Make sure to review the [buildstamp](../buildstamp) documentation as well.
+
+
+### Alternate Approach for Building and Running Spring Boot Applications
 
 If you don't need to create a runnable executable jar file, there is a simpler approach to Spring Boot in the *rules_jvm_external* repository.
-That approach is sufficient if Bazel and your Bazel workspace are available in all environments that launch the application.
+That approach is sufficient if Bazel and your Bazel workspace (i.e. source code) are available in all environments that launch the application.
 - [rules_jvm_external Spring Boot example](https://github.com/plaird/rules_jvm_external/tree/master/examples/spring_boot)
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.

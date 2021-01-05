@@ -2,7 +2,7 @@
 
 Spring Boot jars normally aggregate a great number of dependency jars, many from outside the Bazel
   build (external Maven-built jars).
-The Spring Boot rule will copy the transitive closure of all Java jar deps into the Spring Boot executable jar.
+The Spring Boot rule will copy the transitive closure of all Java jar deps into the [Spring Boot executable jar](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html).
 This is normally what you want.
 
 But sometimes you have a transitive dependency that causes problems when included in your Spring Boot jar, but
@@ -71,7 +71,6 @@ springboot(
 In Java, the JVM will load classes from the classpath.
 If multiple versions of the same class are in the classpath, the class version that is loaded first will 'win'.
 Therefore, another way to suppress an old version of a class is to make sure the newer version is loaded first.
-This is the third best way to handle unwanted classes.
 
 There are two ways to affect the ordering.
 
@@ -85,9 +84,12 @@ The Spring Boot rule uses a specific order for writing the dependencies into the
   - Service classes (`srcs` of the `java_library` rule that the `springboot` rule references)
   - Dependencies (`deps` and `runtime_deps` of the `java_library` rule the `springboot` rule references)
 
-The order of the dependencies is based on Bazel's `depset` order, which translates to BUILD file ordering.
-Therefore, the higher entries in the `deps` list will be loaded before the later entries.
+The order of the dependencies is based on Bazel's `depset` order, which is strongly influenced by BUILD file order.
+The earlier entries in the `deps` list will be loaded before the later entries.
 However, note that transitive dependencies are traversed in depth first order.
+
+What this means is you can choose which version of the class 'wins' by putting the dependency jar higher in the `deps` list in the BUILD file.
+This order isn't guaranteed by Bazel, but seems to be reliable.
 
 To view the order of dependencies written into the Spring Boot jar, use the command `jar -tvf {springboot jar}`.
 The output of that command is faithful to the order of written entries.

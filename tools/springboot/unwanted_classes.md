@@ -38,6 +38,8 @@ The dupe class checking feature requires Python3.
 If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
 See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
 
+*Advanced:* In some cases, you will have a classes that are duplicated and would normally fail this check - but you cannot remove them.
+There is an [allowlist](#duplicate-class-detection-allowlist) feature that will ignore specific jars with duplicated classes.
 
 ### Removing Unwanted Classes by Removing a Dependency in the BUILD File
 

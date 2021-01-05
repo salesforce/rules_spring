@@ -5,7 +5,7 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-RELEASE_VERSION=1.0.9
+RELEASE_VERSION=1.1.0
 
 rm -rf bazel-*
 

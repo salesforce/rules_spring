@@ -26,7 +26,7 @@ Some options:
 
 - Do you have a setup script? Can you add captive python3 install to it?
 - Are you using Ansible? Can you add captive python3 to your playbook?
-- Are you familiar with the //tools/bazel wrapper script (it is not really documented)? You could insert an install step there. 
+- Are you familiar with the //tools/bazel wrapper script (it is not really documented)? You could insert an install step there.
 
 ### Python Toolchain Registration in BUILD and WORKSPACE
 
@@ -36,7 +36,7 @@ You will need to uncomment the rules in the BUILD file once you have performed t
 But this by itself does not have an affect.
 The key step is this invocation in the [WORKSPACE](../../WORKSPACE) file.
 
-```
+```starlark
 register_toolchains(
     "//tools/python_interpreter:captive_python_toolchain",
 )
@@ -48,6 +48,6 @@ This installs the captive version as the preferred python toolchain.
 
 To check that the captive python is being used by Bazel, run this:
 
-```
+```bash
 bazel run //tools/python_interpreter:check_python_path
 ```

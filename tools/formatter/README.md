@@ -3,7 +3,7 @@
 This script runs the Bazel buildifier tool on all of our Bazel files (BUILD, \*.bzl).
 Execute it from the root of the repo.
 
-```
+```bash
 cd bazel-springboot-rule
 ./tools/formatter/format_bazel_files.sh
 ```

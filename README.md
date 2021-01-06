@@ -32,7 +32,7 @@ This loads a pre-built version of this rule into your workspace during the build
 It may or may not work for you, as it does not allow you to customize it.
 On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2) we have work items to upgrade this rule to use more modern packaging idioms.
 
-```
+```starlark
 http_archive(
     name = "bazel_springboot_rule",
     sha256 = "8b47059742f3c93d4bc172027db4f430938a95f37e7b9b08c84262e8969871fa",
@@ -48,7 +48,7 @@ It allows you to bring in the rule, and make customizations as necessary.
 We recommend copying it into location *//tools/springboot* in your workspace but you are free to change this if you like.
 
 Once it is copied in, add this to your WORKSPACE:
-```
+```starlark
 local_repository(
     name = "bazel_springboot_rule",
     path = "tools/springboot",

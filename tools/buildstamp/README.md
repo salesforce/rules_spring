@@ -34,7 +34,7 @@ When troubleshooting problems, that extra data is critical.
 
 To signal to the build that you want full stamping, you can create a marker file to enable it:
 
-```
+```bash
 $ cd [your workspace] (i.e. top level directory of your repo where WORKSPACE is)
 $ touch full_stamp.txt  (marker file that triggers full stamping)
 $ bazel build //...
@@ -43,7 +43,7 @@ $ bazel build //...
 Full stamping is also signaled if the environment variable *IS_RELEASE_BUILD* is set to true.
 This may be more convenient for CI systems.
 
-```
+```bash
 $ export IS_RELEASE_BUILD=true
 $ bazel build //...
 ```
@@ -59,7 +59,7 @@ The way to signal to Bazel to stamp a particular artifact is to add an attribute
 This is done automatically for you in the [Spring Boot rule](../springboot/springboot.bzl)
    when it generates the *git.properties* file, as seen in this snippet:
 
-```
+```starlark
 gengitinfo_out = "git.properties"
 native.genrule(
     name = gengitinfo_rule,

@@ -5,13 +5,13 @@ This example shows a simple Spring Boot application packaged with Bazel.
 
 To build:
 
-```
+```bash
 bazel build //samples/helloworld
 ```
 
 To run:
 
-```
+```bash
 bazel run //samples/helloworld
 ```
 

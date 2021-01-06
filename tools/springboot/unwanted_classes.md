@@ -21,7 +21,7 @@ The Spring Boot rule has a set of strategies and features for dealing with this 
 There is a feature on the *springboot* rule that will fail the build if duplicate classes are detected.
 It is disabled by default, but can be enabled with an attribute:
 
-```
+```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
@@ -54,7 +54,7 @@ This is the second best approach for handling unwanted classes.
 
 It is used like this:
 
-```
+```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
@@ -127,7 +127,7 @@ The feature is explained in the Spring Boot documentation:
 
 The Spring Boot rule exposes the *classpath_index* attribute:
 
-```
+```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
@@ -141,7 +141,7 @@ springboot(
 :fire: However, there is a major caveat with this Spring Boot feature.
 It only works if you first explode the executable jar, and then invoke the *JarLauncher*:
 
-```
+```bash
 $ jar -xf helloworld.jar
 $ java org.springframework.boot.loader.JarLauncher
 ```
@@ -170,7 +170,7 @@ libfoo2.jar
 
 and then follow this pattern in the BUILD file:
 
-```
+```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",

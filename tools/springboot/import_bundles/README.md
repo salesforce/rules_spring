@@ -10,7 +10,7 @@ This import bundles package was created to help curate the repetitive lists of b
 But now with *maven_install*, transitives are managed so this isn't as useful.
 We will maintain the *springboot_required_deps* bundle, but otherwise please stop using these targets.
 
-```
+```starlark
 deps = [
   "//tools/springboot/import_bundles:springboot_required_deps",
 ]

@@ -9,7 +9,7 @@ See the [top-level README](../../README.md) for the stanza to add to your *WORKS
 
 This is a *BUILD* file code snippet of how to invoke the rule:
 
-```
+```starlark
 # load our Spring Boot rule
 load("//tools/springboot:springboot.bzl", "springboot",)
 
@@ -47,7 +47,7 @@ The required *springboot* rule attributes are as follows:
 
 After installing the rule into your workspace at *tools/springboot*, you are ready to build.
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
-```
+```bash
 # Build
 bazel build //samples/helloworld
 # Run
@@ -60,7 +60,7 @@ In production environments, you will likely not have Bazel installed nor the Baz
 This is the primary use case for the executable jar file.
 The build will create the executable jar file in the *bazel-bin* directory.
 Run the jar file locally using *java* like so:
-```
+```bash
 java -jar bazel-bin/samples/helloworld/helloworld.jar
 ```
 
@@ -110,7 +110,7 @@ See the [//tools/buildstamp](../buildstamp) package for more details on how to e
 
 As shown above, you can launch the Spring Boot application directly from Bazel using the *bazel run* idiom:
 
-```
+```bash
 bazel run //samples/helloworld
 ```
 
@@ -118,14 +118,14 @@ But you may wish to customize the launch with JVM arguments.
 There are two mechanisms that are supported for this - *jvm_flags* and *JAVA_OPTS*.
 They are injected into the command line launcher like this:
 
-```
+```bash
 java [jvm_flags] [JAVA_OPTS] -jar [springboot jar]
 ```
 
 The attribute *jvm_flags* is for cases in which you always want the flags to apply when the application is launched from Bazel.
 It is specified as an attribute on the springboot rule invocation:
 
-```
+```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
@@ -137,7 +137,7 @@ springboot(
 The environment variable JAVA_OPTS is useful when a developer wants to make a local override.
 It is set in your shell before launching the application:
 
-```
+```bash
 export JAVA_OPTS='-Dcustomprop=silver'
 bazel run //samples/helloworld
 ```
@@ -160,7 +160,7 @@ If `$TMPDIR` is not defined, it defaults to `/tmp`.
 
 In order to pass this environment variable to Bazel, use the `--action_env` argument:
 
-```
+```bash
 bazel build //... --action_env=DEBUG_SPRINGBOOT_RULE=1
 ```
 

@@ -9,7 +9,7 @@ The Salesforce *springboot* rule can be found, along with documentation, in this
 
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
 Please do not link to the *master* branch of this rule in your Bazel workspace, use an official release instead:
-- [rules_springboot releases](https://github.com/salesforce/bazel-springboot-rule/releases)
+- [bazel-springboot-rule releases](https://github.com/salesforce/bazel-springboot-rule/releases)
 
 ### Support and Ongoing Development
 
@@ -54,7 +54,7 @@ local_repository(
     path = "tools/springboot",
 )
 ```
-Make sure to review the [buildstamp](../buildstamp) documentation as well.
+Make sure to review the [buildstamp](tools/buildstamp) documentation as well.
 
 
 ### Alternate Approach for Building and Running Spring Boot Applications

@@ -30,6 +30,17 @@ java_library(
     deps = springboot_deps + lib_deps,
 )
 
+test_deps = [
+    "@maven//:junit_junit",
+    "@maven//:org_hamcrest_hamcrest_core",
+]
+
+java_test(
+   name = "SampleRestUnitTest",
+   srcs = ["src/test/java/com/sample/SampleRestUnitTest.java"],
+   deps = [ ":helloworld_lib" ] + test_deps,
+)
+
 # Build the app as a Spring Boot executable jar
 springboot(
     name = "helloworld",
@@ -57,4 +68,17 @@ springboot(
     # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
     #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
     classpath_index = "helloworld_classpath.idx",
+)
+
+springboottest_deps = [
+    "@maven//:org_springframework_spring_beans",
+    "@maven//:org_springframework_boot_spring_boot_test",
+    "@maven//:org_springframework_spring_test",
+]
+
+java_test(
+    name = "SampleRestFuncTest",
+    srcs = ["src/test/java/com/sample/SampleRestFuncTest.java"],
+    deps = [ ":helloworld_lib" ] + test_deps + springboottest_deps,
+    resources = glob(["src/test/resources/**"]),
 )

@@ -67,6 +67,10 @@ def external_maven_jars():
             "com.fasterxml:classmate:1.5.1",
             "commons-logging:commons-logging:1.2",
             "org.jboss.logging:jboss-logging:3.4.1.Final",
+
+            "junit:junit:4.13",
+            "org.hamcrest:hamcrest-core:1.3",
+            
         ],
         excluded_artifacts = [
             "org.springframework.boot:spring-boot-starter-tomcat",

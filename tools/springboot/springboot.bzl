@@ -408,14 +408,6 @@ def springboot(
 
 # end springboot macro
 
-# Simple wrapper around java_test that adds a data dependency on the calling project's springboot JAR file.
-def springboot_test(**kwargs):
-    springboot_jar_data = [native.package_name() + "_genjar"]
-    if ("data" in kwargs):
-        kwargs["data"] += springboot_jar_data
-    else:
-        kwargs["data"] = springboot_jar_data
-    native.java_test(**kwargs)
 
 def _get_springboot_jar_file_name(name):
     if name.endswith(".jar"):

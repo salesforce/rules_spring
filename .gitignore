@@ -19,3 +19,7 @@ __pycache__
 # //tools/python_interpreter
 captive_python3
 bin
+
+# after running the //tools/codecoverage tooling you will be left with this root level folder
+# it contains your test results, so do not checkin
+coverage-reports

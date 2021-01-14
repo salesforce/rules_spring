@@ -12,8 +12,6 @@ deps = [
 test_deps = [
     "@maven//:junit_junit",
     "@maven//:org_hamcrest_hamcrest_core",
-    "@maven//:org_springframework_boot_spring_boot_test",
-    "@maven//:org_springframework_spring_test",
 ]
 
 java_library(
@@ -22,4 +20,10 @@ java_library(
     resources = glob(["src/main/resources/**"]),
     visibility = ["//visibility:public"],
     deps = deps,
+)
+
+java_test(
+   name = "IntentionalDupedClassTest",
+   srcs = ["src/test/java/com/bazel/demo/IntentionalDupedClassTest.java"],
+   deps = [ ":lib2" ] + test_deps,
 )

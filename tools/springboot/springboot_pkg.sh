@@ -24,33 +24,14 @@ USE_BUILD_DEPENDENCY_ORDER=$5
 OUTPUTJAR=$6
 APPJAR=$7
 MANIFEST=$8
-#GITPROPSFILE=$9 (these assignments have to wait, see below)
-#CLASSPATH_INDEX=$10
-#FIRST_JAR_ARG=11
+GITPROPSFILE=$9
+CLASSPATH_INDEX=$10
+FIRST_JAR_ARG=11
 
 if [ $USE_BUILD_DEPENDENCY_ORDER = "True" ]; then
   USE_BUILD_DEPENDENCY_ORDER=true
 else
 USE_BUILD_DEPENDENCY_ORDER=false
-fi
-
-#The coverage variable is used to make sure that the correct files are picked in case bazel coverage is run with this springboot rule
-COVERAGE=1
-
-# When bazel coverage is run on packages the appcompile_rule returns an extra string
-# "bazel-out/darwin-fastbuild/bin/projects/services/basic-rest-service/coverage_runtime_classpath/projects/services/basic-rest-service_app/runtime-classpath.txt"
-# This is a workaround to ensure that the MANIFEST is picked correctly.
-if [[ $MANIFEST = *"MANIFEST.MF" ]]; then
-    GITPROPSFILE=$9
-    CLASSPATH_INDEX=${10}
-    FIRST_JAR_ARG=11
-    COVERAGE=0
-else
-    # move these args down one slot, the code cov introduced something in the manifest slot
-    MANIFEST=$9
-    GITPROPSFILE=${10}
-    CLASSPATH_INDEX=${11}
-    FIRST_JAR_ARG=12
 fi
 
 # package name (not guaranteed to be globally unique)

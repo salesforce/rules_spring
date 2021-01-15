@@ -35,9 +35,9 @@ On [our roadmap](https://github.com/salesforce/bazel-springboot-rule/projects/2)
 ```starlark
 http_archive(
     name = "bazel_springboot_rule",
-    sha256 = "8b47059742f3c93d4bc172027db4f430938a95f37e7b9b08c84262e8969871fa",
+    sha256 = "5ddee1268e3a59dadc25d61539e43fff7b7991c2dcd7463d1cff363994d365a1",
     urls = [
-        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.1.0-rc1/bazel-springboot-rule-1.1.0-rc1.zip",
+        "https://github.com/salesforce/bazel-springboot-rule/releases/download/1.1.0/bazel-springboot-rule-1.1.0.zip",
     ],
 )
 ```

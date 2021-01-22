@@ -63,6 +63,22 @@ _depaggregator_rule = rule(
     },
 )
 
+def _appjar_locator_impl(ctx):
+    if java_common.provider in ctx.attr.app_dep:
+        output_jars = ctx.attr.app_dep[java_common.provider].runtime_output_jars
+        if len(output_jars) != 1:
+            fail("springboot rule expected 1 app jar but found %s" % len(output_jars))
+    else:
+        fail("Unable to locate the app jar")
+    return [DefaultInfo(files = depset([output_jars[0]]))]
+
+_appjar_locator_rule = rule(
+    implementation = _appjar_locator_impl,
+    attrs = {
+        "app_dep": attr.label(),
+    },
+)
+
 # ***************************************************************
 # Check Dupe Classes Rule
 
@@ -271,6 +287,7 @@ def springboot(
         use_build_dependency_order = True):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
+    appjar_locator_rule = native.package_name() + "_appjar_locator"
     genmanifest_rule = native.package_name() + "_genmanifest"
     gengitinfo_rule = native.package_name() + "_gengitinfo"
     genjar_rule = native.package_name() + "_genjar"
@@ -320,6 +337,12 @@ def springboot(
     if classpath_index == None:
         classpath_index = "@bazel_springboot_rule//tools/springboot:empty.txt"
 
+    # see https://github.com/salesforce/bazel-springboot-rule/issues/81
+    _appjar_locator_rule(
+        name = appjar_locator_rule,
+        app_dep = java_library,
+    )
+
     # SUBRULE 3: INVOKE THE BASH SCRIPT THAT DOES THE PACKAGING
     # The resolved input_file_paths array is made available as the $(SRCS) token in the cmd string.
     # Skylark will convert the logical input_file_paths into real file system paths when surfaced in $(SRCS)
@@ -339,7 +362,7 @@ def springboot(
     native.genrule(
         name = genjar_rule,
         srcs = [
-            java_library,
+            ":" + appjar_locator_rule,
             ":" + genmanifest_rule,
             ":" + gengitinfo_rule,
             classpath_index,

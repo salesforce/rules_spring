@@ -20,6 +20,10 @@ springboot_deps = [
     "@maven//:org_springframework_boot_spring_boot_starter_jetty",
     "@maven//:org_springframework_boot_spring_boot_starter_web",
     "@maven//:org_springframework_spring_webmvc",
+
+    # bring in same dep again as above, but through a different maven_install
+    # rule: the springboot rule does not package duplicate deps, first one wins
+    "@spring_boot_starter_jetty//:org_springframework_boot_spring_boot_starter_jetty",
 ]
 
 # This Java library contains the app code

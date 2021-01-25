@@ -70,7 +70,6 @@ def external_maven_jars():
 
             "junit:junit:4.13",
             "org.hamcrest:hamcrest-core:1.3",
-            
         ],
         excluded_artifacts = [
             "org.springframework.boot:spring-boot-starter-tomcat",
@@ -80,7 +79,24 @@ def external_maven_jars():
         version_conflict_policy = "pinned",
         strict_visibility = True,
         generate_compat_repositories = False,
-        # comment the following line in once maven_install.json generation doesn't include user id
         maven_install_json = "@bazel_springboot_rule//:maven_install.json",
         resolve_timeout = 1800,
     )
+
+    # this rule exists to test how the springboot rule handles duplicate
+    # artifacts: org.springframework.boot:spring-boot-starter-jetty is also
+    # brought in by the rule above
+    maven_install(
+        name = "spring_boot_starter_jetty",
+        artifacts = [
+            "org.springframework.boot:spring-boot-starter-jetty:2.4.1",
+        ],
+        repositories = repositories,
+        fetch_sources = True,
+        version_conflict_policy = "pinned",
+        strict_visibility = True,
+        generate_compat_repositories = False,
+        maven_install_json = "@bazel_springboot_rule//:spring_boot_starter_jetty_install.json",
+        resolve_timeout = 1800,
+    )
+

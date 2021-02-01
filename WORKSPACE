@@ -24,6 +24,8 @@ external_maven_jars()
 load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 
+load("@spring_boot_starter_jetty//:defs.bzl", pinned_spring_boot_starter_jetty_install = "pinned_maven_install")
+pinned_spring_boot_starter_jetty_install()
 
 #
 # CAPTIVE PYTHON

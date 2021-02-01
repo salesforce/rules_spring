@@ -147,6 +147,26 @@ while [ "$i" -le "$#" ]; do
       # copy the jar into BOOT-INF/lib, being mindful to prevent name collisions by using subdirectories (see Issue #61)
       # the logic to truncate paths below doesnt need to be perfect, it just hopes to simplify the jar paths so they look better for most cases
       # for maven_install deps, the algorithm to correctly identify the end of the server path and the groupId is not defined
+      #
+      # a note on duplicate artifacts:
+      # if the same dep (same gav) is brought in multiple times by different
+      # maven_install rules, we do not end up with multiple copies of the same
+      # jar. our logic handles this case because of how we truncate the paths
+      # below: both (identical) jars will get copied into the same location,
+      # the 2nd one overwriting the first one, and therefore we end of with
+      # only a single jar in the final assembly, as desired
+      # example: 2 maven_install rules bring in spring-boot-starter-jetty:
+      # "maven" rule: external/maven/v1/https/repo1.maven.org/maven2/org/springframework/boot/spring-boot-starter-jetty/2.4.1/spring-boot-starter-jetty-2.4.1.jar
+      # "spring_boot_starter_jetty" rule: external/spring_boot_starter_jetty/v1/https/repo1.maven.org/maven2/org/springframework/boot/spring-boot-starter-jetty/2.4.1/spring-boot-starter-jetty-2.4.1.jar
+      # the relative destpath we compute below starts after "maven2"
+      #
+      # related to above, a note on duplicate jar entries:
+      # if the jar cmd is called with the same path more than once, for example:
+      # jar -cf foo.jar a/b/c.txt d/e/f.txt a/b/c.txt, the first path "wins",
+      # subsequent duplicate paths are ignored. so for the example above, the
+      # jar will have entries: a/b/c.txt, d/e/f.txt
+      # this "first one wins" behavior is also what we want when duplicate
+      # dependencies are encountered
       if [[ ${libdir} == *external*maven2* ]]; then
         # this is a maven_install jar probably from maven central
         # libdir:      bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/springframework/boot/spring-boot-starter-logging/2.2.1.RELEASE/spring-boot-starter-logging-2.2.1.RELEASE.jar

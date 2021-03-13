@@ -20,7 +20,7 @@ do
 done
 
 if [[ $FOUND_SPRING_JAR -ne 1 ]]; then
-    echo "ERROR: //tools/springboot/write_manifest.sh could not find spring-boot jar"
+    echo "ERROR: //springboot/write_manifest.sh could not find spring-boot jar"
     exit 1
 fi
 

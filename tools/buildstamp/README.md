@@ -56,15 +56,15 @@ The way to signal to Bazel to stamp a particular artifact is to add an attribute
   stamp = 1
 ```
 
-This is done automatically for you in the [Spring Boot rule](../springboot/springboot.bzl)
+This is done automatically for you in the [Spring Boot rule](../../springboot/springboot.bzl)
    when it generates the *git.properties* file, as seen in this snippet:
 
 ```starlark
 gengitinfo_out = "git.properties"
 native.genrule(
     name = gengitinfo_rule,
-    cmd = "$(location //tools/springboot:write_gitinfo_properties.sh) $@",
-    tools = ["//tools/springboot:write_gitinfo_properties.sh"],
+    cmd = "$(location //springboot:write_gitinfo_properties.sh) $@",
+    tools = ["//springboot:write_gitinfo_properties.sh"],
     outs = [gengitinfo_out],
     tags = tags,
     stamp = 1,

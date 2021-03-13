@@ -11,11 +11,11 @@ This is a *BUILD* file code snippet of how to invoke the rule:
 
 ```starlark
 # load our Spring Boot rule
-load("//tools/springboot:springboot.bzl", "springboot",)
+load("//springboot:springboot.bzl", "springboot",)
 
 # create our deps list for Spring Boot, we have some convenience targets for this
 springboot_deps = [
-  "//tools/springboot/import_bundles:springboot_required_deps",
+  "//springboot/import_bundles:springboot_required_deps",
   "@maven//:org_springframework_boot_spring_boot_starter_jetty",
   "@maven//:org_springframework_boot_spring_boot_starter_web",
   "@maven//:org_springframework_spring_webmvc",
@@ -45,7 +45,7 @@ The required *springboot* rule attributes are as follows:
 
 ## Build and Run
 
-After installing the rule into your workspace at *tools/springboot*, you are ready to build.
+After installing the rule into your workspace, you are ready to build.
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
 ```bash
 # Build
@@ -71,16 +71,15 @@ The executable jar file is ready to be copied to your production environment.
 
 ### Manage External Dependencies in your WORKSPACE
 
-This repository has an example [WORKSPACE](../../external_deps.bzl) file that lists necessary and some optional Spring Boot dependencies.
+This repository has an example [WORKSPACE](../../WORKSPACE) file that lists necessary and some optional Spring Boot dependencies.
 These will come from a Nexus/Artifactory repository, or Maven Central.
 Because the version of each dependency needs to be explicitly defined, it is left for you to review and add to your *WORKSPACE* file.
 You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds and runs.
 
 ### Convenience Import Bundles
 
-The [//tools/springboot/import_bundles](import_bundles) package contains some example bundles of imports.
-There are bundles for the Spring Boot framework, as well as bundles for the various starters.
-The ones provided in this repository are just examples.
+The [//springboot/import_bundles](import_bundles) package contains a list of core set of Spring Boot dependencies.
+We recommend starting with this list, and then creating your own bundles if it helps.
 
 ### Detecting, Excluding and Suppressing Unwanted Classes
 

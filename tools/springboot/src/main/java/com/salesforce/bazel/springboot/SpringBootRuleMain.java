@@ -13,7 +13,6 @@ public class SpringBootRuleMain {
     	
     }
     
-    
     private static void showArgsValidationErrors(SpringBootRuleArgs args) {
     	System.err.println("rules_springboot invocation is invalid:");
     	for (String error: args.validationErrors) {

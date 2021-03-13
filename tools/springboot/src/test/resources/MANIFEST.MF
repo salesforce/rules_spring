@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: Bazel
+Built-By: Bazel
+Main-Class: org.springframework.boot.loader.JarLauncher
+Spring-Boot-Classes: BOOT-INF/classes/
+Spring-Boot-Lib: BOOT-INF/lib/
+Spring-Boot-Version: external
+Build-Jdk: 1.8.0_212
+Start-Class: com.sample.SampleMain

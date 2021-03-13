@@ -8,6 +8,10 @@ workspace(name = "bazel_springboot_rule")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+#
+# Load jars used by the samples
+#
+
 RULES_JVM_EXTERNAL_TAG = "3.3"
 RULES_JVM_EXTERNAL_SHA = "d85951a92c0908c80bd8551002d66cb23c3434409c814179c0ff026b53544dab"
 

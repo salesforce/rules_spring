@@ -22,6 +22,8 @@ import java.util.Set;
  * Command line args parsing code. This could be made easier with an open source library
  * (e.g. commons-cli) but I dont want to drag a dep tree into the springboot rule implementation.
  * So this is just a bare bones CLI processor for our needs.
+ * Actually, we now drag in zip4j so we could also add a cli lib, but this code is already written
+ * so we will just go with it.
  */
 public class SpringBootRuleArgs {
 	
@@ -273,7 +275,8 @@ public class SpringBootRuleArgs {
 		}		
 	}
 	
-	// Ex: spring-aop-5.3.2.jar spring-boot-actuator-2.4.1.jar spring-web-5.3.2.jar
+	// Ex: bazel-out/a/b/c/spring-aop-5.3.2.jar bazel-out/a/b/c/spring-boot-actuator-2.4.1.jar bazel-out/a/b/c/spring-web-5.3.2.jar
+	// but could also contains non .jar files (which we later ignore)
 	// returns the index in the rawArgs array of the last item processed as a dependency lib
 	protected int setDependencyLibNames(String[] argArray, int argIndexStart) {
 		// pull off the list of jars until we reach the end of the args list, or find a named parameter
@@ -286,11 +289,11 @@ public class SpringBootRuleArgs {
 				// a different named arg, stop processing
 				return i-1;
 			}
-			if (arg.endsWith(".jar")) {
-				this.dependencyLibNames.add(arg);
-			} else {
-				addError("Command line arg ["+id("arg "+(i+1), arg)+"] should be the name of a dependency lib (ends with .jar).");
-			}
+			
+			// Spring Boot rule only wants jars in the dep list, but the user may not have control over their transitive closure
+			// of upstream deps. So we don't validate that each dep is a .jar here. Later, in the Spring Boot rule we will skip
+			// non-jar deps.			
+			this.dependencyLibNames.add(arg);
 		}
 		
 		return argArray.length-1;

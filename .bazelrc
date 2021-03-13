@@ -15,7 +15,21 @@ build --stamp
 build --workspace_status_command tools/buildstamp/get_workspace_status
 
 
+# **********************************
+# JAVA TESTING
+# **********************************
+# BUILD files should fully specify their deps for tests
+# the default behavior for Java tests is to infer junit and hamcrest deps but
+# we disable that here so that projects need to be explicit
+test --explicit_java_test_deps=true
+
+
+# **********************************
+# WORKAROUNDS
+# **********************************
+
 # TODO fix these old bazel-isms
 build --incompatible_disallow_unverified_http_downloads=false
 
+# maybe personal preference, but nice to see the test output
 test --test_output=all

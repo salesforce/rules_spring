@@ -97,18 +97,17 @@ public class SpringBootArgsTest {
 	@Test
 	public void testDepLibsSetter() {	
 		SpringBootRuleArgs args = new SpringBootRuleArgs();
-		String[] depLibs = { "notalib", "notalib", "aaa.jar", "bbb.jar", "ccc.jar", "ddd.jar"};
+		String[] depLibs = { "notalib", "notalib", "bazel-out/one/two/three/aaa.jar", "bazel-out/one/two/three/bbb.jar", 
+				"bazel-out/one/two/three/ccc.jar", "bazel-out/one/two/three/ddd.jar"};
 		
 		args.setDependencyLibNames(depLibs, 2);
 		assertNull(args.validationErrors);
 		assertEquals(4, args.dependencyLibNames.size());
 		args.dependencyLibNames = null;
 		
-		args.setDependencyLibNames(depLibs, 1);
-		assertNotNull(args.validationErrors); // fail, notalib is seen as a non jar
-		args.validationErrors = null;
-		
-		String[] depLibsEndNamed = { "notalib", "notalib", "aaa.jar", "bbb.jar", "ccc.jar", "ddd.jar", "--some_named_arg"};
+		String[] depLibsEndNamed = { "notalib", "notalib", 
+				"bazel-out/one/two/three/aaa.jar", "bazel-out/one/two/three/bbb.jar", "bazel-out/one/two/three/ccc.jar", 
+				"bazel-out/one/two/three/ddd.jar", "--some_named_arg"};
 		args.setDependencyLibNames(depLibsEndNamed, 2);
 		assertNull(args.validationErrors);
 		assertEquals(4, args.dependencyLibNames.size());		
@@ -231,7 +230,7 @@ public class SpringBootArgsTest {
 				TEST_ARG_MANIFESTPATH, 
 				TEST_ARG_GITPROPSPATH, 
 				TEST_ARG_CPINDEXPATH, 
-				"test1.jar", "test2.jar", "test3.jar"}; 
+				"bazel-out/one/two/three/test1.jar", "bazel-out/one/two/three/test2.jar", "bazel-out/one/two/three/test3.jar"}; 
 	}
 
 	private String[] generateNamedArgs_ordered() {
@@ -246,7 +245,10 @@ public class SpringBootArgsTest {
 				"--"+SpringBootRuleArgs.ARG_MANIFESTPATH, TEST_ARG_MANIFESTPATH, 
 				"--"+SpringBootRuleArgs.ARG_GITPROPS, TEST_ARG_GITPROPSPATH, 
 				"--"+SpringBootRuleArgs.ARG_CPINDEXPATH, TEST_ARG_CPINDEXPATH, 
-				"--"+SpringBootRuleArgs.ARG_DEPS, "test1.jar", "test2.jar", "test3.jar"
+				"--"+SpringBootRuleArgs.ARG_DEPS, 
+					"bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/springframework/boot/spring-boot/2.4.1/spring-boot-2.4.1.jar", 
+					"bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/springframework/spring-jcl/5.3.2/spring-jcl-5.3.2.jar", 
+					"bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/yaml/snakeyaml/1.27/snakeyaml-1.27.jar",
 			}; 
 	}
 	
@@ -254,7 +256,10 @@ public class SpringBootArgsTest {
 		return new String[] { 
 				"--"+SpringBootRuleArgs.ARG_SINGLEJAR, TEST_ARG_SINGLEJAR, 
 				"--"+SpringBootRuleArgs.ARG_MAINCLASS, TEST_ARG_MAINCLASS, 
-				"--"+SpringBootRuleArgs.ARG_DEPS, "test1.jar", "test2.jar", "test3.jar",
+				"--"+SpringBootRuleArgs.ARG_DEPS, 
+					"bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/springframework/boot/spring-boot/2.4.1/spring-boot-2.4.1.jar", 
+					"bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/springframework/spring-jcl/5.3.2/spring-jcl-5.3.2.jar", 
+					"bazel-out/darwin-fastbuild/bin/external/maven/v1/https/repo1.maven.org/maven2/org/yaml/snakeyaml/1.27/snakeyaml-1.27.jar",
 				"--"+SpringBootRuleArgs.ARG_OUTPUTJAR, TEST_ARG_OUTPUTJAR, 
 				"--"+SpringBootRuleArgs.ARG_CPINDEXPATH, TEST_ARG_CPINDEXPATH, 
 				"--"+SpringBootRuleArgs.ARG_WORKING_PATH, TEST_ARG_WORKING_PATH, 

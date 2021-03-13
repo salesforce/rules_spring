@@ -12,17 +12,25 @@
 
 exports_files([
     "springboot.bzl",
-    "dupe_class_jar_allowlist.txt",
     "empty.txt",
 ])
+
 
 
 # -------------------------------
 # JAVA RULE IMPL
 
+#
+# Do not add any dep on anything in WORKSPACE, as that creates hassles for rules users.
+# If you *must* use a java lib, please vendor it into the lib dir.
+java_import(
+    name = "zip4j",
+    jars = ["lib/zip4j-2.6.4.jar"],
+    srcjar = "lib/zip4j-2.6.4-sources.jar",
+)
+
 deps = [
-  # do not add any upstream deps, as that creates a config impact on rule users;
-  # implement everything from scratch
+	":zip4j",
 ]
 
 test_deps = [
@@ -54,6 +62,7 @@ java_binary(
     size = "medium",
     srcs = [name],
     deps = [":springboot_rule_lib"] + deps + test_deps,
+    resources = glob(["src/test/resources/**/*"]),
 ) for name in glob(["src/test/java/**/*Test.java"])]
 
 

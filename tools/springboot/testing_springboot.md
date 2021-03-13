@@ -4,7 +4,7 @@ Before reading this document, please read Spring Boot documentation on how to wr
 Documents that explain the *SpringBootTest* annotation is what you should look for.
 
 This document explains how to invoke those tests from your Bazel build.
-Be sure to also look at the [sample application](../../samples/helloworld) for actual test implementations.
+Be sure to also look at the [example application](../../examples/helloworld) for actual test implementations.
 
 The code snippets below assume you have a Spring Boot application with *BUILD* file as:
 ```starlark
@@ -94,6 +94,6 @@ We do provide a convenience script to show how to run *lcov* to generate the htm
 But none of this is specific to *springboot*.
 
 ```bash
-bazel coverage //samples/helloworld/...
+bazel coverage //examples/helloworld/...
 ./tools/codecoverage/coverage-report.sh
 ```

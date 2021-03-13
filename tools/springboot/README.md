@@ -49,11 +49,11 @@ After installing the rule into your workspace at *tools/springboot*, you are rea
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
 ```bash
 # Build
-bazel build //samples/helloworld
+bazel build //examples/helloworld
 # Run
-bazel run //samples/helloworld
+bazel run //examples/helloworld
 # Run with arguments
-bazel run //samples/helloworld red green blue
+bazel run //examples/helloworld red green blue
 ```
 
 In production environments, you will likely not have Bazel installed nor the Bazel workspace files.
@@ -61,7 +61,7 @@ This is the primary use case for the executable jar file.
 The build will create the executable jar file in the *bazel-bin* directory.
 Run the jar file locally using *java* like so:
 ```bash
-java -jar bazel-bin/samples/helloworld/helloworld.jar
+java -jar bazel-bin/examples/helloworld/helloworld.jar
 ```
 
 The executable jar file is ready to be copied to your production environment.
@@ -111,7 +111,7 @@ See the [//tools/buildstamp](../buildstamp) package for more details on how to e
 As shown above, you can launch the Spring Boot application directly from Bazel using the *bazel run* idiom:
 
 ```bash
-bazel run //samples/helloworld
+bazel run //examples/helloworld
 ```
 
 But you may wish to customize the launch with JVM arguments.
@@ -139,7 +139,7 @@ It is set in your shell before launching the application:
 
 ```bash
 export JAVA_OPTS='-Dcustomprop=silver'
-bazel run //samples/helloworld
+bazel run //examples/helloworld
 ```
 
 ### Other Rule Attributes

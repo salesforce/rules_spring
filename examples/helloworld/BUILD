@@ -10,8 +10,8 @@ load("//tools/springboot:springboot.bzl", "springboot")
 
 # dependencies from other packages in the workspace
 lib_deps = [
-    "//samples/helloworld/libs/lib1",
-    "//samples/helloworld/libs/lib2",
+    "//examples/helloworld/libs/lib1",
+    "//examples/helloworld/libs/lib2",
 ]
 
 # create our deps list for Spring Boot

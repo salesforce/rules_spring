@@ -6,13 +6,13 @@ This example shows a simple Spring Boot application packaged with Bazel.
 To build:
 
 ```bash
-bazel build //samples/helloworld
+bazel build //examples/helloworld
 ```
 
 To run:
 
 ```bash
-bazel run //samples/helloworld
+bazel run //examples/helloworld
 ```
 
 For full documentation, see the [//tools/springboot](../../tools/springboot) package documentation.

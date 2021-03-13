@@ -13,7 +13,7 @@ fi
 
 echo ""
 echo "Before running this script, you must run a coverage job in Bazel."
-echo "bazel coverage //samples/helloworld/..."
+echo "bazel coverage //examples/helloworld/..."
 
 echo ""
 echo "Press enter to continue..."

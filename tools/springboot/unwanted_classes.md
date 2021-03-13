@@ -96,8 +96,8 @@ The output of that command is faithful to the order of written entries.
 
 #### Example
 
-[lib1](../../samples/helloworld/libs/lib1) and [lib2](../../samples/helloworld/libs/lib2) have a duplicate class: [lib1's IntentionalDupedClass](../../samples/helloworld/libs/lib1/src/main/java/com/bazel/demo/IntentionalDupedClass.java) and [lib2's IntentionalDupedClass](../../samples/helloworld/libs/lib2/src/main/java/com/bazel/demo/IntentionalDupedClass.java).
-In the example's [BUILD file](../../samples/helloworld/BUILD), if `lib1` appears before `lib2` in `deps`,
+[lib1](../../examples/helloworld/libs/lib1) and [lib2](../../examples/helloworld/libs/lib2) have a duplicate class: [lib1's IntentionalDupedClass](../../examples/helloworld/libs/lib1/src/main/java/com/bazel/demo/IntentionalDupedClass.java) and [lib2's IntentionalDupedClass](../../examples/helloworld/libs/lib2/src/main/java/com/bazel/demo/IntentionalDupedClass.java).
+In the example's [BUILD file](../../examples/helloworld/BUILD), if `lib1` appears before `lib2` in `deps`,
    you will see the following output when running `bazel run sample/helloworld`:
 ```
 SampleMain:  Intentional duped class version: Hello LIB1!

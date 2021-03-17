@@ -7,15 +7,18 @@ The executable jar is the best way to deploy your Spring Boot application in pro
 The Salesforce *springboot* rule can be found, along with documentation, in this location:
 - [springboot](springboot): a Bazel extension to build and package Spring Boot applications
 
-The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
+:fire: this Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
+This was done to follow published Bazel naming conventions for external rules.
+Testing indicated that this change should be transparent to your builds because GitHub implements redirects.
+But let us know if this change caused you issues by posting to the [Git repo rename issue](https://github.com/salesforce/rules_spring/issues/97).
 
 ### Support and Ongoing Development
 
 This rule was developed and is supported by Salesforce.
-If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/bazel-springboot-rule/issues).
+If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/rules_spring/issues).
 We will try to quickly address problems and answer questions.
 
-Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/bazel-springboot-rule/projects).
+Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/rules_spring/projects).
 To see what bug fixes and new features are planned, consult the roadmaps located there.
 
 :octocat: Please do us a **huge favor**. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top. That helps us advocate for more time and resources on this project. Thanks!
@@ -36,7 +39,7 @@ http_archive(
     name = "rules_spring",
     sha256 = "7d4f12748df340397559decd8348289a6f85ae32dae344545b6d08ad036a9cfe",
     urls = [
-        "https://github.com/salesforce/bazel-springboot-rule/releases/download/2.0.0/rules-spring-2.0.0.zip",
+        "https://github.com/salesforce/rules_spring/releases/download/2.0.0/rules-spring-2.0.0.zip",
     ],
 )
 ```
@@ -78,7 +81,7 @@ For rule 1.x users upgrading to 2.0.0, you will need to do the following:
 - All WORKSPACE and BUILD file references to *bazel_springboot_rule* must be changed to *rules_spring*
 - All BUILD and .bzl file references to *//tools/springboot* must be changed to *//springboot*
 
-See [Repackaging work item](https://github.com/salesforce/bazel-springboot-rule/issues/30) for more details.
+See [Repackaging work item](https://github.com/salesforce/rules_spring/issues/30) for more details.
 
 #### 1.0.0 September 21, 2020
 

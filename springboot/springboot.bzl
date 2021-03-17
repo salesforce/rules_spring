@@ -337,7 +337,7 @@ def springboot(
     if classpath_index == None:
         classpath_index = "@rules_spring//springboot:empty.txt"
 
-    # see https://github.com/salesforce/bazel-springboot-rule/issues/81
+    # see https://github.com/salesforce/rules_spring/issues/81
     _appjar_locator_rule(
         name = appjar_locator_rule,
         app_dep = java_library,

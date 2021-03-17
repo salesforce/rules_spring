@@ -113,7 +113,7 @@ SampleMain:  Intentional duped class version: Hello LIB2!
 The current implementation of this feature uses the `jar` command line utility.
 Explicit jar entry ordering is implemented by specifying an explicit file list when running `jar`.  
 Very large dependency sets may cause the jar command to exceed the system command line length limit.
-This limitation will be addressed when [Issue 3](https://github.com/salesforce/bazel-springboot-rule/issues/3) is resolved.
+This limitation will be addressed when [Issue 3](https://github.com/salesforce/rules_spring/issues/3) is resolved.
 Until then, if you run into errors, you can disable this feature by setting the attribute `use_build_dependency_order` to `False`.
 
 

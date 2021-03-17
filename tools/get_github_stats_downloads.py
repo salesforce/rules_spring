@@ -1,11 +1,11 @@
 import requests
 
 '''
-This script queries GitHub to get the number of downloads of the releases of our rule. 
+This script queries GitHub to get the number of downloads of the releases of our rule.
 '''
 
 owner = "salesforce"
-repo = "bazel-springboot-rule"
+repo = "rules_spring"
 h = {"Accept": "application/vnd.github.v3+json"}
 u = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page=100"
 r = requests.get(u, headers=h).json()

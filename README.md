@@ -8,8 +8,6 @@ The Salesforce *springboot* rule can be found, along with documentation, in this
 - [springboot](springboot): a Bazel extension to build and package Spring Boot applications
 
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
-Please do not link to the *master* branch of this rule in your Bazel workspace, use an official release instead:
-- [rules-spring releases](https://github.com/salesforce/bazel-springboot-rule/releases)
 
 ### Support and Ongoing Development
 
@@ -26,7 +24,6 @@ To see what bug fixes and new features are planned, consult the roadmaps located
 
 Before you can use the rule in your BUILD files, you need to add it to your workspace.
 There are two approved approaches to doing this.
-
 Please **do not** use a *git_repository* workspace rule to point to our *master* branch, as we use *master* for ongoing work.
 We may check breaking changes into *master* at any time (when the upcoming release is a major release).
 
@@ -60,9 +57,9 @@ Make sure to review the [buildstamp](tools/buildstamp) documentation as well.
 
 ### Alternate Approach for Building and Running Spring Boot Applications
 
-If you don't need to create a runnable executable jar file, there is a simpler approach to Spring Boot in the *rules_jvm_external* repository.
+If you don't need to create a runnable executable jar file, there is an alternate approach to Spring Boot in the *rules_jvm_external* repository.
 That approach is sufficient if Bazel and your Bazel workspace (i.e. source code) are available in all environments that launch the application.
-- [rules_jvm_external Spring Boot example](https://github.com/plaird/rules_jvm_external/tree/master/examples/spring_boot)
+- [rules_jvm_external Spring Boot example](https://github.com/bazelbuild/rules_jvm_external/tree/master/examples/spring_boot)
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.
 

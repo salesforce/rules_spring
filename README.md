@@ -25,7 +25,10 @@ To see what bug fixes and new features are planned, consult the roadmaps located
 ### Loading the Spring Rules in your WORKSPACE
 
 Before you can use the rule in your BUILD files, you need to add it to your workspace.
-There are two approaches to doing this.
+There are two approved approaches to doing this.
+
+Please **do not** use a *git_repository* workspace rule to point to our *master* branch, as we use *master* for ongoing work.
+We may check breaking changes into *master* at any time (when the upcoming release is a major release).
 
 **Reference an official release**
 This loads a pre-built version of this rule into your workspace during the build.
@@ -63,35 +66,24 @@ That approach is sufficient if Bazel and your Bazel workspace (i.e. source code)
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.
 
-### Migrations
+### Upgrades
 
-#### Are you refreshing your Spring Boot archive/fork for the first time since March X, 2021?
+This section contains notes for specific upgrade steps needed to adopt newer versions of *rules-spring*.
+Starting with the 1.1.x line, we strive to adhere to [SemVer](https://semver.org/).
 
-On that date I merged in the major repackaging of the Spring Boot rule into the *master* branch.
-This was to comply with the standardized Bazel rule layout conventions.
+#### 2.0.0: March 13, 2021
+
+This release refactored the rule with the standardized Bazel rule layout conventions.
 When the Spring Boot rule was originally written, the conventions did not exist.
 This repackaging makes the rule more modern.
 
-For rule 1.x users, you will need to do the following:
+For rule 1.x users upgrading to 2.0.0, you will need to do the following:
 - All WORKSPACE and BUILD file references to *bazel_springboot_rule* must be changed to *rules_spring*
 - All BUILD and .bzl file references to *//tools/springboot* must be changed to *//springboot*
 
 See [Repackaging work item](https://github.com/salesforce/bazel-springboot-rule/issues/30) for more details.
 
-#### Are you refreshing your Spring Boot archive/fork for the first time since September 29, 2020?
+#### 1.0.0 September 21, 2020
 
-On that date I switched the repo to use *maven_install* style dependencies, instead of the obsolete *maven_jar* ([removed as of Bazel 2.x](https://github.com/bazelbuild/bazel/issues/6799)).
-I tagged the old code line as 1.0.2.
-To restore the old style, please use the following stanza in your WORKSPACE (to replace whatever you have there).
-
-```starlark
-git_repository(
-    name = "rules_spring",
-    tag = "1.0.2",
-    remote = "https://github.com/salesforce/bazel-springboot-rule",
-    verbose = False,
-)
-```
-
-The 1.0.2 tag will not be maintained.
-All new features will be added to *master* which is currently only *maven_install*.
+With this release we switched the repo to use *maven_install* style dependencies, instead of the obsolete *maven_jar*.
+The *maven_jar* rule was [removed from Bazel in 2.x](https://github.com/bazelbuild/bazel/issues/6799).

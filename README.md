@@ -8,8 +8,8 @@ The Salesforce *springboot* rule can be found, along with documentation, in this
 - [springboot](springboot): a Bazel extension to build and package Spring Boot applications
 
 :fire: this Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
-This was done to follow published Bazel naming conventions for external rules.
-Testing indicated that this change should be transparent to your builds because GitHub implements redirects.
+This was done to comply with required Bazel naming conventions for external rules.
+Testing indicated that this change should be transparent to your builds because GitHub implements redirects, and Bazel follows them correctly.
 But let us know if this change caused you issues by posting to the [Git repo rename issue](https://github.com/salesforce/rules_spring/issues/97).
 
 ### Support and Ongoing Development

@@ -6,7 +6,7 @@
 #
 
 # load our Spring Boot rule
-load("//tools/springboot:springboot.bzl", "springboot")
+load("//springboot:springboot.bzl", "springboot")
 
 # dependencies from other packages in the workspace
 lib_deps = [
@@ -16,7 +16,7 @@ lib_deps = [
 
 # create our deps list for Spring Boot
 springboot_deps = [
-    "//tools/springboot/import_bundles:springboot_required_deps",
+    "//springboot/import_bundles:springboot_required_deps",
     "@maven//:org_springframework_boot_spring_boot_starter_jetty",
     "@maven//:org_springframework_boot_spring_boot_starter_web",
     "@maven//:org_springframework_spring_webmvc",

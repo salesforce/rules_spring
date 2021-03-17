@@ -315,9 +315,9 @@ def springboot(
     native.genrule(
         name = genmanifest_rule,
         srcs = [":" + dep_aggregator_rule],
-        cmd = "$(location @bazel_springboot_rule//tools/springboot:write_manifest.sh) " + boot_app_class + " $@ $(SRCS)",
+        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " $@ $(SRCS)",
         #      message = "SpringBoot rule is writing the MANIFEST.MF...",
-        tools = ["@bazel_springboot_rule//tools/springboot:write_manifest.sh"],
+        tools = ["@rules_spring//springboot:write_manifest.sh"],
         outs = [genmanifest_out],
         tags = tags,
     )
@@ -326,8 +326,8 @@ def springboot(
     gengitinfo_out = "git.properties"
     native.genrule(
         name = gengitinfo_rule,
-        cmd = "$(location @bazel_springboot_rule//tools/springboot:write_gitinfo_properties.sh) $@",
-        tools = ["@bazel_springboot_rule//tools/springboot:write_gitinfo_properties.sh"],
+        cmd = "$(location @rules_spring//springboot:write_gitinfo_properties.sh) $@",
+        tools = ["@rules_spring//springboot:write_gitinfo_properties.sh"],
         outs = [gengitinfo_out],
         tags = tags,
         stamp = 1,
@@ -335,7 +335,7 @@ def springboot(
 
     # SUBRULE 2C: CLASSPATH INDEX
     if classpath_index == None:
-        classpath_index = "@bazel_springboot_rule//tools/springboot:empty.txt"
+        classpath_index = "@rules_spring//springboot:empty.txt"
 
     # see https://github.com/salesforce/bazel-springboot-rule/issues/81
     _appjar_locator_rule(
@@ -368,11 +368,11 @@ def springboot(
             classpath_index,
             ":" + dep_aggregator_rule,
         ],
-        cmd = "$(location @bazel_springboot_rule//tools/springboot:springboot_pkg.sh) " +
+        cmd = "$(location @rules_spring//springboot:springboot_pkg.sh) " +
               "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
               " $(JAVABASE) " + name + " " + str(use_build_dependency_order) + " $@ $(SRCS)",
         tools = [
-            "@bazel_springboot_rule//tools/springboot:springboot_pkg.sh",
+            "@rules_spring//springboot:springboot_pkg.sh",
             "@bazel_tools//tools/jdk:singlejar",
         ],
         tags = tags,
@@ -388,7 +388,7 @@ def springboot(
     if fail_on_duplicate_classes:
         _dupeclasses_rule(
             name = dupecheck_rule,
-            script = "@bazel_springboot_rule//tools/springboot:check_dupe_classes",
+            script = "@rules_spring//springboot:check_dupe_classes",
             springbootjar = genjar_rule,
             allowlist = duplicate_class_allowlist,
             fail_on_duplicate_classes = fail_on_duplicate_classes,

@@ -21,7 +21,7 @@ repositories = [
     "https://repo1.maven.org/maven2",
 ]
 
-def external_maven_jars():
+def rules_spring_deps():
     maven_install(
         artifacts = [
             "org.slf4j:jcl-over-slf4j:1.7.26",
@@ -79,7 +79,7 @@ def external_maven_jars():
         version_conflict_policy = "pinned",
         strict_visibility = True,
         generate_compat_repositories = False,
-        maven_install_json = "@bazel_springboot_rule//:maven_install.json",
+        maven_install_json = "@rules_spring//:maven_install.json",
         resolve_timeout = 1800,
     )
 
@@ -96,7 +96,6 @@ def external_maven_jars():
         version_conflict_policy = "pinned",
         strict_visibility = True,
         generate_compat_repositories = False,
-        maven_install_json = "@bazel_springboot_rule//:spring_boot_starter_jetty_install.json",
+        maven_install_json = "@rules_spring//:spring_boot_starter_jetty_install.json",
         resolve_timeout = 1800,
     )
-

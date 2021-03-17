@@ -20,7 +20,7 @@
 #
 # More information:
 # Bazel stamping: https://docs.bazel.build/versions/master/user-manual.html#flag--workspace_status_command
-# Spring Boot git.properties:  //tools/springboot/write_gitinfo_properties.sh
+# Spring Boot git.properties:  //springboot/write_gitinfo_properties.sh
 # Spring Boot info actuator endpoint: ttps://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints
 
 # First, make sure the current working directory is the Bazel workspace root.
@@ -56,7 +56,7 @@ echo "Full Bazel build stamping enabled. Adding Git properties to stamp. See //t
 # GIT
 # ********************************
 
-# This data is then later consumed by the //tools/springboot rule (perhaps other rules as well) to write
+# This data is then later consumed by the //springboot rule (perhaps other rules as well) to write
 #   a git.properties file into the Spring Boot jar, which is then surfaced in the Spring Boot
 #   actuator info endpoint.
 

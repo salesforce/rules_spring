@@ -4,7 +4,7 @@
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
-workspace(name = "bazel_springboot_rule")
+workspace(name = "rules_spring")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -18,8 +18,8 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
-load("//:external_deps.bzl", "external_maven_jars")
-external_maven_jars()
+load("//:repositories.bzl", "rules_spring_deps")
+rules_spring_deps()
 
 load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()

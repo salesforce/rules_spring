@@ -184,7 +184,8 @@ path=%path%
 jar=%jar%
 
 # assemble the command
-cmd="${java_cmd} %jvm_flags% ${JAVA_OPTS} -jar ${path}/${jar} ${main_args}"
+# use exec so that we can pass signals to the underlying process (https://github.com/salesforce/rules_spring/issues/91)
+cmd="exec ${java_cmd} %jvm_flags% ${JAVA_OPTS} -jar ${path}/${jar} ${main_args}"
 
 echo "Running ${cmd}"
 echo "In directory $(pwd)"

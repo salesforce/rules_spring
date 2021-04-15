@@ -15,6 +15,9 @@
 # Debugging? This script outputs a lot of useful debugging information under
 # /tmp/bazel/debug/springboot for each Spring Boot app.
 
+# fail on error (https://github.com/salesforce/rules_spring/issues/100)
+set -e
+
 RULEDIR=$(pwd)
 SINGLEJAR_CMD=$(pwd)/$1
 MAINCLASS=$2

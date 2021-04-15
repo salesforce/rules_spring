@@ -19,7 +19,10 @@ springboot_deps = [
     "//springboot/import_bundles:springboot_required_deps",
     "@maven//:org_springframework_boot_spring_boot_starter_jetty",
     "@maven//:org_springframework_boot_spring_boot_starter_web",
+    "@maven//:org_springframework_boot_spring_boot_loader_tools",
     "@maven//:org_springframework_spring_webmvc",
+
+    "@maven//:javax_annotation_javax_annotation_api",
 
     # bring in same dep again as above, but through a different maven_install
     # rule: the springboot rule does not package duplicate deps, first one wins

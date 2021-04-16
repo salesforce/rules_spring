@@ -152,49 +152,23 @@ def _compute_python_executable(ctx):
     return python_interpreter
 
 # ***************************************************************
-# Entry point script for "bazel run"
+# Outer launcher script for "bazel run"
 
-_run_script_template = """
+_bazelrun_script_template = """
 #!/bin/bash
 
-# soon we will use one of the jdk locations already known to Bazel, see Issue #16
-if [ -z ${JAVA_HOME} ]; then
-  java_cmd="$(which java)"
-else
-  java_cmd="${JAVA_HOME}/bin/java"
-fi
+set -e
 
-if [ -z "${java_cmd}" ]; then
-  echo "ERROR: no java found, either set JAVA_HOME or add the java executable to your PATH"
-  exit 1
-fi
-echo "Using Java at ${java_cmd}"
-${java_cmd} -version
-echo ""
+# bring in the resolved variables needed for running the script
+# SCRIPT_DIR is the directory in which bazel run executes
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# java args
-echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
-echo "Using jvm_flags from the BUILD file: %jvm_flags%"
+# the env variables is found in SCRIPT_DIR
+source $SCRIPT_DIR/launcherenv.sh
 
-# main args
-main_args="$@"
-
-# spring boot jar; these are replaced by the springboot starlark code:
-path=%path%
-jar=%jar%
-
-# assemble the command
-# use exec so that we can pass signals to the underlying process (https://github.com/salesforce/rules_spring/issues/91)
-cmd="exec ${java_cmd} %jvm_flags% ${JAVA_OPTS} -jar ${path}/${jar} ${main_args}"
-
-echo "Running ${cmd}"
-echo "In directory $(pwd)"
-echo ""
-echo "You can also run from the root of the repo:"
-echo "java -jar bazel-bin/${path}/${jar}"
-echo ""
-
-${cmd}
+# the inner launcher script is found in the runfiles subdir
+# this is either default_launcher_script.sh or a custom one provided by the user
+source %launcher_script%
 """
 
 # ***************************************************************
@@ -205,26 +179,24 @@ def _springboot_rule_impl(ctx):
     outs = depset(transitive = [
         ctx.attr.app_compile_rule.files,
         ctx.attr.genmanifest_rule.files,
+        ctx.attr.launcher_script.files,
+        ctx.attr.genlauncherenv_rule.files,
         ctx.attr.gengitinfo_rule.files,
         ctx.attr.genjar_rule.files,
     ])
 
-    # setup the script that runs "java -jar <springboot.jar>" when calling
-    # "bazel run" with the springboot target
-    jvm_flags = ""
-    if ctx.attr.jvm_flags != None:
-        jvm_flags = ctx.attr.jvm_flags
-    script = _run_script_template \
-        .replace("%path%", ctx.label.package) \
-        .replace("%jar%", _get_springboot_jar_file_name(str(ctx.label.name))) \
-        .replace("%jvm_flags%", jvm_flags)
+    # resolve the full path of the launcher script that runs "java -jar <springboot.jar>" when calling
+    # "bazel run" with the springboot target (bazel run //examples/helloworld)
+    outer_launcher_script_contents = _bazelrun_script_template \
+        .replace("%launcher_script%", ctx.attr.launcher_script.files.to_list()[0].path)
+    outer_launcher_script_file = ctx.actions.declare_file("%s" % ctx.label.name)
+    ctx.actions.write(outer_launcher_script_file, outer_launcher_script_contents, is_executable = True)
 
-    script_out = ctx.actions.declare_file("%s" % ctx.label.name)
-    ctx.actions.write(script_out, script, is_executable = True)
-
-    # the jar we build needs to be part of runfiles so that it ends up in the
-    # working directory that "bazel run" uses
+    # the jar and launcher script we build needs to be part of runfiles so that it ends
+    # up in the working directory that "bazel run" uses
     runfiles_list = ctx.attr.genjar_rule.files.to_list()
+    runfiles_list.append(ctx.attr.launcher_script.files.to_list()[0])
+
     # and add any data files to runfiles
     if ctx.attr.data != None:
       for data_target in ctx.attr.data:
@@ -232,7 +204,7 @@ def _springboot_rule_impl(ctx):
 
     return [DefaultInfo(
         files = outs,
-        executable = script_out,
+        executable = outer_launcher_script_file,
         runfiles = ctx.runfiles(files = runfiles_list),
     )]
 
@@ -243,12 +215,13 @@ _springboot_rule = rule(
         "app_compile_rule": attr.label(),
         "dep_aggregator_rule": attr.label(),
         "genmanifest_rule": attr.label(),
+        "genlauncherenv_rule": attr.label(),
         "gengitinfo_rule": attr.label(),
         "genjar_rule": attr.label(),
         "dupecheck_rule": attr.label(),
         "apprun_rule": attr.label(),
 
-        "jvm_flags": attr.string(),
+        "launcher_script": attr.label(allow_files=True),
         "data": attr.label_list(allow_files=True),
     },
 )
@@ -282,14 +255,16 @@ def springboot(
         duplicate_class_allowlist = None,
         tags = [],
         exclude = [],
-        jvm_flags = None,
+        jvm_flags = "",
         data = [],
         classpath_index = None,
+        launcher_script = None,
         use_build_dependency_order = True):
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     appjar_locator_rule = native.package_name() + "_appjar_locator"
     genmanifest_rule = native.package_name() + "_genmanifest"
+    genlauncherenv_rule = native.package_name() + "_genlauncherenv"
     gengitinfo_rule = native.package_name() + "_gengitinfo"
     genjar_rule = native.package_name() + "_genjar"
     dupecheck_rule = native.package_name() + "_dupecheck"
@@ -381,6 +356,18 @@ def springboot(
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
 
+    # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE LAUNCHER SCRIPT
+    genlauncherenv_out = "launcherenv.sh"
+    native.genrule(
+        name = genlauncherenv_rule,
+        cmd = "$(location @rules_spring//springboot:write_launcherenv.sh) " + _get_springboot_jar_file_name(name)
+            + " " + native.package_name() + " $@ " + jvm_flags ,
+        #      message = "SpringBoot rule is writing the launcher env...",
+        tools = ["@rules_spring//springboot:write_launcherenv.sh"],
+        outs = [genlauncherenv_out],
+        tags = tags,
+    )
+
     # SUBRULE 4: RUN THE DUPE CHECKER (if enabled)
     # Skip the dupecheck_rule instantiation entirely if disabled because
     # running this rule requires Python3 installed. If a workspace does not have
@@ -412,18 +399,22 @@ def springboot(
         tags = tags,
     )
 
+    if launcher_script == None:
+        launcher_script = "@rules_spring//springboot:default_launcher_script.sh"
+
     # MASTER RULE: Create the composite rule that will aggregate the outputs of the subrules
     _springboot_rule(
         name = name,
         app_compile_rule = java_library,
         dep_aggregator_rule = ":" + dep_aggregator_rule,
         genmanifest_rule = ":" + genmanifest_rule,
+        genlauncherenv_rule = ":" + genlauncherenv_rule,
         gengitinfo_rule = ":" + gengitinfo_rule,
         genjar_rule = ":" + genjar_rule,
         dupecheck_rule = dupecheck_rule_label,
         apprun_rule = ":" + apprun_rule,
 
-        jvm_flags = jvm_flags,
+        launcher_script = launcher_script,
         data = data,
 
         tags = tags,

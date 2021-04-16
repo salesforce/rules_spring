@@ -16,9 +16,9 @@ public class SampleAutoConfiguration {
 
     /**
      * Shows how you can catch an OS signal. This is a good test of the launcher script See
-     * https://github.com/salesforce/rules_spring/issues/91 
-     * The only signal that SignalUtils attaches to is 2 (interrupt). kill -2 [pid] 
-     * 
+     * https://github.com/salesforce/rules_spring/issues/91
+     * The only signal that SignalUtils attaches to is 2 (interrupt). kill -2 [pid]
+     *
      * I am not a big fan of HelloWorld having these edge case demos, but is the only place
      * we have right now.
      */
@@ -26,6 +26,7 @@ public class SampleAutoConfiguration {
         @Override
         public void run() {
             System.out.println("Caught an Interupt signal.");
+            System.exit(0);
         }
     }
 }

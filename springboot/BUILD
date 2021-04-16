@@ -16,6 +16,8 @@ exports_files([
     "check_dupe_classes.py",
     "write_gitinfo_properties.sh",
     "write_manifest.sh",
+    "write_launcherenv.sh",
+    "default_launcher_script.sh",
     "dupe_class_jar_allowlist.txt",
     "empty.txt",
 ])

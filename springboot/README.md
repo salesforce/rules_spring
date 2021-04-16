@@ -142,6 +142,21 @@ export JAVA_OPTS='-Dcustomprop=silver'
 bazel run //examples/helloworld
 ```
 
+If this is not enough, you may completely replace the launcher script for advanced use cases.
+Note that this customization only affects the startup when invoked from *bazel run*.
+Make a copy of [default_launcher_script.sh](default_launcher_script.sh) into your package,
+  and make changes as necessary.
+Then pass it via the *launcher_script* attribute, like this:
+
+```starlark
+springboot(
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+    launcher_script = "my_custom_launcher_script.sh",
+)
+```
+
 ### Other Rule Attributes
 
 The Spring Boot rule supports other attributes for use in the BUILD file:

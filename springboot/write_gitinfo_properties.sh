@@ -14,6 +14,8 @@
 #   to share cache entries for Spring Boot jars. This is a major perf optimization.
 # See //tools/buildstamp/README.md for details.
 
+set -e
+
 # Create the properties file
 GITPROPSFILE=$1
 echo "# git info injected by Bazel build" > $GITPROPSFILE

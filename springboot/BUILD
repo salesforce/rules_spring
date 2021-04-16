@@ -39,3 +39,16 @@ py_test(
     ],
     imports = ["."],
 )
+
+# Enable only when generating the doc, then disable again before releasing. We don't want to require
+# users of the rule to configure stardoc in their workspace. You need to uncomment the WORKSPACE def
+# for this before using.
+# load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
+#stardoc(
+#    name = "springboot-docs",
+#    input = "springboot.bzl",
+#    out = "springboot_doc.md",
+#)
+#
+# After running, copy the generated file:
+#  cp bazel-bin/springboot/springboot_doc.md springboot

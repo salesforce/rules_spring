@@ -250,16 +250,43 @@ def springboot(
         java_library,
         boot_app_class,
         deps = None,
-        visibility = None,
         fail_on_duplicate_classes = False,
         duplicate_class_allowlist = None,
-        tags = [],
         exclude = [],
-        jvm_flags = "",
-        data = [],
         classpath_index = None,
+        use_build_dependency_order = True,
         launcher_script = None,
-        use_build_dependency_order = True):
+        jvm_flags = "",
+        tags = [],
+        visibility = None,
+        data = []):
+    """Bazel rule for packaging an executable Spring Boot application.
+
+    Note that the rule README has more detailed usage instructions for each attribute.
+
+    Args:
+      name: The name of the Spring Boot application. Typically this is set the same as the package name. E.g. 'helloworld'.
+      java_library: The built jar, identified by the name of the java_library rule, that contains the Spring Boot application.
+      boot_app_class: The fully qualified name of the class annotation with @SpringBootApplication. E.g. com.sample.SampleMain
+      deps: An optional set of Java dependencies to add to the executable. Normally all dependencies are set on the java_library.
+      fail_on_duplicate_classes: If True, will analyze the list of dependencies looking for any class that appears more than
+        once, but with a different hash. This indicates that your dependency tree has conflicting libraries.
+      duplicate_class_allowlist: When using the duplicate class check, this attribute can provide a file that contains a list of
+        libraries excluded from the analysis. E.g. 'dupeclass_libs.txt'
+      exclude: A list of jar file labels that will be omitted from the final packaging step. This is a last resort option
+        for eliminating a problematic dependency that cannot be managed any other way. E.g. '@io_grpc_grpc_java//api:api'.
+      classpath_index: Uses Spring Boots classpath index feature to define classpath order. This feature is not commonly used, as
+        the application must be extracted from the jar file for it to work. E.g. 'classpath_index.idx'
+      use_build_dependency_order: When running the Spring Boot application from the executable jar file, setting this attribute to
+        True will use the classpath order as expressed by the deps in the BUILD file. Otherwise it is random order.
+      launcher_script: When launching the application using 'bazel run', a default launcher script is used. This attribute can be
+        used to provide a customized launcher script. E.g. 'custom_script.sh'
+      jvm_flags: When launching the application using 'bazel run', an optional set of JVM flags to pass to the JVM at startup.
+        E.g. '-Dcustomprop=gold -DcustomProp2=silver'
+      tags: Optional. Standard Bazel attribute.
+      visibility: Optional. Standard Bazel attribute.
+      data: Uncommon option to add data files to runfiles. Behaves like the same attribute defined for java_binary.
+    """
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     appjar_locator_rule = native.package_name() + "_appjar_locator"

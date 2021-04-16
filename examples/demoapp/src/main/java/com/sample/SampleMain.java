@@ -6,11 +6,16 @@
 */
 package com.sample;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication;
+import com.bazel.demo.IntentionalDupedClass;
 
 @SpringBootApplication
 public class SampleMain {
+
+  // both //examples/demoapp/libs/lib1 and //examples/demoapp/libs/lib2 have this class
+  // this is only a problem if the springboot rule is configured to fail on dupes.
+  static private IntentionalDupedClass dupedClass = new IntentionalDupedClass();
 
   public static void main(String[] args) {
     System.out.println("SampleMain: Launching the sample SpringBoot demo application...");
@@ -20,6 +25,8 @@ public class SampleMain {
       sb.append(" ");
     }
     System.out.println("SampleMain:  Command line args: "+sb.toString());
+
+    System.out.println("\nSampleMain:  Intentional duped class version: "+dupedClass.hello());
 
     SpringApplication.run(SampleMain.class, args);
   }

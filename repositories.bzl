@@ -31,6 +31,7 @@ def rules_spring_deps():
             "org.springframework.boot:spring-boot-autoconfigure:2.4.4",
             "org.springframework.boot:spring-boot-configuration-processor:2.4.4",
             "org.springframework.boot:spring-boot-loader:2.4.4",
+            "org.springframework.boot:spring-boot-loader-tools:2.4.4",
             "org.springframework.boot:spring-boot-starter:2.4.4",
             "org.springframework.boot:spring-boot-starter-actuator:2.4.4",
             "org.springframework.boot:spring-boot-starter-freemarker:2.4.4",
@@ -56,6 +57,8 @@ def rules_spring_deps():
             "org.springframework:spring-tx:5.3.5",
             "org.springframework:spring-web:5.3.5",
             "org.springframework:spring-webmvc:5.3.5",
+
+            "javax.annotation:javax.annotation-api:1.3.2",
 
             "junit:junit:4.13",
             "org.hamcrest:hamcrest-core:1.3",

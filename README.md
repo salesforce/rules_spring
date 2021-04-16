@@ -26,9 +26,6 @@ To see what bug fixes and new features are planned, consult the roadmaps located
 ### Loading the Spring Rules in your WORKSPACE
 
 Before you can use the rule in your BUILD files, you need to add it to your workspace.
-There are two approved approaches to doing this.
-Please **do not** use a *git_repository* workspace rule to point to our *master* branch, as we use *master* for ongoing work.
-We may check breaking changes into *master* at any time (when the upcoming release is a major release).
 
 **Reference an official release**
 This loads a pre-built version of this rule into your workspace during the build.
@@ -44,18 +41,10 @@ http_archive(
 )
 ```
 
-**Copy the rule into your workspace (aka vendoring)**
-This approach allows you to bring in the rule, and make customizations as necessary.
-We recommend copying it into location *//tools/springboot* in your workspace but you are free to change this if you like.
-
-Once it is copied in, add this to your WORKSPACE:
-```starlark
-local_repository(
-    name = "rules_spring",
-    path = "tools/springboot",
-)
-```
-Make sure to review the [buildstamp](tools/buildstamp) documentation as well.
+**Do not use a git_repository rule with our master branch**
+If you choose not to use an official release, you may be tempted to use a *git_repository* workspace rule to point to our *master* branch,
+Please **do not** do this, as we use *master* for ongoing work.
+We may check breaking changes into *master* at any time.
 
 
 ### Alternate Approach for Building and Running Spring Boot Applications

@@ -23,10 +23,6 @@ springboot_deps = [
     "@maven//:org_springframework_spring_webmvc",
 
     "@maven//:javax_annotation_javax_annotation_api",
-
-    # bring in same dep again as above, but through a different maven_install
-    # rule: the springboot rule does not package duplicate deps, first one wins
-    "@spring_boot_starter_jetty//:org_springframework_boot_spring_boot_starter_jetty",
 ]
 
 # This Java library contains the app code
@@ -53,30 +49,6 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-
-    # DEPS ARE OPTIONAL HERE
-    #  The springboot rule inherits all deps and runtime_deps from the java_library
-    # deps = [],
-
-    # TO TEST THE DUPE CLASSES FEATURE:
-    #   There is an intentionally duplicated class in lib1 and lib2. Do this:
-    #   1. set fail_on_duplicate_classes = True
-    #   2. comment out lib1 or lib2 in helloworld_dupeclass_allowlist.txt
-    #   Build should fail due to the duplicate class.
-    fail_on_duplicate_classes = True,
-    duplicate_class_allowlist = "helloworld_dupeclass_allowlist.txt",
-
-    # Specify optional JVM args to use when the application is launched with 'bazel run'
-    jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
-
-    # data files can be made available in the working directory for when the app is launched with bazel run
-    data = ["example_data.txt"],
-
-    launcher_script = "custom_launcher_script.sh",
-
-    # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
-    #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
-    classpath_index = "helloworld_classpath.idx",
 )
 
 springboottest_deps = [

@@ -8,8 +8,8 @@ set -e
 echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 
 # The following environment variables will be set, and can be used for scripting:
-#  LABEL_PATH=examples/helloworld
-#  SPRINGBOOTJAR_FILENAME=helloworld.jar
+#  LABEL_PATH=examples/demoapp
+#  SPRINGBOOTJAR_FILENAME=demoapp.jar
 #  JVM_FLAGS="-Dcustomprop=gold  -DcustomProp2=silver"
 
 # soon we will use one of the jdk locations already known to Bazel, see Issue #16

@@ -5,7 +5,7 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-RELEASE_VERSION=2.0.0
+RELEASE_VERSION=2.1.0
 
 rm -rf bazel-*
 
@@ -14,6 +14,7 @@ mkdir $TMPDIR
 mv tools/python_interpreter/bin $TMPDIR
 mv tools/python_interpreter/captive_python3 $TMPDIR
 
+rm -rf coverage-reports
 rm -rf springboot/tests/__pycache__
 rm -rf springboot/__pycache__
 

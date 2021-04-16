@@ -1,6 +1,7 @@
 ## Salesforce Spring Rules for Bazel
 
-This repository contains the [Spring Boot](https://spring.io/guides/gs/spring-boot/) rule for the [Bazel](https://bazel.build/) build system.
+This repository contains the [Spring Boot](https://spring.io/guides/gs/spring-boot/) rule
+  for the [Bazel](https://bazel.build/) build system.
 It enables Bazel to build Spring Boot applications and package them as an executable jar file.
 The executable jar is the best way to deploy your Spring Boot application in production environments.
 
@@ -9,8 +10,6 @@ The Salesforce *springboot* rule can be found, along with documentation, in this
 
 :fire: this Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
 This was done to comply with required Bazel naming conventions for external rules.
-Testing indicated that this change should be transparent to your builds because GitHub implements redirects, and Bazel follows them correctly.
-But let us know if this change caused you issues by posting to the [Git repo rename issue](https://github.com/salesforce/rules_spring/issues/97).
 
 ### Support and Ongoing Development
 
@@ -21,7 +20,8 @@ We will try to quickly address problems and answer questions.
 Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/rules_spring/projects).
 To see what bug fixes and new features are planned, consult the roadmaps located there.
 
-:octocat: Please do us a **huge favor**. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top. That helps us advocate for more time and resources on this project. Thanks!
+:octocat: Please do us a **huge favor**. If you think this project could be useful for you, now or in the future,
+  please hit the **Star** button at the top. That helps us advocate for more time and resources on this project. Thanks!
 
 ### Loading the Spring Rules in your WORKSPACE
 
@@ -42,15 +42,18 @@ http_archive(
 ```
 
 **Do not use a git_repository rule with our master branch**
-If you choose not to use an official release, you may be tempted to use a *git_repository* workspace rule to point to our *master* branch,
+If you choose not to use an official release, you may be tempted to use a *git_repository* workspace
+  rule to point to our *master* branch,
 Please **do not** do this, as we use *master* for ongoing work.
 We may check breaking changes into *master* at any time.
 
 
 ### Alternate Approach for Building and Running Spring Boot Applications
 
-If you don't need to create a runnable executable jar file, there is an alternate approach to Spring Boot in the *rules_jvm_external* repository.
-That approach is sufficient if Bazel and your Bazel workspace (i.e. source code) are available in all environments that launch the application.
+If you don't need to create a runnable executable jar file, there is an alternate approach to Spring Boot
+  in the *rules_jvm_external* repository.
+That approach is sufficient if Bazel and your Bazel workspace (i.e. source code) are available in
+  all environments that launch the application.
 - [rules_jvm_external Spring Boot example](https://github.com/bazelbuild/rules_jvm_external/tree/master/examples/spring_boot)
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.

@@ -6,12 +6,21 @@
 #
 
 #
-# SAMPLE LIST OF DEPENDENCIES
-# You will need to curate this list as your project requires it.
-# During migration, you can use the 'mvn dependency:list' command to help you.
+# BRING YOUR OWN JAVA DEPENDENCIES
+# rules_spring stays out of the game of Java dependency management for your applications.
+# You will build your Spring Boot application code using standard Bazel Java rules before
+# invoking the Spring Boot rule. The springboot rule takes a built java_library containing your
+# Spring Boot application. Because of this, rules_spring does not need to populate
+# Java dependencies into your WORKSPACE. This file is just here to build the examples.
 #
-# UPDATING THIS LIST
-# After updating the list below, you need to regenerate the pinned target list:
+#
+# SAMPLE LIST OF DEPENDENCIES
+# Below is a sample list of dependencies that are typically used for Spring Boot applications.
+# You will need have a similar list in your WORKSPACE and curate this list as your project requires it.
+# During migration from Maven, you can use the 'mvn dependency:list' command to help you.
+#
+# UPDATING THIS SAMPLE LIST
+# After updating the sample list below, you need to regenerate the pinned target list:
 #  bazel run @unpinned_maven//:pin
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")

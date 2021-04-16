@@ -7,6 +7,7 @@
 workspace(name = "rules_spring")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 RULES_JVM_EXTERNAL_TAG = "3.3"
 RULES_JVM_EXTERNAL_SHA = "d85951a92c0908c80bd8551002d66cb23c3434409c814179c0ff026b53544dab"
@@ -36,3 +37,19 @@ pinned_spring_boot_starter_jetty_install()
 #register_toolchains(
 #    "//tools/python_interpreter:captive_python_toolchain",
 #)
+
+
+#
+# STARDOC
+#
+# Enable only when generating the doc, then disable again before releasing. We don't want to require
+# users of the rule to configure stardoc in their workspace. You need to uncomment the stardoc generation in
+# //springboot/BUILD as well.
+
+#git_repository(
+#    name = "io_bazel_stardoc",
+#    remote = "https://github.com/bazelbuild/stardoc.git",
+#    tag = "0.4.0",
+#)
+#load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
+#stardoc_repositories()

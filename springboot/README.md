@@ -44,6 +44,8 @@ The required *springboot* rule attributes are as follows:
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
 
+There are many more attributes described below and in the [generated Stardoc](springboot_doc.md).
+
 ## Build and Run
 
 After installing the rule into your workspace, you are ready to build.

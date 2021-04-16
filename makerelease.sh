@@ -7,6 +7,7 @@
 
 RELEASE_VERSION=2.1.0
 
+# remove/relocate local build artifacts and tools
 rm -rf bazel-*
 
 TMPDIR=/tmp/rules-spring-release
@@ -18,8 +19,10 @@ rm -rf coverage-reports
 rm -rf springboot/tests/__pycache__
 rm -rf springboot/__pycache__
 
+# jar up the code
 jar -cvf rules-spring-${RELEASE_VERSION}.zip *
 
+# restore some of the local build tools
 mv $TMPDIR/bin tools/python_interpreter
 mv $TMPDIR/captive_python3 tools/python_interpreter
 

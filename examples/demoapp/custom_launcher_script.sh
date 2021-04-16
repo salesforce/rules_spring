@@ -7,10 +7,15 @@ set -e
 
 echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 
-# The following environment variables will be set, and can be used for scripting:
-#  LABEL_PATH=examples/demoapp
-#  SPRINGBOOTJAR_FILENAME=demoapp.jar
+# The following environment variables will be set by the springboot rule, and can
+# be reliably used for scripting:
+#  LABEL_PATH=examples/helloworld
+#  SPRINGBOOTJAR_FILENAME=helloworld.jar
 #  JVM_FLAGS="-Dcustomprop=gold  -DcustomProp2=silver"
+#
+# There are several other env variables set by Bazel. These should be stable between
+# versions of Bazel because they are documented:
+#  https://docs.bazel.build/versions/master/user-manual.html#run
 
 # soon we will use one of the jdk locations already known to Bazel, see Issue #16
 if [ -z ${JAVA_HOME} ]; then
@@ -37,7 +42,6 @@ main_args="$@"
 # spring boot jar; these are replaced by the springboot starlark code:
 path=${LABEL_PATH}
 jar=${SPRINGBOOTJAR_FILENAME}
-echo "JAR FILE: ${path}/${jar}"
 
 # assemble the command
 # use exec so that we can pass signals to the underlying process (https://github.com/salesforce/rules_spring/issues/91)

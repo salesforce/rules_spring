@@ -71,6 +71,20 @@ def rules_spring_deps():
 
             "junit:junit:4.13",
             "org.hamcrest:hamcrest-core:1.3",
+
+            "org.jetbrains.kotlin:kotlin-reflect:1.4.20",
+            "org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20",
+            "org.jetbrains.kotlin:kotlin-stdlib:1.4.10",
+            "org.jetbrains.kotlin:kotlin-test-annotations-common:1.4.20",
+            "org.jetbrains.kotlin:kotlin-test-junit:1.4.20",
+            "org.jetbrains.kotlin:kotlin-test:1.4.20",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.4.1",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1",
+            "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.0.1",
+            "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.0.1",
+            "org.jetbrains:annotations:15.0",
+
         ],
         excluded_artifacts = [
             "org.springframework.boot:spring-boot-starter-tomcat",
@@ -80,23 +94,6 @@ def rules_spring_deps():
         version_conflict_policy = "pinned",
         strict_visibility = True,
         generate_compat_repositories = False,
-        maven_install_json = "@rules_spring//:maven_install.json",
-        resolve_timeout = 1800,
-    )
-
-    # this rule exists to test how the springboot rule handles duplicate
-    # artifacts: org.springframework.boot:spring-boot-starter-jetty is also
-    # brought in by the rule above
-    maven_install(
-        name = "spring_boot_starter_jetty",
-        artifacts = [
-            "org.springframework.boot:spring-boot-starter-jetty:2.4.4",
-        ],
-        repositories = repositories,
-        fetch_sources = True,
-        version_conflict_policy = "pinned",
-        strict_visibility = True,
-        generate_compat_repositories = False,
-        maven_install_json = "@rules_spring//:spring_boot_starter_jetty_install.json",
+        maven_install_json = "//:maven_install.json",
         resolve_timeout = 1800,
     )

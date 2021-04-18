@@ -5,9 +5,11 @@
 ## springboot
 
 <pre>
-springboot(<a href="#springboot-name">name</a>, <a href="#springboot-java_library">java_library</a>, <a href="#springboot-boot_app_class">boot_app_class</a>, <a href="#springboot-deps">deps</a>, <a href="#springboot-fail_on_duplicate_classes">fail_on_duplicate_classes</a>,
-           <a href="#springboot-duplicate_class_allowlist">duplicate_class_allowlist</a>, <a href="#springboot-exclude">exclude</a>, <a href="#springboot-classpath_index">classpath_index</a>, <a href="#springboot-use_build_dependency_order">use_build_dependency_order</a>,
-           <a href="#springboot-bazelrun_script">bazelrun_script</a>, <a href="#springboot-bazelrun_jvm_flags">bazelrun_jvm_flags</a>, <a href="#springboot-jvm_flags">jvm_flags</a>, <a href="#springboot-tags">tags</a>, <a href="#springboot-visibility">visibility</a>, <a href="#springboot-data">data</a>)
+springboot(<a href="#springboot-name">name</a>, <a href="#springboot-java_library">java_library</a>, <a href="#springboot-boot_app_class">boot_app_class</a>, <a href="#springboot-deps">deps</a>, <a href="#springboot-deps_exclude">deps_exclude</a>, <a href="#springboot-deps_index_file">deps_index_file</a>,
+           <a href="#springboot-deps_use_starlark_order">deps_use_starlark_order</a>, <a href="#springboot-dupeclassescheck_enable">dupeclassescheck_enable</a>, <a href="#springboot-dupeclassescheck_ignorelist">dupeclassescheck_ignorelist</a>,
+           <a href="#springboot-bazelrun_script">bazelrun_script</a>, <a href="#springboot-bazelrun_jvm_flags">bazelrun_jvm_flags</a>, <a href="#springboot-bazelrun_data">bazelrun_data</a>, <a href="#springboot-tags">tags</a>, <a href="#springboot-visibility">visibility</a>, <a href="#springboot-exclude">exclude</a>,
+           <a href="#springboot-classpath_index">classpath_index</a>, <a href="#springboot-use_build_dependency_order">use_build_dependency_order</a>, <a href="#springboot-fail_on_duplicate_classes">fail_on_duplicate_classes</a>,
+           <a href="#springboot-duplicate_class_allowlist">duplicate_class_allowlist</a>, <a href="#springboot-jvm_flags">jvm_flags</a>, <a href="#springboot-data">data</a>)
 </pre>
 
 Bazel rule for packaging an executable Spring Boot application.
@@ -20,20 +22,26 @@ Note that the rule README has more detailed usage instructions for each attribut
 
 | Name  | Description | Default Value |
 | :-------------: | :-------------: | :-------------: |
-| name |  Required. The name of the Spring Boot application. Typically this is set the same as the package name. E.g. 'helloworld'.   |  none |
-| java_library |  Required. The built jar, identified by the name of the java_library rule, that contains the Spring Boot application.   |  none |
-| boot_app_class |  Required. The fully qualified name of the class annotation with @SpringBootApplication. E.g. com.sample.SampleMain   |  none |
-| deps |  An optional set of Java dependencies to add to the executable. Normally all dependencies are set on the java_library.   |  <code>None</code> |
-| fail_on_duplicate_classes |  If True, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>False</code> |
-| duplicate_class_allowlist |  When using the duplicate class check, this attribute can provide a file that contains a list of   libraries excluded from the analysis. E.g. 'dupeclass_libs.txt'   |  <code>None</code> |
-| exclude |  A list of jar file labels that will be omitted from the final packaging step. This is a last resort option   for eliminating a problematic dependency that cannot be managed any other way. E.g. '@io_grpc_grpc_java//api:api'.   |  <code>[]</code> |
-| classpath_index |  Uses Spring Boots classpath index feature to define classpath order. This feature is not commonly used, as   the application must be extracted from the jar file for it to work. E.g. 'classpath_index.idx'   |  <code>None</code> |
-| use_build_dependency_order |  When running the Spring Boot application from the executable jar file, setting this attribute to   True will use the classpath order as expressed by the deps in the BUILD file. Otherwise it is random order.   |  <code>True</code> |
-| bazelrun_script |  When launching the application using 'bazel run', a default launcher script is used. This attribute can be   used to provide a customized launcher script. E.g. 'custom_script.sh'   |  <code>None</code> |
-| bazelrun_jvm_flags |  When launching the application using 'bazel run', an optional set of JVM flags to pass to the JVM at startup.   E.g. '-Dcustomprop=gold -DcustomProp2=silver'   |  <code>None</code> |
-| jvm_flags |  deprecated synonym of bazelrun_jvm_flags   |  <code>""</code> |
-| tags |  Optional. Standard Bazel attribute.   |  <code>[]</code> |
-| visibility |  Optional. Standard Bazel attribute.   |  <code>None</code> |
-| data |  Uncommon option to add data files to runfiles. Behaves like the same attribute defined for java_binary.   |  <code>[]</code> |
+| name |  **Required**. The name of the Spring Boot application. Typically this is set the same as the package name.   Ex: *helloworld*.   |  none |
+| java_library |  **Required**. The built jar, identified by the name of the java_library rule, that contains the   Spring Boot application.   |  none |
+| boot_app_class |  **Required**. The fully qualified name of the class annotation with @SpringBootApplication.   Ex: *com.sample.SampleMain*   |  none |
+| deps |  Optional. An additional set of Java dependencies to add to the executable.   Normally all dependencies are set on the *java_library*.   |  <code>None</code> |
+| deps_exclude |  Optional. A list of jar file labels that will be omitted from the final packaging step.   This is a last resort option for eliminating a problematic dependency that cannot be managed any other way.   Ex: *["@io_grpc_grpc_java//api:api"]*.   |  <code>None</code> |
+| deps_index_file |  Optional. Uses Spring Boot's   [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)   to define classpath order. This feature is not commonly used, as the application must be extracted from the jar   file for it to work. Ex: *my_classpath_index.idx*   |  <code>None</code> |
+| deps_use_starlark_order |  When running the Spring Boot application from the executable jar file, setting this attribute to   *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.   |  <code>None</code> |
+| dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>None</code> |
+| dupeclassescheck_ignorelist |  Optional. When using the duplicate class check, this attribute can provide a file   that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*   |  <code>None</code> |
+| bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> |
+| bazelrun_jvm_flags |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*   |  <code>None</code> |
+| bazelrun_data |  Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.   |  <code>None</code> |
+| tags |  Optional. Bazel standard attribute.   |  <code>[]</code> |
+| visibility |  Optional. Bazel standard attribute.   |  <code>None</code> |
+| exclude |  Deprecated synonym of *deps_exclude*   |  <code>[]</code> |
+| classpath_index |  Deprecated synonym of *deps_index_file*   |  <code>"@rules_spring//springboot:empty.txt"</code> |
+| use_build_dependency_order |  Deprecated synonym of *deps_use_starlark_order*   |  <code>True</code> |
+| fail_on_duplicate_classes |  Deprecated synonym of *dupeclassescheck_enable*   |  <code>False</code> |
+| duplicate_class_allowlist |  Deprecated synonym of *dupeclassescheck_ignorelist*   |  <code>None</code> |
+| jvm_flags |  Deprecated synonym of *bazelrun_jvm_flags*   |  <code>""</code> |
+| data |  Deprecated synonym of *bazelrun_data*   |  <code>[]</code> |
 
 

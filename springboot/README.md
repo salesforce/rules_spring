@@ -117,22 +117,22 @@ bazel run //examples/helloworld
 ```
 
 But you may wish to customize the launch with JVM arguments.
-There are two mechanisms that are supported for this - *jvm_flags* and *JAVA_OPTS*.
+There are two mechanisms that are supported for this - *bazelrun_jvm_flags* and *JAVA_OPTS*.
 They are injected into the command line launcher like this:
 
 ```bash
-java [jvm_flags] [JAVA_OPTS] -jar [springboot jar]
+java [bazelrun_jvm_flags] [JAVA_OPTS] -jar [springboot jar]
 ```
 
-The attribute *jvm_flags* is for cases in which you always want the flags to apply when the application is launched from Bazel.
-It is specified as an attribute on the springboot rule invocation:
+The attribute *bazelrun_jvm_flags* is for cases in which you always want the flags to apply when the application is launched from Bazel.
+It is specified as an attribute on the *springboot* rule invocation:
 
 ```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    jvm_flags = "-Dcustomprop=gold",
+    bazelrun_jvm_flags = "-Dcustomprop=gold",
 )
 ```
 
@@ -146,16 +146,16 @@ bazel run //examples/helloworld
 
 If this is not enough, you may completely replace the launcher script for advanced use cases.
 Note that this customization only affects the startup when invoked from *bazel run*.
-Make a copy of [default_launcher_script.sh](default_launcher_script.sh) into your package,
+Make a copy of [default_bazelrun_script.sh](default_bazelrun_script.sh) into your package,
   and make changes as necessary.
-Then pass it via the *launcher_script* attribute, like this:
+Then pass it via the *bazelrun_script* attribute, like this:
 
 ```starlark
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    launcher_script = "my_custom_launcher_script.sh",
+    bazelrun_script = "my_custom_bazelrun_script.sh",
 )
 ```
 

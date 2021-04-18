@@ -32,7 +32,7 @@ echo ""
 
 # java args
 echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
-echo "Using jvm_flags from the BUILD file: ${JVM_FLAGS}"
+echo "Using bazelrun_jvm_flags from the BUILD file: ${JVM_FLAGS}"
 
 # main args
 main_args="$@"

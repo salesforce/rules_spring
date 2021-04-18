@@ -16,8 +16,8 @@ exports_files([
     "check_dupe_classes.py",
     "write_gitinfo_properties.sh",
     "write_manifest.sh",
-    "write_launcherenv.sh",
-    "default_launcher_script.sh",
+    "write_bazelrun_env.sh",
+    "default_bazelrun_script.sh",
     "dupe_class_jar_allowlist.txt",
     "empty.txt",
 ])
@@ -43,7 +43,7 @@ py_test(
 # Enable only when generating the doc, then disable again before releasing. We don't want to require
 # users of the rule to configure stardoc in their workspace. You need to uncomment the WORKSPACE def
 # for this before using.
-# load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
+#load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 #stardoc(
 #    name = "springboot-docs",
 #    input = "springboot.bzl",

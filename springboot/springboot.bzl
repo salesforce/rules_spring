@@ -163,12 +163,12 @@ set -e
 # SCRIPT_DIR is the directory in which bazel run executes
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# the env variables is found in SCRIPT_DIR
-source $SCRIPT_DIR/launcherenv.sh
+# the env variables file is found in SCRIPT_DIR
+source $SCRIPT_DIR/bazelrun_env.sh
 
-# the inner launcher script is found in the runfiles subdir
-# this is either default_launcher_script.sh or a custom one provided by the user
-source %launcher_script%
+# the inner bazelrun script is found in the runfiles subdir
+# this is either default_bazelrun_script.sh or a custom one provided by the user
+source %bazelrun_script%
 """
 
 # ***************************************************************
@@ -179,23 +179,23 @@ def _springboot_rule_impl(ctx):
     outs = depset(transitive = [
         ctx.attr.app_compile_rule.files,
         ctx.attr.genmanifest_rule.files,
-        ctx.attr.launcher_script.files,
-        ctx.attr.genlauncherenv_rule.files,
+        ctx.attr.bazelrun_script.files,
+        ctx.attr.genbazelrunenv_rule.files,
         ctx.attr.gengitinfo_rule.files,
         ctx.attr.genjar_rule.files,
     ])
 
     # resolve the full path of the launcher script that runs "java -jar <springboot.jar>" when calling
     # "bazel run" with the springboot target (bazel run //examples/helloworld)
-    outer_launcher_script_contents = _bazelrun_script_template \
-        .replace("%launcher_script%", ctx.attr.launcher_script.files.to_list()[0].path)
-    outer_launcher_script_file = ctx.actions.declare_file("%s" % ctx.label.name)
-    ctx.actions.write(outer_launcher_script_file, outer_launcher_script_contents, is_executable = True)
+    outer_bazelrun_script_contents = _bazelrun_script_template \
+        .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].path)
+    outer_bazelrun_script_file = ctx.actions.declare_file("%s" % ctx.label.name)
+    ctx.actions.write(outer_bazelrun_script_file, outer_bazelrun_script_contents, is_executable = True)
 
     # the jar and launcher script we build needs to be part of runfiles so that it ends
     # up in the working directory that "bazel run" uses
     runfiles_list = ctx.attr.genjar_rule.files.to_list()
-    runfiles_list.append(ctx.attr.launcher_script.files.to_list()[0])
+    runfiles_list.append(ctx.attr.bazelrun_script.files.to_list()[0])
 
     # and add any data files to runfiles
     if ctx.attr.data != None:
@@ -204,7 +204,7 @@ def _springboot_rule_impl(ctx):
 
     return [DefaultInfo(
         files = outs,
-        executable = outer_launcher_script_file,
+        executable = outer_bazelrun_script_file,
         runfiles = ctx.runfiles(files = runfiles_list),
     )]
 
@@ -215,36 +215,20 @@ _springboot_rule = rule(
         "app_compile_rule": attr.label(),
         "dep_aggregator_rule": attr.label(),
         "genmanifest_rule": attr.label(),
-        "genlauncherenv_rule": attr.label(),
+        "genbazelrunenv_rule": attr.label(),
         "gengitinfo_rule": attr.label(),
         "genjar_rule": attr.label(),
         "dupecheck_rule": attr.label(),
         "apprun_rule": attr.label(),
 
-        "launcher_script": attr.label(allow_files=True),
+        "bazelrun_script": attr.label(allow_files=True),
         "data": attr.label_list(allow_files=True),
     },
 )
 
 # ***************************************************************
 # SpringBoot Macro
-#  invoke this from your BUILD file, required params are marked *
-#
-#  REQUIRED:
-#  name:            name of your application
-#  java_library:    the java_library rule that contains the compile source for the spring boot app
-#  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
-#  deps:            the array of upstream dependencies
-#
-# OPTIONAL:
-#  visibility: standard rule visibility, defaults to "private" - https://docs.bazel.build/versions/master/visibility.html
-#  fail_on_duplicated_classes: if enabled, ensures that the final spring boot jar does not contain any duplicate classes (also checks nested jars)
-#  duplicate_class_allowlist: list of jar files that can have dupe classes without failing the rule
-#  tags:            the array of tags to apply to this rule and subrules
-#  exclude:         list of jar files to exclude from the final jar (i.e. unwanted transitives)
-#  jvm_flags:       flags to pass to the java command when the spring boot application is invoked with 'bazel run
-#  classpath_index: file that contains the load order of jars (see Spring Boot Classpath Index docs)
-#
+#  this is the entrypoint into the springboot rule
 def springboot(
         name,
         java_library,
@@ -255,8 +239,9 @@ def springboot(
         exclude = [],
         classpath_index = None,
         use_build_dependency_order = True,
-        launcher_script = None,
-        jvm_flags = "",
+        bazelrun_script = None,
+        bazelrun_jvm_flags = None,
+        jvm_flags = "", # deprecated
         tags = [],
         visibility = None,
         data = []):
@@ -265,9 +250,9 @@ def springboot(
     Note that the rule README has more detailed usage instructions for each attribute.
 
     Args:
-      name: The name of the Spring Boot application. Typically this is set the same as the package name. E.g. 'helloworld'.
-      java_library: The built jar, identified by the name of the java_library rule, that contains the Spring Boot application.
-      boot_app_class: The fully qualified name of the class annotation with @SpringBootApplication. E.g. com.sample.SampleMain
+      name: Required. The name of the Spring Boot application. Typically this is set the same as the package name. E.g. 'helloworld'.
+      java_library: Required. The built jar, identified by the name of the java_library rule, that contains the Spring Boot application.
+      boot_app_class: Required. The fully qualified name of the class annotation with @SpringBootApplication. E.g. com.sample.SampleMain
       deps: An optional set of Java dependencies to add to the executable. Normally all dependencies are set on the java_library.
       fail_on_duplicate_classes: If True, will analyze the list of dependencies looking for any class that appears more than
         once, but with a different hash. This indicates that your dependency tree has conflicting libraries.
@@ -279,19 +264,22 @@ def springboot(
         the application must be extracted from the jar file for it to work. E.g. 'classpath_index.idx'
       use_build_dependency_order: When running the Spring Boot application from the executable jar file, setting this attribute to
         True will use the classpath order as expressed by the deps in the BUILD file. Otherwise it is random order.
-      launcher_script: When launching the application using 'bazel run', a default launcher script is used. This attribute can be
+      bazelrun_script: When launching the application using 'bazel run', a default launcher script is used. This attribute can be
         used to provide a customized launcher script. E.g. 'custom_script.sh'
-      jvm_flags: When launching the application using 'bazel run', an optional set of JVM flags to pass to the JVM at startup.
+      bazelrun_jvm_flags: When launching the application using 'bazel run', an optional set of JVM flags to pass to the JVM at startup.
         E.g. '-Dcustomprop=gold -DcustomProp2=silver'
+      jvm_flags: deprecated synonym of bazelrun_jvm_flags
       tags: Optional. Standard Bazel attribute.
       visibility: Optional. Standard Bazel attribute.
       data: Uncommon option to add data files to runfiles. Behaves like the same attribute defined for java_binary.
     """
+    # NOTE: if you add/change any params, be sure to rerun the stardoc generator (see BUILD file)
+
     # Create the subrule names
     dep_aggregator_rule = native.package_name() + "_deps"
     appjar_locator_rule = native.package_name() + "_appjar_locator"
     genmanifest_rule = native.package_name() + "_genmanifest"
-    genlauncherenv_rule = native.package_name() + "_genlauncherenv"
+    genbazelrunenv_rule = native.package_name() + "_genbazelrunenv"
     gengitinfo_rule = native.package_name() + "_gengitinfo"
     genjar_rule = native.package_name() + "_genjar"
     dupecheck_rule = native.package_name() + "_dupecheck"
@@ -383,15 +371,20 @@ def springboot(
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
 
-    # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE LAUNCHER SCRIPT
-    genlauncherenv_out = "launcherenv.sh"
+    # bazelrun_jvm_flags is the proper attribute to use, but if not set check if jvm_flags is set
+    # jvm_flags is deprecated and initialized to "" if the user does not pass it
+    if bazelrun_jvm_flags == None:
+        bazelrun_jvm_flags = jvm_flags
+
+    # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE BAZELRUN LAUNCHER SCRIPT
+    genbazelrunenv_out = "bazelrun_env.sh"
     native.genrule(
-        name = genlauncherenv_rule,
-        cmd = "$(location @rules_spring//springboot:write_launcherenv.sh) " + _get_springboot_jar_file_name(name)
-            + " " + native.package_name() + " $@ " + jvm_flags ,
-        #      message = "SpringBoot rule is writing the launcher env...",
-        tools = ["@rules_spring//springboot:write_launcherenv.sh"],
-        outs = [genlauncherenv_out],
+        name = genbazelrunenv_rule,
+        cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + _get_springboot_jar_file_name(name)
+            + " " + native.package_name() + " $@ " + bazelrun_jvm_flags ,
+        #      message = "SpringBoot rule is writing the bazel run launcher env...",
+        tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],
+        outs = [genbazelrunenv_out],
         tags = tags,
     )
 
@@ -426,8 +419,8 @@ def springboot(
         tags = tags,
     )
 
-    if launcher_script == None:
-        launcher_script = "@rules_spring//springboot:default_launcher_script.sh"
+    if bazelrun_script == None:
+        bazelrun_script = "@rules_spring//springboot:default_bazelrun_script.sh"
 
     # MASTER RULE: Create the composite rule that will aggregate the outputs of the subrules
     _springboot_rule(
@@ -435,13 +428,13 @@ def springboot(
         app_compile_rule = java_library,
         dep_aggregator_rule = ":" + dep_aggregator_rule,
         genmanifest_rule = ":" + genmanifest_rule,
-        genlauncherenv_rule = ":" + genlauncherenv_rule,
+        genbazelrunenv_rule = ":" + genbazelrunenv_rule,
         gengitinfo_rule = ":" + gengitinfo_rule,
         genjar_rule = ":" + genjar_rule,
         dupecheck_rule = dupecheck_rule_label,
         apprun_rule = ":" + apprun_rule,
 
-        launcher_script = launcher_script,
+        bazelrun_script = bazelrun_script,
         data = data,
 
         tags = tags,

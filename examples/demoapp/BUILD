@@ -67,13 +67,13 @@ springboot(
     duplicate_class_allowlist = "demoapp_dupeclass_allowlist.txt",
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
-    jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
+    bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
 
     # data files can be made available in the working directory for when the app is launched with bazel run
     data = ["example_data.txt"],
 
     # you may choose to override the launcher script that is used when you invoke 'bazel run //examples/demoapp'
-    launcher_script = "custom_launcher_script.sh",
+    bazelrun_script = "custom_bazelrun_script.sh",
 
     # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
     #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath

@@ -1,10 +1,14 @@
 #!/bin/bash
 #
-# Copyright (c) 2017-2021, salesforce.com, inc.
+# Copyright (c) 2021, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
+
+# This file is used to generate the environment variables used by the
+# default_bazelrun_script.sh for launching Spring Boot applications with
+# bazel run, as in 'bazel run //examples/helloworld'
 
 set -e
 
@@ -13,7 +17,7 @@ LABEL_PATH=${2}
 OUTPUTFILE_PATH=${3}
 FIRST_JVMFLAG_ARG=4
 
-#echo "Generating launcher env to $OUTPUTFILE_PATH"
+#echo "Generating 'bazel run' env to $OUTPUTFILE_PATH"
 
 JVM_FLAGS=""
 i=$FIRST_JVMFLAG_ARG

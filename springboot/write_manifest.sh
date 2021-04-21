@@ -14,8 +14,10 @@ FOUND_SPRING_JAR=0
 # Looking for the springboot jar injected by springboot.bzl and extracting the version
 for var in "$@"
 do
-  if [[ $var = *"spring-boot-"* ]]; then
-    SPRING_VERSION=$(echo "$var" | rev | cut -c5- | rev | cut -d / -f 4 | cut -d - -f 3)
+  if [[ $var = *"spring-boot-"* ]] || [[ $var = *"spring_boot_"* ]]; then
+    jar xf $var META-INF/MANIFEST.MF
+    SPRING_VERSION=$(grep 'Implementation-Version' META-INF/MANIFEST.MF | cut -d : -f2 | tr -d '[:space:]')
+    rm -rf META-INF
     FOUND_SPRING_JAR=1
     break
   fi

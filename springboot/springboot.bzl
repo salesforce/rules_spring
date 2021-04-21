@@ -37,7 +37,7 @@ def _depaggregator_rule_impl(ctx):
     jars = []
     excludes = {}
 
-    for exclusion_info in ctx.attr.exclude:
+    for exclusion_info in ctx.attr.deps_exclude:
         for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
             excludes[compile_jar.path] = True
 
@@ -59,7 +59,7 @@ _depaggregator_rule = rule(
     attrs = {
         "depaggregator_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
-        "exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
+        "deps_exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
     },
 )
 
@@ -87,23 +87,23 @@ def _dupeclasses_rule_impl(ctx):
     output = ctx.actions.declare_file(ctx.attr.out)
     outputs = [output]
 
-    if not ctx.attr.fail_on_duplicate_classes:
+    if not ctx.attr.dupeclassescheck_enable:
         ctx.actions.write(output, "NOT_RUN", is_executable = False)
         return [DefaultInfo(files = depset(outputs))]
 
     inputs = []
     input_args = ctx.actions.args()
 
-    # inputs (dupe checker python script, spring boot jar file, allowlist)
+    # inputs (dupe checker python script, spring boot jar file, ignorelist)
     inputs.append(ctx.attr.script.files.to_list()[0])
     input_args.add(ctx.attr.script.files.to_list()[0].path)
     inputs.append(ctx.attr.springbootjar.files.to_list()[0])
     input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
-    if ctx.attr.allowlist != None:
-        inputs.append(ctx.attr.allowlist.files.to_list()[0])
-        input_args.add(ctx.attr.allowlist.files.to_list()[0].path)
+    if ctx.attr.dupeclassescheck_ignorelist != None:
+        inputs.append(ctx.attr.dupeclassescheck_ignorelist.files.to_list()[0])
+        input_args.add(ctx.attr.dupeclassescheck_ignorelist.files.to_list()[0].path)
     else:
-        input_args.add("no_allowlist")
+        input_args.add("no_ignorelist")
 
     # add the output file to the args, so python script knows where to write result
     input_args.add(output.path)
@@ -128,8 +128,8 @@ _dupeclasses_rule = rule(
         "dupeclasses_rule": attr.label(),
         "script": attr.label(),
         "springbootjar": attr.label(),
-        "allowlist": attr.label(allow_files=True),
-        "fail_on_duplicate_classes": attr.bool(),
+        "dupeclassescheck_ignorelist": attr.label(allow_files=True),
+        "dupeclassescheck_enable": attr.bool(),
         "out": attr.string(),
     },
     toolchains = ["@bazel_tools//tools/python:toolchain_type"],
@@ -198,8 +198,8 @@ def _springboot_rule_impl(ctx):
     runfiles_list.append(ctx.attr.bazelrun_script.files.to_list()[0])
 
     # and add any data files to runfiles
-    if ctx.attr.data != None:
-      for data_target in ctx.attr.data:
+    if ctx.attr.bazelrun_data != None:
+      for data_target in ctx.attr.bazelrun_data:
         runfiles_list.append(data_target.files.to_list()[0])
 
     return [DefaultInfo(
@@ -222,7 +222,7 @@ _springboot_rule = rule(
         "apprun_rule": attr.label(),
 
         "bazelrun_script": attr.label(allow_files=True),
-        "data": attr.label_list(allow_files=True),
+        "bazelrun_data": attr.label_list(allow_files=True),
     },
 )
 
@@ -234,44 +234,64 @@ def springboot(
         java_library,
         boot_app_class,
         deps = None,
-        fail_on_duplicate_classes = False,
-        duplicate_class_allowlist = None,
-        exclude = [],
-        classpath_index = None,
-        use_build_dependency_order = True,
+        deps_exclude = None,
+        deps_index_file = None,
+        deps_use_starlark_order = None,
+        dupeclassescheck_enable = None,
+        dupeclassescheck_ignorelist = None,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
-        jvm_flags = "", # deprecated
+        bazelrun_data = None,
         tags = [],
         visibility = None,
-        data = []):
+        exclude = [], # deprecated
+        classpath_index = "@rules_spring//springboot:empty.txt", # deprecated
+        use_build_dependency_order = True, # deprecated
+        fail_on_duplicate_classes = False, # deprecated
+        duplicate_class_allowlist = None, # deprecated
+        jvm_flags = "", # deprecated
+        data = [], # deprecated
+        ):
     """Bazel rule for packaging an executable Spring Boot application.
 
     Note that the rule README has more detailed usage instructions for each attribute.
 
     Args:
-      name: Required. The name of the Spring Boot application. Typically this is set the same as the package name. E.g. 'helloworld'.
-      java_library: Required. The built jar, identified by the name of the java_library rule, that contains the Spring Boot application.
-      boot_app_class: Required. The fully qualified name of the class annotation with @SpringBootApplication. E.g. com.sample.SampleMain
-      deps: An optional set of Java dependencies to add to the executable. Normally all dependencies are set on the java_library.
-      fail_on_duplicate_classes: If True, will analyze the list of dependencies looking for any class that appears more than
+      name: **Required**. The name of the Spring Boot application. Typically this is set the same as the package name.
+        Ex: *helloworld*.
+      java_library: **Required**. The built jar, identified by the name of the java_library rule, that contains the
+        Spring Boot application.
+      boot_app_class: **Required**. The fully qualified name of the class annotation with @SpringBootApplication.
+        Ex: *com.sample.SampleMain*
+      deps: Optional. An additional set of Java dependencies to add to the executable.
+        Normally all dependencies are set on the *java_library*.
+      deps_exclude: Optional. A list of jar file labels that will be omitted from the final packaging step.
+        This is a last resort option for eliminating a problematic dependency that cannot be managed any other way.
+        Ex: *["@io_grpc_grpc_java//api:api"]*.
+      deps_index_file: Optional. Uses Spring Boot's
+        [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)
+        to define classpath order. This feature is not commonly used, as the application must be extracted from the jar
+        file for it to work. Ex: *my_classpath_index.idx*
+      deps_use_starlark_order: When running the Spring Boot application from the executable jar file, setting this attribute to
+        *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.
+      dupeclassescheck_enable: If *True*, will analyze the list of dependencies looking for any class that appears more than
         once, but with a different hash. This indicates that your dependency tree has conflicting libraries.
-      duplicate_class_allowlist: When using the duplicate class check, this attribute can provide a file that contains a list of
-        libraries excluded from the analysis. E.g. 'dupeclass_libs.txt'
-      exclude: A list of jar file labels that will be omitted from the final packaging step. This is a last resort option
-        for eliminating a problematic dependency that cannot be managed any other way. E.g. '@io_grpc_grpc_java//api:api'.
-      classpath_index: Uses Spring Boots classpath index feature to define classpath order. This feature is not commonly used, as
-        the application must be extracted from the jar file for it to work. E.g. 'classpath_index.idx'
-      use_build_dependency_order: When running the Spring Boot application from the executable jar file, setting this attribute to
-        True will use the classpath order as expressed by the deps in the BUILD file. Otherwise it is random order.
-      bazelrun_script: When launching the application using 'bazel run', a default launcher script is used. This attribute can be
-        used to provide a customized launcher script. E.g. 'custom_script.sh'
-      bazelrun_jvm_flags: When launching the application using 'bazel run', an optional set of JVM flags to pass to the JVM at startup.
-        E.g. '-Dcustomprop=gold -DcustomProp2=silver'
-      jvm_flags: deprecated synonym of bazelrun_jvm_flags
-      tags: Optional. Standard Bazel attribute.
-      visibility: Optional. Standard Bazel attribute.
-      data: Uncommon option to add data files to runfiles. Behaves like the same attribute defined for java_binary.
+      dupeclassescheck_ignorelist: Optional. When using the duplicate class check, this attribute can provide a file
+        that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*
+      bazelrun_script: Optional. When launching the application using 'bazel run', a default launcher script is used.
+        This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*
+      bazelrun_jvm_flags: Optional. When launching the application using 'bazel run', an optional set of JVM flags
+        to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*
+      bazelrun_data: Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.
+      tags: Optional. Bazel standard attribute.
+      visibility: Optional. Bazel standard attribute.
+      exclude: Deprecated synonym of *deps_exclude*
+      classpath_index: Deprecated synonym of *deps_index_file*
+      use_build_dependency_order: Deprecated synonym of *deps_use_starlark_order*
+      fail_on_duplicate_classes: Deprecated synonym of *dupeclassescheck_enable*
+      duplicate_class_allowlist: Deprecated synonym of *dupeclassescheck_ignorelist*
+      jvm_flags: Deprecated synonym of *bazelrun_jvm_flags*
+      data: Deprecated synonym of *bazelrun_data*
     """
     # NOTE: if you add/change any params, be sure to rerun the stardoc generator (see BUILD file)
 
@@ -285,6 +305,24 @@ def springboot(
     dupecheck_rule = native.package_name() + "_dupecheck"
     apprun_rule = native.package_name() + "_apprun"
 
+    # Handle deprecated attribute names; if modern name is not set then take
+    # the legacy attribute value (which may be set to a default, or set by the user)
+    if deps_exclude == None:
+        deps_exclude = exclude
+    if deps_index_file == None:
+        deps_index_file = classpath_index
+    if deps_use_starlark_order == None:
+        deps_use_starlark_order = use_build_dependency_order
+    if dupeclassescheck_enable == None:
+        dupeclassescheck_enable = fail_on_duplicate_classes
+    if dupeclassescheck_ignorelist == None:
+        dupeclassescheck_ignorelist = duplicate_class_allowlist
+    if bazelrun_jvm_flags == None:
+        bazelrun_jvm_flags = jvm_flags
+    if bazelrun_data == None:
+        bazelrun_data = data
+
+
     # assemble deps; generally all deps will come transtiviely through the java_library
     # but a user may choose to add in more deps directly into the springboot jar (rare)
     java_deps = [java_library]
@@ -296,7 +334,7 @@ def springboot(
     _depaggregator_rule(
         name = dep_aggregator_rule,
         deps = java_deps,
-        exclude = exclude,
+        deps_exclude = deps_exclude,
         tags = tags,
     )
 
@@ -325,9 +363,6 @@ def springboot(
     )
 
     # SUBRULE 2C: CLASSPATH INDEX
-    if classpath_index == None:
-        classpath_index = "@rules_spring//springboot:empty.txt"
-
     # see https://github.com/salesforce/rules_spring/issues/81
     _appjar_locator_rule(
         name = appjar_locator_rule,
@@ -356,12 +391,12 @@ def springboot(
             ":" + appjar_locator_rule,
             ":" + genmanifest_rule,
             ":" + gengitinfo_rule,
-            classpath_index,
+            deps_index_file,
             ":" + dep_aggregator_rule,
         ],
         cmd = "$(location @rules_spring//springboot:springboot_pkg.sh) " +
               "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
-              " $(JAVABASE) " + name + " " + str(use_build_dependency_order) + " $@ $(SRCS)",
+              " $(JAVABASE) " + name + " " + str(deps_use_starlark_order) + " $@ $(SRCS)",
         tools = [
             "@rules_spring//springboot:springboot_pkg.sh",
             "@bazel_tools//tools/jdk:singlejar",
@@ -370,11 +405,6 @@ def springboot(
         outs = [_get_springboot_jar_file_name(name)],
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
-
-    # bazelrun_jvm_flags is the proper attribute to use, but if not set check if jvm_flags is set
-    # jvm_flags is deprecated and initialized to "" if the user does not pass it
-    if bazelrun_jvm_flags == None:
-        bazelrun_jvm_flags = jvm_flags
 
     # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE BAZELRUN LAUNCHER SCRIPT
     genbazelrunenv_out = "bazelrun_env.sh"
@@ -391,15 +421,15 @@ def springboot(
     # SUBRULE 4: RUN THE DUPE CHECKER (if enabled)
     # Skip the dupecheck_rule instantiation entirely if disabled because
     # running this rule requires Python3 installed. If a workspace does not have
-    # Python3 available, they can just never enable fail_on_duplicate_classes and be ok
+    # Python3 available, they can just never enable dupeclassescheck_enable and be ok
     dupecheck_rule_label = None
-    if fail_on_duplicate_classes:
+    if dupeclassescheck_enable:
         _dupeclasses_rule(
             name = dupecheck_rule,
             script = "@rules_spring//springboot:check_dupe_classes",
             springbootjar = genjar_rule,
-            allowlist = duplicate_class_allowlist,
-            fail_on_duplicate_classes = fail_on_duplicate_classes,
+            dupeclassescheck_enable = dupeclassescheck_enable,
+            dupeclassescheck_ignorelist = dupeclassescheck_ignorelist,
             out = "dupecheck_results.txt",
             tags = tags,
         )
@@ -435,7 +465,7 @@ def springboot(
         apprun_rule = ":" + apprun_rule,
 
         bazelrun_script = bazelrun_script,
-        data = data,
+        bazelrun_data = bazelrun_data,
 
         tags = tags,
         visibility = visibility,

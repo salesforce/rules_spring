@@ -170,6 +170,9 @@ The Spring Boot rule supports other attributes for use in the BUILD file:
 - *exclude*: see the Exclude feature explained [in this document](unwanted_classes.md)
 - *use_build_dependency_order*: see the Classpath Ordering feature explained in [this document](unwanted_classes.md)
 
+The attributes are documented in the [generated Stardoc](springboot_doc.md).
+
+
 ### Debugging the Rule Execution
 
 If the environment variable `DEBUG_SPRINGBOOT_RULE` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`.

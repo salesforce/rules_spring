@@ -13,16 +13,16 @@ import zipfile
 import tempfile
 
 
-def _check_for_duplicate_classes(springbootzip_filepath, allowlisted_jars, output_filepath):
+def _check_for_duplicate_classes(springbootzip_filepath, ignorelisted_jars, output_filepath):
     """
     Prints error message and returns True if duplicate classes were found,
     false otherwise.
 
-    Jars in the allowlisted_jars list are excluded from the check.
+    Jars in the ignorelisted_jars list are excluded from the check.
     """
 
     # this will be set to True if any duplicate classes are found, that are not
-    # contained by any jar in the allowlist
+    # contained by any jar in the ignorelist
     found_illegal_duplicates = False
     # this set will contain the jars that contain the violaters
     dupe_containing_jars = set()
@@ -75,13 +75,13 @@ def _check_for_duplicate_classes(springbootzip_filepath, allowlisted_jars, outpu
                             jar_base = os.path.basename(jar_path)
                             other_jar_base = os.path.basename(other_location[0])
                             this_is_a_dupe = False
-                            # we fail as a dupe if both jars are not in the allowlist
-                            # we could be nicer and only fail if one of the jars is not in the allowlist?
-                            if jar_base not in allowlisted_jars:
+                            # we fail as a dupe if both jars are not in the ignorelist
+                            # we could be nicer and only fail if one of the jars is not in the ignorelist?
+                            if jar_base not in ignorelisted_jars:
                                 dupe_containing_jars.add(jar_base)
                                 found_illegal_duplicates = True
                                 this_is_a_dupe = True
-                            if other_jar_base not in allowlisted_jars:
+                            if other_jar_base not in ignorelisted_jars:
                                 dupe_containing_jars.add(other_jar_base)
                                 found_illegal_duplicates = True
                                 this_is_a_dupe = True
@@ -99,40 +99,40 @@ def _check_for_duplicate_classes(springbootzip_filepath, allowlisted_jars, outpu
     if found_illegal_duplicates:
       result = "Spring Boot packaging has failed for %s because multiple copies of the same class, but with different hashes, were found:\n" % springbootzip_filepath
       result += dupe_message_lines
-      result += "You should eliminate the conflicting dependencies, or if that is not possible you can add these jars to the allowlist.txt file:\n"
-      for allowlist_candidate in dupe_containing_jars:
-          result += "   %s\n" % allowlist_candidate
+      result += "You should eliminate the conflicting dependencies, or if that is not possible you can add these jars to the dupeclassescheck_ignorelist file:\n"
+      for ignorelist_candidate in dupe_containing_jars:
+          result += "   %s\n" % ignorelist_candidate
       print(result)
       _write_result_to_output_file(output_filepath, result)
 
     return found_illegal_duplicates
 
-def _parse_allowlisted_jars_file(allowlist_file):
+def _parse_ignorelisted_jars_file(ignorelist_file):
     """
-    Reads the allowlist.txt file and returns the jars as a set.
+    Reads the ignorelist.txt file and returns the jars as a set.
     File format: each line in the file is the name of a jar, like:
       foo.jar
       bar.jar
     """
-    allowlisted_jars = set()
+    ignorelisted_jars = set()
 
-    if allowlist_file != None:
-        with open(allowlist_file, "r") as lines:
+    if ignorelist_file != None:
+        with open(ignorelist_file, "r") as lines:
             for line in lines:
                 line = line.strip()
                 if len(line) == 0 or line.startswith("#"):
                     continue
                 # cannot use the whole jar path as it is different for generated jars on linux and mac
-                # this logic might need to change if two jars with the same name are part of the allowlist
+                # this logic might need to change if two jars with the same name are part of the ignorelist
                 jar = os.path.basename(line)
-                allowlisted_jars.add(jar)
+                ignorelisted_jars.add(jar)
 
-    #if len(allowlisted_jars) > 0:
-    #    print("Springboot duplicate class checker allowlisted jars:")
-    #    for allowlisted_jar in allowlisted_jars:
-    #        print("  %s" % allowlisted_jar)
+    #if len(ignorelisted_jars) > 0:
+    #    print("Springboot duplicate class checker ignorelisted jars:")
+    #    for ignorelisted_jar in ignorelisted_jars:
+    #        print("  %s" % ignorelisted_jar)
 
-    return allowlisted_jars
+    return ignorelisted_jars
 
 def _write_result_to_output_file(output_filepath, result):
     if output_filepath != None:
@@ -140,8 +140,8 @@ def _write_result_to_output_file(output_filepath, result):
       f.write(result)
       f.close()
 
-def run_with_allowlist(springbootzip_filepath, allowlisted_jars, output_filepath):
-    found_illegal_duplicates = _check_for_duplicate_classes(springbootzip_filepath, allowlisted_jars,
+def run_with_ignorelist(springbootzip_filepath, ignorelisted_jars, output_filepath):
+    found_illegal_duplicates = _check_for_duplicate_classes(springbootzip_filepath, ignorelisted_jars,
         output_filepath)
     if found_illegal_duplicates:
         raise Exception("Found duplicate classes in the packaged springboot jar")
@@ -149,28 +149,28 @@ def run_with_allowlist(springbootzip_filepath, allowlisted_jars, output_filepath
         _write_result_to_output_file(output_filepath, "SUCCESS")
     return found_illegal_duplicates
 
-def run(springbootzip_filepath, allowlist_file, output_filepath):
+def run(springbootzip_filepath, ignorelist_file, output_filepath):
     """
     Iterates through a Spring Boot jar and looks for classes in inner jars. If the same
     class (package name + class name) appears more than once, verify that the .class files
     have the same hash code. If there is a conflict, this invocation will fail with an error.
-    If both jars are listed in the allowlist, the conflict will be ignored.
+    If both jars are listed in the ignorelist, the conflict will be ignored.
     """
-    allowlisted_jars = _parse_allowlisted_jars_file(allowlist_file)
-    run_with_allowlist(springbootzip_filepath, allowlisted_jars, output_filepath)
+    ignorelisted_jars = _parse_ignorelisted_jars_file(ignorelist_file)
+    run_with_ignorelist(springbootzip_filepath, ignorelisted_jars, output_filepath)
 
 if __name__ == "__main__":
     # arg1  path to the spring boot jar file (required)
     # arg2  path to the text file containing the jars to ignore as sources of dupes (optional)
     # arg3  outputfile (optional, will contain "SUCCESS" if the check passed, or the list of errors)
-    allowlist_file = None
+    ignorelist_file = None
     if len(sys.argv) > 2:
-      allowlist_file = sys.argv[2]
-      if allowlist_file == "no_allowlist":
-          allowlist_file = None
+      ignorelist_file = sys.argv[2]
+      if ignorelist_file == "no_ignorelist":
+          ignorelist_file = None
 
     output_file = None
     if len(sys.argv) > 3:
       output_file = sys.argv[3]
 
-    run(sys.argv[1], allowlist_file, output_file)
+    run(sys.argv[1], ignorelist_file, output_file)

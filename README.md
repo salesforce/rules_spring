@@ -34,9 +34,9 @@ This is the recommended approach for most users.
 ```starlark
 http_archive(
     name = "rules_spring",
-    sha256 = "7d4f12748df340397559decd8348289a6f85ae32dae344545b6d08ad036a9cfe",
+    sha256 = "2178aa714516fe3ba8e88663aef8e183e6ab28c8bf1f9da96f76533ee86a47b4",
     urls = [
-        "https://github.com/salesforce/rules_spring/releases/download/2.0.0/rules-spring-2.0.0.zip",
+        "https://github.com/salesforce/rules_spring/releases/download/2.1.0/rules-spring-2.1.0.zip",
     ],
 )
 ```

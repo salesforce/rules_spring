@@ -63,21 +63,21 @@ springboot(
     #   1. set fail_on_duplicate_classes = True
     #   2. comment out lib1 or lib2 in demoapp_dupeclass_allowlist.txt
     #   Build should fail due to the duplicate class.
-    fail_on_duplicate_classes = True,
-    duplicate_class_allowlist = "demoapp_dupeclass_allowlist.txt",
+    dupeclassescheck_enable = True,
+    dupeclassescheck_ignorelist = "demoapp_dupeclass_allowlist.txt",
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
 
     # data files can be made available in the working directory for when the app is launched with bazel run
-    data = ["example_data.txt"],
+    bazelrun_data = ["example_data.txt"],
 
     # you may choose to override the launcher script that is used when you invoke 'bazel run //examples/demoapp'
     bazelrun_script = "custom_bazelrun_script.sh",
 
     # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
     #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
-    classpath_index = "demoapp_classpath.idx",
+    deps_index_file = "demoapp_classpath.idx",
 )
 
 springboottest_deps = [

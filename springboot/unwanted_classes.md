@@ -26,7 +26,7 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    fail_on_duplicate_classes = True,
+    dupeclassescheck_enable = True,
 )
 ```
 
@@ -35,11 +35,11 @@ It will scan all inner jars file, and fail the build if:
 - the MD5 hash of the classfile bytes differ
 
 The dupe class checking feature requires Python3.
-If you don't have Python3 available for your build, *fail_on_duplicate_classes* must be False.
+If you don't have Python3 available for your build, *dupeclassescheck_enable* must be False.
 See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
 
 *Advanced:* In some cases, you will have a classes that are duplicated and would normally fail this check - but you cannot remove them.
-There is an [allowlist](#duplicate-class-detection-allowlist) feature that will ignore specific jars with duplicated classes.
+There is an [ignorelist](#duplicate-class-detection-ignorelist) feature that will ignore specific jars with duplicated classes.
 
 ### Removing Unwanted Classes by Removing a Dependency in the BUILD File
 
@@ -59,7 +59,7 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    exclude = [
+    deps_exclude = [
       "@maven//:com_google_protobuf_protobuf_java",
       "//protos/third-party/google/protobuf:any_java_proto",
     ],
@@ -114,7 +114,7 @@ The current implementation of this feature uses the `jar` command line utility.
 Explicit jar entry ordering is implemented by specifying an explicit file list when running `jar`.  
 Very large dependency sets may cause the jar command to exceed the system command line length limit.
 This limitation will be addressed when [Issue 3](https://github.com/salesforce/rules_spring/issues/3) is resolved.
-Until then, if you run into errors, you can disable this feature by setting the attribute `use_build_dependency_order` to `False`.
+Until then, if you run into errors, you can disable this feature by setting the attribute `deps_use_starlark_order` to `False`.
 
 
 #### Classpath Ordering with a Classpath Index
@@ -125,7 +125,7 @@ The classpath index is a [Spring Boot feature](https://docs.spring.io/spring-boo
 The feature is explained in the Spring Boot documentation:
 - [Spring Boot Classpath Index](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)
 
-The Spring Boot rule exposes the *classpath_index* attribute:
+The Spring Boot rule exposes the *deps_index_file* attribute:
 
 ```starlark
 springboot(
@@ -134,7 +134,7 @@ springboot(
     java_library = ":helloworld_lib",
 
     # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
-    classpath_index = "helloworld_classpath.idx",
+    deps_index_file = "helloworld_classpath.idx",
 )
 ```
 
@@ -148,16 +148,16 @@ $ java org.springframework.boot.loader.JarLauncher
 
 ### Advanced Use Cases
 
-#### Duplicate Class Detection Allowlist
+#### Duplicate Class Detection Ignorelist
 
 Sometimes you have transitives that are out of your control that bring in duplicate classes.
-If you cannot use the *exclude* attribute as shown above, you would normally be blocked from using the duplicate class checker.
+If you cannot use the *deps_exclude* attribute as shown above, you would normally be blocked from using the duplicate class checker.
 It would always fail.
 
-For this reason, the duplicate class detection feature supports an *allowlist*.
-The *allowlist* instructs the checker to ignore certain jars from the dupe checker process.
+For this reason, the duplicate class detection feature supports an *ignorelist*.
+The *ignorelist* instructs the checker to ignore certain jars from the dupe checker process.
 
-To use this feature, create a text file in the same directory as the BUILD file (e.g. *my_allowlist.txt*).
+To use this feature, create a text file in the same directory as the BUILD file (e.g. *my_ignorelist.txt*).
 Add a jar filename on each line like this:
 
 ```
@@ -175,8 +175,8 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    fail_on_duplicate_classes = True,
-    duplicate_class_allowlist = "my_allowlist.txt",
+    dupeclassescheck_enable = True,
+    dupeclassescheck_ignorelist = "my_allowlist.txt",
 )
 ```
 

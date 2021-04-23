@@ -163,14 +163,13 @@ springboot(
 
 The Spring Boot rule supports other attributes for use in the BUILD file:
 
-- *visibility*: standard
-- *tags*: standard
-- *data*: behaves like the same attribute for *java_binary*
 - *deps*: will add additional jar files into the Spring Boot jar in addition to what is transitively used by the *java_library*
-- *exclude*: see the Exclude feature explained [in this document](unwanted_classes.md)
-- *use_build_dependency_order*: see the Classpath Ordering feature explained in [this document](unwanted_classes.md)
+- *deps_exclude*: see the Exclude feature explained [in this document](unwanted_classes.md)
+- *deps_use_starlark_order*: see the Classpath Ordering feature explained in [this document](unwanted_classes.md)
+- *bazelrun_jvm_flags*: set of JVM flags used when launching the application with *bazel run*
+- *bazelrun_data*: behaves like the *data* attribute for *java_binary*
 
-The attributes are documented in the [generated Stardoc](springboot_doc.md).
+These attributes and more are documented in the [generated Stardoc](springboot_doc.md).
 
 
 ### Debugging the Rule Execution

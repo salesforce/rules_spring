@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Copyright (c) 2021, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license.
+# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+#
+
 set -e
 
 # Custom Launcher Script for launching a SpringBoot application with 'bazel run'
@@ -7,11 +13,15 @@ set -e
 
 echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 
+# Launcher Script for launching a SpringBoot application with 'bazel run'
+
 # The following environment variables will be set by the springboot rule, and can
 # be reliably used for scripting:
+#  RULE_NAME=helloworld
 #  LABEL_PATH=examples/helloworld
 #  SPRINGBOOTJAR_FILENAME=helloworld.jar
 #  JVM_FLAGS="-Dcustomprop=gold  -DcustomProp2=silver"
+#  DO_BACKGROUND=true/false   (if true, the caller is expecting the launcher not to block and return immediately)
 #
 # There are several other env variables set by Bazel. These should be stable between
 # versions of Bazel because they are documented:
@@ -34,7 +44,7 @@ echo ""
 
 # java args
 echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
-echo "Using jvm_flags from the BUILD file: ${JVM_FLAGS}"
+echo "Using bazelrun_jvm_flags from the BUILD file: ${JVM_FLAGS}"
 
 # main args
 main_args="$@"
@@ -54,4 +64,24 @@ echo "You can also run from the root of the repo:"
 echo "java -jar bazel-bin/${path}/${jar}"
 echo ""
 
-${cmd}
+# DO_BACKGROUND is set to true if the bazelrun_background attribute on the springboot rule is set to True
+# BAZELRUN_DO_BACKGROUND=true may be set by the user in the shell env prior to running bazel run
+# If either is true, we will run the application in the background and return immediately
+if [ "$DO_BACKGROUND" = true ] || [ "$BAZELRUN_DO_BACKGROUND" = true ]; then
+  LOGFILE=/tmp/${RULE_NAME}.log
+  PIDFILE=/tmp/${RULE_NAME}.pid
+  
+  ${cmd} > $LOGFILE 2>&1 &
+  PID=$!
+  echo $PID > $PIDFILE
+
+  echo "Launched the Spring Boot application in the background..."
+  echo "  BUILD rule 'bazelrun_background' attribute = [$DO_BACKGROUND]  Environment variable BAZELRUN_DO_BACKGROUND = [$BAZELRUN_DO_BACKGROUND]"
+  echo "  Console log is being written to $LOGFILE"
+  echo "  Application process id [$PID] has been written to $PIDFILE"
+  echo ""
+else
+  echo "Launching the Spring Boot application in the foreground..."
+  echo ""
+  ${cmd}
+fi

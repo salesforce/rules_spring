@@ -242,6 +242,7 @@ def springboot(
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
         bazelrun_data = None,
+        bazelrun_background = False,
         tags = [],
         visibility = None,
         exclude = [], # deprecated
@@ -283,6 +284,7 @@ def springboot(
       bazelrun_jvm_flags: Optional. When launching the application using 'bazel run', an optional set of JVM flags
         to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*
       bazelrun_data: Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.
+      bazelrun_background: Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.
       tags: Optional. Bazel standard attribute.
       visibility: Optional. Bazel standard attribute.
       exclude: Deprecated synonym of *deps_exclude*
@@ -410,8 +412,9 @@ def springboot(
     genbazelrunenv_out = "bazelrun_env.sh"
     native.genrule(
         name = genbazelrunenv_rule,
-        cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + _get_springboot_jar_file_name(name)
-            + " " + native.package_name() + " $@ " + bazelrun_jvm_flags ,
+        cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name)
+            + " " + native.package_name() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background)
+            + " " + bazelrun_jvm_flags,
         #      message = "SpringBoot rule is writing the bazel run launcher env...",
         tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],
         outs = [genbazelrunenv_out],
@@ -478,3 +481,8 @@ def _get_springboot_jar_file_name(name):
     if name.endswith(".jar"):
         fail("the name attribute of the springboot rule should not end with '.jar'")
     return name + ".jar"
+
+def _convert_starlarkbool_to_bashbool(starlarkbool):
+    if starlarkbool:
+      return "true"
+    return "false"

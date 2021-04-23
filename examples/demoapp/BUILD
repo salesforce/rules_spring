@@ -72,6 +72,9 @@ springboot(
     # data files can be made available in the working directory for when the app is launched with bazel run
     bazelrun_data = ["example_data.txt"],
 
+    # run the application in the background (command returns immediately)
+    #bazelrun_background = True,
+
     # you may choose to override the launcher script that is used when you invoke 'bazel run //examples/demoapp'
     bazelrun_script = "custom_bazelrun_script.sh",
 

@@ -76,8 +76,7 @@ The executable jar file is ready to be copied to your production environment.
 
 This repository has an example [WORKSPACE](../../WORKSPACE) file that lists necessary and some optional Spring Boot dependencies.
 These will come from a Nexus/Artifactory repository, or Maven Central.
-Because the version of each dependency needs to be explicitly defined, it is left for you to review and add to your *WORKSPACE* file.
-You will then need to follow an iterative process, adding external dependencies to your *BUILD* and *WORKSPACE* files until it builds and runs.
+Because the version of each dependency needs to be explicitly managed, it is left for you to review and add to your *WORKSPACE* file.
 
 ### Convenience Import Bundles
 
@@ -110,54 +109,10 @@ See the [//tools/buildstamp](../buildstamp) package for more details on how to e
 
 ### Customizing Bazel Run
 
-As shown above, you can launch the Spring Boot application directly from Bazel using the *bazel run* idiom:
-
-```bash
-bazel run //examples/helloworld
-```
-
-But you may wish to customize the launch with JVM arguments.
-There are two mechanisms that are supported for this - *bazelrun_jvm_flags* and *JAVA_OPTS*.
-They are injected into the command line launcher like this:
-
-```bash
-java [bazelrun_jvm_flags] [JAVA_OPTS] -jar [springboot jar]
-```
-
-The attribute *bazelrun_jvm_flags* is for cases in which you always want the flags to apply when the application is launched from Bazel.
-It is specified as an attribute on the *springboot* rule invocation:
-
-```starlark
-springboot(
-    name = "helloworld",
-    boot_app_class = "com.sample.SampleMain",
-    java_library = ":helloworld_lib",
-    bazelrun_jvm_flags = "-Dcustomprop=gold",
-)
-```
-
-The environment variable JAVA_OPTS is useful when a developer wants to make a local override.
-It is set in your shell before launching the application:
-
-```bash
-export JAVA_OPTS='-Dcustomprop=silver'
-bazel run //examples/helloworld
-```
-
-If this is not enough, you may completely replace the launcher script for advanced use cases.
-Note that this customization only affects the startup when invoked from *bazel run*.
-Make a copy of [default_bazelrun_script.sh](default_bazelrun_script.sh) into your package,
-  and make changes as necessary.
-Then pass it via the *bazelrun_script* attribute, like this:
-
-```starlark
-springboot(
-    name = "helloworld",
-    boot_app_class = "com.sample.SampleMain",
-    java_library = ":helloworld_lib",
-    bazelrun_script = "my_custom_bazelrun_script.sh",
-)
-```
+As shown above, the *springboot* rule has support for launching the application using *bazel run*.
+There are many ways to customize the way the application is launched.
+See the dedicated *bazel run* documentation for details:
+- [Customizing Bazel Run](bazelrun.md)
 
 ### Other Rule Attributes
 

@@ -24,12 +24,12 @@ Note that the rule README has more detailed usage instructions for each attribut
 | :-------------: | :-------------: | :-------------: |
 | name |  **Required**. The name of the Spring Boot application. Typically this is set the same as the package name.   Ex: *helloworld*.   |  none |
 | java_library |  **Required**. The built jar, identified by the name of the java_library rule, that contains the   Spring Boot application.   |  none |
-| boot_app_class |  **Required**. The fully qualified name of the class annotation with @SpringBootApplication.   Ex: *com.sample.SampleMain*   |  none |
+| boot_app_class |  **Required**. The fully qualified name of the class annotated with @SpringBootApplication.   Ex: *com.sample.SampleMain*   |  none |
 | deps |  Optional. An additional set of Java dependencies to add to the executable.   Normally all dependencies are set on the *java_library*.   |  <code>None</code> |
-| deps_exclude |  Optional. A list of jar file labels that will be omitted from the final packaging step.   This is a last resort option for eliminating a problematic dependency that cannot be managed any other way.   Ex: *["@io_grpc_grpc_java//api:api"]*.   |  <code>None</code> |
+| deps_exclude |  Optional. A list of jar file labels that will be omitted from the final packaging step.   This is a last resort option for eliminating a problematic dependency that cannot be managed any other way.   Ex: *["@maven//:commons_cli_commons_cli"]*.   |  <code>None</code> |
 | deps_index_file |  Optional. Uses Spring Boot's   [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)   to define classpath order. This feature is not commonly used, as the application must be extracted from the jar   file for it to work. Ex: *my_classpath_index.idx*   |  <code>None</code> |
-| deps_use_starlark_order |  When running the Spring Boot application from the executable jar file, setting this attribute to   *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.   |  <code>None</code> |
-| dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>None</code> |
+| deps_use_starlark_order |  When running the Spring Boot application from the executable jar file, setting this attribute to   *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.   |  <code>True</code> |
+| dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>False</code> |
 | dupeclassescheck_ignorelist |  Optional. When using the duplicate class check, this attribute can provide a file   that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*   |  <code>None</code> |
 | bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> |
 | bazelrun_jvm_flags |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*   |  <code>None</code> |
@@ -43,5 +43,3 @@ Note that the rule README has more detailed usage instructions for each attribut
 | duplicate_class_allowlist |  Deprecated synonym of *dupeclassescheck_ignorelist*   |  <code>None</code> |
 | jvm_flags |  Deprecated synonym of *bazelrun_jvm_flags*   |  <code>""</code> |
 | data |  Deprecated synonym of *bazelrun_data*   |  <code>[]</code> |
-
-

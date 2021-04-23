@@ -261,13 +261,13 @@ def springboot(
         Ex: *helloworld*.
       java_library: **Required**. The built jar, identified by the name of the java_library rule, that contains the
         Spring Boot application.
-      boot_app_class: **Required**. The fully qualified name of the class annotation with @SpringBootApplication.
+      boot_app_class: **Required**. The fully qualified name of the class annotated with @SpringBootApplication.
         Ex: *com.sample.SampleMain*
       deps: Optional. An additional set of Java dependencies to add to the executable.
         Normally all dependencies are set on the *java_library*.
       deps_exclude: Optional. A list of jar file labels that will be omitted from the final packaging step.
         This is a last resort option for eliminating a problematic dependency that cannot be managed any other way.
-        Ex: *["@io_grpc_grpc_java//api:api"]*.
+        Ex: *["@maven//:commons_cli_commons_cli"]*.
       deps_index_file: Optional. Uses Spring Boot's
         [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)
         to define classpath order. This feature is not commonly used, as the application must be extracted from the jar

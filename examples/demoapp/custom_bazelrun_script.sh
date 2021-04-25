@@ -79,6 +79,7 @@ if [ "$DO_BACKGROUND" = true ] || [ "$BAZELRUN_DO_BACKGROUND" = true ]; then
   echo "  BUILD rule 'bazelrun_background' attribute = [$DO_BACKGROUND]  Environment variable BAZELRUN_DO_BACKGROUND = [$BAZELRUN_DO_BACKGROUND]"
   echo "  Console log is being written to $logfile"
   echo "  Application process id [$pid] has been written to $pidfile"
+  echo "  Stop script was written to bazel-bin/${path}/${RULE_NAME}_bazelrun_stop.sh"
   echo ""
 else
   echo "Launching the Spring Boot application in the foreground..."

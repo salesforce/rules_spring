@@ -171,6 +171,7 @@ source $SCRIPT_DIR/bazelrun_env.sh
 source %bazelrun_script%
 """
 
+
 # ***************************************************************
 # SpringBoot Rule
 #  do not use directly, see the SpringBoot Macro below
@@ -306,6 +307,7 @@ def springboot(
     genjar_rule = native.package_name() + "_genjar"
     dupecheck_rule = native.package_name() + "_dupecheck"
     apprun_rule = native.package_name() + "_apprun"
+    genbazelrunstop_rule = native.package_name() + "_genbazelrunstop"
 
     # Handle deprecated attribute names; if modern name is not set then take
     # the legacy attribute value (which may be set to a default, or set by the user)
@@ -452,8 +454,20 @@ def springboot(
         tags = tags,
     )
 
+    # Check for a custom bazelrun script, apply default if not defined
     if bazelrun_script == None:
         bazelrun_script = "@rules_spring//springboot:default_bazelrun_script.sh"
+
+    # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE BAZELRUN LAUNCHER SCRIPT
+    genbazelstop_out = name + "_bazelrun_stop.sh"
+    native.genrule(
+        name = genbazelrunstop_rule,
+        cmd = "$(location @rules_spring//springboot:bazelrun_stop_gen.sh) " + name + " $@",
+        tools = ["@rules_spring//springboot:bazelrun_stop_gen.sh"],
+        outs = [genbazelstop_out],
+        tags = tags,
+    )
+
 
     # MASTER RULE: Create the composite rule that will aggregate the outputs of the subrules
     _springboot_rule(
@@ -475,7 +489,6 @@ def springboot(
     )
 
 # end springboot macro
-
 
 def _get_springboot_jar_file_name(name):
     if name.endswith(".jar"):

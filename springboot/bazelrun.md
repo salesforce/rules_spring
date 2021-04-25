@@ -8,6 +8,7 @@ bazel run //examples/helloworld
 
 But you may wish to customize the launch.
 The *springboot* rule supports several features for customization.
+Note that these features do **not** apply when running the application directly using ```java -jar [file]```.
 
 ### Java Startup Options
 

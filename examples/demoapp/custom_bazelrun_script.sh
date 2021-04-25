@@ -68,17 +68,17 @@ echo ""
 # BAZELRUN_DO_BACKGROUND=true may be set by the user in the shell env prior to running bazel run
 # If either is true, we will run the application in the background and return immediately
 if [ "$DO_BACKGROUND" = true ] || [ "$BAZELRUN_DO_BACKGROUND" = true ]; then
-  LOGFILE=/tmp/${RULE_NAME}.log
-  PIDFILE=/tmp/${RULE_NAME}.pid
-  
-  ${cmd} > $LOGFILE 2>&1 &
-  PID=$!
-  echo $PID > $PIDFILE
+  logfile=/tmp/${RULE_NAME}.log
+  pidfile=/tmp/${RULE_NAME}.pid
+
+  ${cmd} > $logfile 2>&1 &
+  pid=$!
+  echo $pid > $pidfile
 
   echo "Launched the Spring Boot application in the background..."
   echo "  BUILD rule 'bazelrun_background' attribute = [$DO_BACKGROUND]  Environment variable BAZELRUN_DO_BACKGROUND = [$BAZELRUN_DO_BACKGROUND]"
-  echo "  Console log is being written to $LOGFILE"
-  echo "  Application process id [$PID] has been written to $PIDFILE"
+  echo "  Console log is being written to $logfile"
+  echo "  Application process id [$pid] has been written to $pidfile"
   echo ""
 else
   echo "Launching the Spring Boot application in the foreground..."

@@ -10,12 +10,13 @@ set -e
 
 mainclass=$1
 manifestfile=$2
+javabase=$3
 found_spring_jar=0
 # Looking for the springboot jar injected by springboot.bzl and extracting the version
 for var in "$@"
 do
   if [[ $var = *"spring-boot-"* ]] || [[ $var = *"spring_boot_"* ]]; then
-    jar xf $var META-INF/MANIFEST.MF
+    $javabase/bin/jar xf $var META-INF/MANIFEST.MF
     spring_version=$(grep 'Implementation-Version' META-INF/MANIFEST.MF | cut -d : -f2 | tr -d '[:space:]')
     rm -rf META-INF
     found_spring_jar=1

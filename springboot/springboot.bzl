@@ -325,7 +325,7 @@ def springboot(
         bazelrun_data = data
 
 
-    # assemble deps; generally all deps will come transtiviely through the java_library
+    # assemble deps; generally all deps will come transitively through the java_library
     # but a user may choose to add in more deps directly into the springboot jar (rare)
     java_deps = [java_library]
     if deps != None:
@@ -346,11 +346,12 @@ def springboot(
     native.genrule(
         name = genmanifest_rule,
         srcs = [":" + dep_aggregator_rule],
-        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " $@ $(SRCS)",
+        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " $@ $(JAVABASE) $(SRCS)",
         #      message = "SpringBoot rule is writing the MANIFEST.MF...",
         tools = ["@rules_spring//springboot:write_manifest.sh"],
         outs = [genmanifest_out],
         tags = tags,
+        toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
 
     # SUBRULE 2B: GENERATE THE GIT PROPERTIES

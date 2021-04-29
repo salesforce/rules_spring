@@ -140,7 +140,7 @@ while [ "$i" -le "$#" ]; do
   echo "DEBUG: libname: $libname" >> $debugfile
   if [[ $libname == *jar ]]; then
     # we only want to process .jar files as libs
-    if [[ $libname == *spring-boot-loader* ]]; then
+    if [[ $libname == *spring-boot-loader* ]] || [[ $libname == *spring_boot_loader* ]]; then
       # if libname contains the string 'spring-boot-loader' then...
       # the Spring Boot Loader classes are special, they must be extracted at the root level /,
       #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class

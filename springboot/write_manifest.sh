@@ -32,7 +32,7 @@ fi
 #get the java -version details
 # todo this isn't the best value to use. it is the version that will be used by the jar tool
 # to package the boot jar but not for compiling the code (java_toolchain)
-java_string=$(java -version 2>&1)
+java_string=$($javabase/bin/java -version 2>&1)
 
 #get the first line of the version details and get the version
 java_version=$(echo "$java_string" | head -n1 | cut -d ' ' -f 3 | rev | cut -c2- | rev | cut -c2- )

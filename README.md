@@ -8,9 +8,6 @@ The executable jar is the best way to deploy your Spring Boot application in pro
 The Salesforce *springboot* rule can be found, along with documentation, in this location:
 - [springboot](springboot): a Bazel extension to build and package Spring Boot applications
 
-:fire: this Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
-This was done to comply with required Bazel naming conventions for external rules.
-
 ### Support and Ongoing Development
 
 This rule was developed and is supported by Salesforce.
@@ -62,6 +59,9 @@ At Salesforce, Bazel is not available in production environments, and so this al
 
 This section contains notes for specific upgrade steps needed to adopt newer versions of *rules-spring*.
 Starting with the 1.1.x line, we strive to adhere to [SemVer](https://semver.org/).
+
+:fire: this Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
+This was done to comply with required Bazel naming conventions for external rules.
 
 #### 2.0.0: March 13, 2021
 

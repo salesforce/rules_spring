@@ -74,9 +74,8 @@ The executable jar file is ready to be copied to your production environment.
 
 ### Rule Attributes Reference
 
-The documentation below explains how to use, or has links to other documents, for all
-  of the features support by the _springboot_ rule.
-For reference, the attributes are documented in the [generated _springboot_ Stardoc file.](springboot_doc.md).
+The documentation below explains how to use (or links to subdocuments) all of the features supported by the _springboot_ rule.
+For reference, the full list attributes are documented in the [generated _springboot_ Stardoc file.](springboot_doc.md).
 
 ### Manage External Dependencies in your WORKSPACE
 

@@ -72,6 +72,12 @@ The executable jar file is ready to be copied to your production environment.
 
 ## In Depth
 
+### Rule Attributes Reference
+
+The documentation below explains how to use, or has links to other documents, for all
+  of the features support by the _springboot_ rule.
+For reference, the attributes are documented in the [generated _springboot_ Stardoc file.](springboot_doc.md).
+
 ### Manage External Dependencies in your WORKSPACE
 
 This repository has an example [WORKSPACE](../../WORKSPACE) file that lists necessary and some optional Spring Boot dependencies.
@@ -123,8 +129,6 @@ The Spring Boot rule supports other attributes for use in the BUILD file:
 - *deps_use_starlark_order*: see the Classpath Ordering feature explained in [this document](unwanted_classes.md)
 - *bazelrun_jvm_flags*: set of JVM flags used when launching the application with *bazel run*
 - *bazelrun_data*: behaves like the *data* attribute for *java_binary*
-
-These attributes and more are documented in the [generated Stardoc](springboot_doc.md).
 
 
 ### Debugging the Rule Execution

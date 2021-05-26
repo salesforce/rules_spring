@@ -13,6 +13,7 @@ The Salesforce *springboot* rule can be found, along with documentation, in this
 This rule was developed and is supported by Salesforce.
 If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/rules_spring/issues).
 We will try to quickly address problems and answer questions.
+Note that we do not yet support running these [rules on Windows](https://github.com/salesforce/rules_spring/issues/25).
 
 Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/rules_spring/projects).
 To see what bug fixes and new features are planned, consult the roadmaps located there.

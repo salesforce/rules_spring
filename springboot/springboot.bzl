@@ -414,7 +414,7 @@ def springboot(
     native.genrule(
         name = genbazelrunenv_rule,
         cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name)
-            + " " + native.package_name() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background)
+            + " " + _get_relative_package_path() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background)
             + " " + bazelrun_jvm_flags,
         #      message = "SpringBoot rule is writing the bazel run launcher env...",
         tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],
@@ -487,3 +487,13 @@ def _convert_starlarkbool_to_bashbool(starlarkbool):
     if starlarkbool:
       return "true"
     return "false"
+
+def _get_relative_package_path():
+    """Convert the current package name into a relative file system path. Because
+    this value is used as a positional argument, if native.package_name() returns
+    empty string (e.g. the target is //:foo), we replace it with a token so that
+    it wont confuse the parsing of the positional arguments.
+    """
+    if not native.package_name():
+        return "root"
+    return native.package_name() + "/"

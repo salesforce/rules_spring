@@ -18,7 +18,7 @@ echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 # The following environment variables will be set by the springboot rule, and can
 # be reliably used for scripting:
 #  RULE_NAME=helloworld
-#  LABEL_PATH=examples/helloworld
+#  LABEL_PATH=examples/helloworld/
 #  SPRINGBOOTJAR_FILENAME=helloworld.jar
 #  JVM_FLAGS="-Dcustomprop=gold  -DcustomProp2=silver"
 #  DO_BACKGROUND=true/false   (if true, the caller is expecting the launcher not to block and return immediately)
@@ -55,13 +55,13 @@ jar=${SPRINGBOOTJAR_FILENAME}
 
 # assemble the command
 # use exec so that we can pass signals to the underlying process (https://github.com/salesforce/rules_spring/issues/91)
-cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${path}/${jar} ${main_args}"
+cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${path}${jar} ${main_args}"
 
 echo "Running ${cmd}"
 echo "In directory $(pwd)"
 echo ""
 echo "You can also run from the root of the repo:"
-echo "java -jar bazel-bin/${path}/${jar}"
+echo "java -jar bazel-bin/${path}${jar}"
 echo ""
 
 # DO_BACKGROUND is set to true if the bazelrun_background attribute on the springboot rule is set to True

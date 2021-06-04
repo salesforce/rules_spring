@@ -22,13 +22,13 @@ echo "# git info injected by Bazel build" > $gitpropsfile
 
 ruledir=$(pwd)
 stableprops=$ruledir/bazel-out/stable-status.txt
-stableprops=$ruledir/bazel-out/volatile-status.txt
+volatileprops=$ruledir/bazel-out/volatile-status.txt
 
 # BUILD ENVIRONMENT PROPERTIES
 echo "" >> $gitpropsfile
 
 for key in git.build.user.email git.build.host git.build.time; do
-  value=$(grep $key $stableprops | cut -d " " -f 2-100)
+  value=$(grep $key $volatileprops | cut -d " " -f 2-100)
   if [[ $? == 0 ]];
   then
     echo "$key=$value" >> $gitpropsfile

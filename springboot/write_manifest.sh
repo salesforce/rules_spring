@@ -16,7 +16,7 @@ found_spring_jar=0
 for var in "$@"
 do
   if [[ $var = *"spring-boot-"* ]] || [[ $var = *"spring_boot_"* ]]; then
-    $javabase/bin/jar xf $var META-INF/MANIFEST.MF
+    $javabase/bin/jar xf $var META-INF/MANIFEST.MF || continue
     spring_version=$(grep 'Implementation-Version' META-INF/MANIFEST.MF | cut -d : -f2 | tr -d '[:space:]')
     rm -rf META-INF
     found_spring_jar=1

@@ -16,16 +16,24 @@ found_spring_jar=0
 for var in "$@"
 do
   if [[ $var = *"spring-boot-"* ]] || [[ $var = *"spring_boot_"* ]]; then
+    # determine the version of spring boot
+    # this little area of the rule has had problems in the past; reconsider whether doing
+    # this is worth it; and certainly carefully review prior issues here before making changes
+    #   Issues: #130, #119, #111
     $javabase/bin/jar xf $var META-INF/MANIFEST.MF || continue
     spring_version=$(grep 'Implementation-Version' META-INF/MANIFEST.MF | cut -d : -f2 | tr -d '[:space:]')
     rm -rf META-INF
+
+    # we do want to validate that the deps include spring boot, and this is a
+    # convenient place to do it, but it is a little misplaced as we are
+    # generating the manifest in this script
     found_spring_jar=1
     break
   fi
 done
 
 if [[ $found_spring_jar -ne 1 ]]; then
-    echo "ERROR: //springboot/write_manifest.sh could not find spring-boot jar"
+    echo "ERROR: //springboot/write_manifest.sh could not find the spring-boot jar"
     exit 1
 fi
 

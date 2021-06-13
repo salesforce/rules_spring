@@ -12,6 +12,7 @@ load("@rules_spring//springboot:springboot.bzl", "springboot")
 # DEPENDENCIES
 deps = [
     "@rules_spring//springboot/import_bundles:springboot_required_deps",
+    "@maven//:org_springframework_boot_spring_boot_actuator",
     "@maven//:org_springframework_boot_spring_boot_starter_jetty",
     "@maven//:org_springframework_boot_spring_boot_starter_web",
     "@maven//:org_springframework_boot_spring_boot_loader_tools",

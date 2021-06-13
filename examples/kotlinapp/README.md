@@ -11,3 +11,13 @@ This example is instead here to show how to build and run such an app in Bazel u
 bazel build //...
 bazel run //examples/kotlinapp
 ```
+
+Once it is running, the following endpoints are available:
+
+```
+# SampleController
+http://localhost:8080/
+
+# SpringBoot Actuator
+http://localhost:8080/actuator/configprops
+```

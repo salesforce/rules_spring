@@ -3,7 +3,7 @@
 This implements a Bazel rule for packaging a Spring Boot application as an executable jar file.
 The output of this rule is a jar file that can be copied to production environments and run.
 
-See the [top-level README](../../README.md) for the stanza to add to your *WORKSPACE* file to load the rule.
+See the [top-level README](../README.md) for the stanza to add to your *WORKSPACE* file to load the rule.
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
 
 ### Use the rule in your BUILD file

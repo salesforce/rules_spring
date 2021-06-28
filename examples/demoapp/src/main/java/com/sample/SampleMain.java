@@ -21,8 +21,9 @@ public class SampleMain {
     System.out.println("SampleMain: Launching the sample SpringBoot demo application...");
     StringBuffer sb = new StringBuffer();
     for (String arg : args) {
+      sb.append("[");
       sb.append(arg);
-      sb.append(" ");
+      sb.append("] ");
     }
     System.out.println("SampleMain:  Command line args: "+sb.toString());
 

@@ -12,13 +12,8 @@ Note that these features do **not** apply when running the application directly 
 
 ### Java Startup Options
 
-You may wish to customize the launch with JVM options.
+You may wish to customize the bazel run launcher with JVM options.
 There are two mechanisms that are supported for this - *bazelrun_jvm_flags* and *JAVA_OPTS*.
-They are injected into the command line launcher like this:
-
-```bash
-java [bazelrun_jvm_flags] [JAVA_OPTS] -jar [springboot jar]
-```
 
 The *springboot* rule attribute *bazelrun_jvm_flags* is for cases in which you always want the options to apply when the application is launched from Bazel.
 It is specified as an attribute on the *springboot* rule invocation:
@@ -38,6 +33,13 @@ It is set in your shell before launching the application:
 ```bash
 export JAVA_OPTS='-Dcustomprop=silver'
 bazel run //examples/helloworld
+```
+
+Inside the bazel run launcher, these two options are injected into the command line launcher as if you had invoked the jar like this:
+
+```bash
+# internally, this is how bazelrun_jvm_flags and JAVA_OPTS are passed to java
+java [bazelrun_jvm_flags] [JAVA_OPTS] -jar [springboot jar]
 ```
 
 ### Background the Application on Launch
@@ -61,6 +63,25 @@ If either the attribute or environment variable are set to true, the application
 - the process id will be persisted to a file (/tmp/${rulename}.pid)
 - stdout and stderr will be piped to a file (/tmp/${rulename}.log)
 
+### Application Arguments
+
+You may wish to pass arguments to your Spring Boot application.
+These arguments are interpreted by your application as you like (see SampleMain.java for an example).
+For most cases, you can just add them after the Bazel target, like this:
+
+```bash
+bazel run //examples/helloworld one two three=four
+```
+
+which would arrive in your main class as args \[one\] \[two\] \[three=four\].
+But if you need to pass an argument that starts with '--' to Spring Boot or your application, you will need to follow this pattern
+  (notice the extra -- in the command line):
+
+```bash
+bazel run //examples/helloworld -- --spring.config.location=/tmp/myconfig/
+```
+
+otherwise Bazel will try to consume the '--' argument for itself.
 
 ### Direct Invocation of the Launcher Script
 

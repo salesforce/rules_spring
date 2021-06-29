@@ -67,7 +67,8 @@ Run the jar file locally using *java* like so:
 java -jar bazel-bin/examples/helloworld/helloworld.jar
 ```
 
-The executable jar file is ready to be copied to your production environment.
+The executable jar file is ready to be copied to your production environment or  
+  embedded into [a Docker image in your build](https://github.com/salesforce/rules_spring/issues/94).
 
 
 ## In Depth

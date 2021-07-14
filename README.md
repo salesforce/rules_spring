@@ -5,7 +5,7 @@ This repository contains the [Spring Boot](https://spring.io/guides/gs/spring-bo
 It enables Bazel to build Spring Boot applications and package them as an executable jar file.
 The executable jar is the best way to deploy your Spring Boot application in production environments.
 
-The Salesforce *springboot* rule can be found, along with documentation, in this location:
+The Salesforce *springboot* rule can be found, along with documentation, in this directory:
 - [springboot](springboot): a Bazel extension to build and package Spring Boot applications
 
 ### Support and Ongoing Development
@@ -60,8 +60,7 @@ At Salesforce, Bazel is not available in production environments, and so this al
 
 This section contains notes for specific upgrade steps needed to adopt newer versions of *rules-spring*.
 Starting with the 1.1.x line, we strive to adhere to [SemVer](https://semver.org/).
-
-:fire: this Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
+This Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
 This was done to comply with required Bazel naming conventions for external rules.
 
 #### 2.0.0: March 13, 2021
@@ -75,8 +74,3 @@ For rule 1.x users upgrading to 2.0.0, you will need to do the following:
 - All BUILD and .bzl file references to *//tools/springboot* must be changed to *//springboot*
 
 See [Repackaging work item](https://github.com/salesforce/rules_spring/issues/30) for more details.
-
-#### 1.0.0 September 21, 2020
-
-With this release we switched the repo to use *maven_install* style dependencies, instead of the obsolete *maven_jar*.
-The *maven_jar* rule was [removed from Bazel in 2.x](https://github.com/bazelbuild/bazel/issues/6799).

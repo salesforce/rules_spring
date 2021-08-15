@@ -370,6 +370,7 @@ def springboot(
     _appjar_locator_rule(
         name = appjar_locator_rule,
         app_dep = java_library,
+        tags = tags,
     )
 
     # SUBRULE 3: INVOKE THE BASH SCRIPT THAT DOES THE PACKAGING

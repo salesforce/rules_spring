@@ -38,6 +38,7 @@ py_test(
         "tests/check_dupe_classes_test.py",
     ],
     imports = ["."],
+    tags = ["manual"],
 )
 
 # Enable only when generating the doc, then disable again before releasing. We don't want to require

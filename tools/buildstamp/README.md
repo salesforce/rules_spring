@@ -1,7 +1,7 @@
 ## Build Stamping
 
 Bazel has a feature to optionally add 'stamping' information to particular build artifacts.
-That feature is described [in this Bazel documentation](https://docs.bazel.build/versions/master/user-manual.html#workspace_status).
+That feature is described [in this Bazel documentation](https://bazel.build/docs/user-manual#workspace-status).
 
 We sometimes stamp Spring Boot applications with Git information (such as branch,
    commit id, build time, etc) such that the data can be found in the [/actuator/info](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints) endpoint.
@@ -76,7 +76,7 @@ native.genrule(
 #### Understand stable-status.txt and volatiles-status.txt
 
 The Bazel documentation provides a good explanation for how stamping works in Bazel, so please visit that first:
-- [Bazel Build Stamping](https://docs.bazel.build/versions/master/user-manual.html#workspace_status)
+- [Bazel Build Stamping](https://bazel.build/docs/user-manual#workspace-status)
 
 #### Monorepo Stamping Implementation
 

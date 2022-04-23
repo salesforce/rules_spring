@@ -32,18 +32,18 @@ This is the recommended approach for most users.
 ```starlark
 http_archive(
     name = "rules_spring",
-    sha256 = "9385652bb92d365675d1ca7c963672a8091dc5940a9e307104d3c92e7a789c8e",
+    sha256 = "711ff9949bb1cc4dfc34f26114bb2989a2c820a300e536aebea652df1e08292c",
     urls = [
-         "https://github.com/salesforce/rules_spring/releases/download/2.1.4/rules-spring-2.1.4.zip",
+        "https://github.com/salesforce/rules_spring/releases/download/2.2.1/rules-spring-2.2.1.zip",
     ],
 )
 ```
 
-**Do not use a git_repository rule with our master branch**
+**Do not use a git_repository rule with our main branch**
 If you choose not to use an official release, you may be tempted to use a *git_repository* workspace
-  rule to point to our *master* branch,
-Please **do not** do this, as we use *master* for ongoing work.
-We may check breaking changes into *master* at any time.
+  rule to point to our *main* branch,
+Please **do not** do this, as we use *main* for ongoing work.
+We may check breaking changes into *main* at any time.
 
 
 ### Alternate Approach for Building and Running Spring Boot Applications

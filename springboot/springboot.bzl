@@ -244,6 +244,7 @@ def springboot(
         bazelrun_data = None,
         bazelrun_background = False,
         tags = [],
+        testonly = False,
         visibility = None,
         exclude = [], # deprecated
         classpath_index = "@rules_spring//springboot:empty.txt", # deprecated
@@ -286,6 +287,7 @@ def springboot(
       bazelrun_data: Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.
       bazelrun_background: Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.
       tags: Optional. Bazel standard attribute.
+      testonly: Optional. Bazel standard attribute. Defaults to False.
       visibility: Optional. Bazel standard attribute.
       exclude: Deprecated synonym of *deps_exclude*
       classpath_index: Deprecated synonym of *deps_index_file*
@@ -338,6 +340,7 @@ def springboot(
         deps = java_deps,
         deps_exclude = deps_exclude,
         tags = tags,
+        testonly = testonly,
     )
 
     # SUBRULE 2: GENERATE THE MANIFEST
@@ -351,6 +354,7 @@ def springboot(
         tools = ["@rules_spring//springboot:write_manifest.sh"],
         outs = [genmanifest_out],
         tags = tags,
+        testonly = testonly,
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
 
@@ -362,6 +366,7 @@ def springboot(
         tools = ["@rules_spring//springboot:write_gitinfo_properties.sh"],
         outs = [gengitinfo_out],
         tags = tags,
+        testonly = testonly,
         stamp = 1,
     )
 
@@ -371,6 +376,7 @@ def springboot(
         name = appjar_locator_rule,
         app_dep = java_library,
         tags = tags,
+        testonly = testonly,
     )
 
     # SUBRULE 3: INVOKE THE BASH SCRIPT THAT DOES THE PACKAGING
@@ -406,6 +412,7 @@ def springboot(
             "@bazel_tools//tools/jdk:singlejar",
         ],
         tags = tags,
+        testonly = testonly,
         outs = [_get_springboot_jar_file_name(name)],
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
     )
@@ -421,6 +428,7 @@ def springboot(
         tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],
         outs = [genbazelrunenv_out],
         tags = tags,
+        testonly = testonly,
     )
 
     # SUBRULE 4: RUN THE DUPE CHECKER (if enabled)
@@ -437,6 +445,7 @@ def springboot(
             dupeclassescheck_ignorelist = dupeclassescheck_ignorelist,
             out = "dupecheck_results.txt",
             tags = tags,
+            testonly = testonly,
         )
         dupecheck_rule_label = ":" + dupecheck_rule
 
@@ -452,6 +461,7 @@ def springboot(
         main_class = boot_app_class,
         runtime_deps = java_deps,
         tags = tags,
+        testonly = testonly,
     )
 
     if bazelrun_script == None:
@@ -473,6 +483,7 @@ def springboot(
         bazelrun_data = bazelrun_data,
 
         tags = tags,
+        testonly = testonly,
         visibility = visibility,
     )
 

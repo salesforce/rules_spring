@@ -39,15 +39,23 @@ def _depaggregator_rule_impl(ctx):
 
     for exclusion_info in ctx.attr.deps_exclude:
         for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
+            # print("Spring Boot Excluding: "+compile_jar.owner.name+" as "+compile_jar.path)
             excludes[compile_jar.path] = True
 
     for dep in merged.transitive_runtime_jars.to_list():
-        if excludes.get(dep.path, None) == None:
-            # print("include ", dep.path)
-            jars.append(dep)
-        else:
-            # print("exclude " + dep.path)
+        if excludes.get(dep.path, None) != None:
+            # print("exclude by label " + dep.path)
             pass
+        else:
+            include = True
+            for pattern in ctx.attr.deps_exclude_paths:
+                if dep.path.find(pattern) > -1:
+                    # print("exclude by path " + dep.path)
+                    include = False
+                    break
+            if include:
+                # print("Spring Boot Including: "+dep.owner.name+" as "+dep.path)
+                jars.append(dep)
 
     # print("AGGREGATED DEPS")
     # print(jars)
@@ -60,6 +68,7 @@ _depaggregator_rule = rule(
         "depaggregator_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
         "deps_exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
+        "deps_exclude_paths": attr.string_list(),
     },
 )
 
@@ -235,6 +244,7 @@ def springboot(
         boot_app_class,
         deps = None,
         deps_exclude = None,
+        deps_exclude_paths = None,
         deps_index_file = None,
         deps_use_starlark_order = None,
         dupeclassescheck_enable = None,
@@ -267,9 +277,13 @@ def springboot(
         Ex: *com.sample.SampleMain*
       deps: Optional. An additional set of Java dependencies to add to the executable.
         Normally all dependencies are set on the *java_library*.
-      deps_exclude: Optional. A list of jar file labels that will be omitted from the final packaging step.
-        This is a last resort option for eliminating a problematic dependency that cannot be managed any other way.
+      deps_exclude: Optional. A list of jar labels that will be omitted from the final packaging step.
+        This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream.
         Ex: *["@maven//:commons_cli_commons_cli"]*.
+      deps_exclude: Optional. This attribute provides a list of partial paths that will be omitted
+        from the final packaging step if the string is contained within the dep filename. This is a more raw method
+        than deps_exclude for eliminating a problematic dependency/file that cannot be eliminated upstream.
+        Ex: [*jackson-databind-*].
       deps_index_file: Optional. Uses Spring Boot's
         [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)
         to define classpath order. This feature is not commonly used, as the application must be extracted from the jar
@@ -278,7 +292,7 @@ def springboot(
         *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.
       dupeclassescheck_enable: If *True*, will analyze the list of dependencies looking for any class that appears more than
         once, but with a different hash. This indicates that your dependency tree has conflicting libraries.
-      dupeclassescheck_ignorelist: Optional. When using the duplicate class check, this attribute can provide a file
+      dupeclassescheck_ignorelist: Optional. When using the duplicate class check, this attribute provides a file
         that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*
       bazelrun_script: Optional. When launching the application using 'bazel run', a default launcher script is used.
         This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*
@@ -339,6 +353,7 @@ def springboot(
         name = dep_aggregator_rule,
         deps = java_deps,
         deps_exclude = deps_exclude,
+        deps_exclude_paths = deps_exclude_paths,
         tags = tags,
         testonly = testonly,
     )

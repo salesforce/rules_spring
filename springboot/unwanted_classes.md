@@ -52,6 +52,16 @@ In some cases you do not have the control to remove the dependency from the depe
 An exclude list can be passed to the Spring Boot rule which will prevent that dependency from being copied into the jar.
 This is the second best approach for handling unwanted classes.
 
+There are two forms: *deps_exclude* and *deps_exclude_paths*.
+- *deps_exclude* uses Bazel labels to match the desired target to exclude.
+- *deps_exclude_paths* is a partial String match against the file path of the dependency within the jar.
+
+The first one is more elegant and maintainable, as the label will be validated by Bazel.
+However, in some cases this can be tedious as a given dep may be exposed under many labels.
+This is the case when you have many *maven_install* rules that transitively bring in the same dependency.
+You may have to exclude the same dependency multiple times if you use the label approach.
+The path approach is easier for these cases.
+
 It is used like this:
 
 ```starlark
@@ -62,6 +72,10 @@ springboot(
     deps_exclude = [
       "@maven//:com_google_protobuf_protobuf_java",
       "//protos/third-party/google/protobuf:any_java_proto",
+    ],
+    deps_exclude_paths = [
+      "jackson-databind", # will exclude any dep that has 'jackson-databind' in the path
+      "google", # will exclude any dep that has 'google' in the path
     ],
 )
 ```

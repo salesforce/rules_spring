@@ -1,10 +1,14 @@
 ## SpringBoot Rule
 
-This implements a Bazel rule for packaging a Spring Boot application as an executable jar file.
-The output of this rule is a jar file that can be copied to production environments and run.
+This implements a Bazel rule for packaging a Spring Boot application as an executable jar file from a Bazel build.
+The output of this rule is a jar file that can be copied to production environments and run as an executable jar.
 
 See the [top-level README](../README.md) for the stanza to add to your *WORKSPACE* file to load the rule.
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
+
+:eyes: this package also contains a CLI for inspecting Spring Boot jars after they have been built.
+This can be useful when troubleshooting behavior differences over time due to changing dependencies.
+See [the CLI user guide](cli.md) for details.
 
 ### Use the rule in your BUILD file
 

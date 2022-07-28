@@ -41,6 +41,19 @@ py_test(
     tags = ["manual"],
 )
 
+java_library(
+    name = "springboot_lib",
+    srcs = glob(["src/main/java/**/*.java"]),
+    deps = [],
+)
+
+java_binary(
+    name = "springboot_cli",
+    runtime_deps = [":springboot_lib"],
+    main_class = "com.salesforce.rulesspring.cli.SpringBootInspector",
+)
+
+
 # Enable only when generating the doc, then disable again before releasing. We don't want to require
 # users of the rule to configure stardoc in their workspace. You need to uncomment the WORKSPACE def
 # for this before using.

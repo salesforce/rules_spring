@@ -137,12 +137,12 @@ The Spring Boot rule supports other attributes for use in the BUILD file:
 
 ### Debugging the Rule Execution
 
-If the environment variable `DEBUG_SPRINGBOOT_RULE` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`.
+If the environment variable `debug_springboot_rule` is set, the rule writes debug output to `$TMPDIR/bazel/debug/springboot`.
 If `$TMPDIR` is not defined, it defaults to `/tmp`.
 In order to pass this environment variable to Bazel, use the `--action_env` argument:
 
 ```bash
-bazel build //... --action_env=DEBUG_SPRINGBOOT_RULE=1
+bazel build //... --action_env=debug_springboot_rule=1
 ```
 
 ### Writing Tests for your Spring Boot Application

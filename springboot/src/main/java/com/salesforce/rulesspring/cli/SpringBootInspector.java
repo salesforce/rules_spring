@@ -12,11 +12,16 @@ public class SpringBootInspector {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 3) {
+            System.out.println("ERROR: this tool needs at least 3 arguments");
             usage();
             return;
         }
 
         Command cmd = parseArgs(args);
+        if (cmd == null) {
+            // command line was invalid, and reason was already logged, just exit
+            return;
+        }
 
         if ("inspector".equals(cmd.mode)) {
             File jarFile = new File(cmd.jarFilepath);
@@ -37,14 +42,14 @@ public class SpringBootInspector {
 
                 SpringBootJarIndexer indexer = new SpringBootJarIndexer(jarFile);
                 IndexOfFiles index = indexer.indexJar(cmd.recursive);
-        
+
                 SpringBootIndexReporter reporter = new SpringBootIndexReporter();
                 String report = reporter.generateReport(index, cmd.reportOptions);
-        
+
                 BufferedWriter writer = new BufferedWriter(new FileWriter(indexFile));
                 writer.write(report);
                 writer.close();
-                
+
                 System.out.println("Wrote index file as "+cmd.outputPath);
             } else {
                 System.err.println("Operation "+cmd.operation+" is not implemented.");
@@ -56,10 +61,10 @@ public class SpringBootInspector {
         System.out.println("Spring Boot Jar Inspector");
         System.out.println("Usage:");
         System.out.println("  java -jar springboot-cli.jar MODE OPERATION [operation specific args]");
-        System.out.println("    MODE: 'inspector' for running operations on a single Spring Boot jar; 'comparator' when running operations with multiple Spring Boot jars"); 
+        System.out.println("    MODE: 'inspector' for running operations on a single Spring Boot jar; 'comparator' when running operations with multiple Spring Boot jars");
         System.out.println("    OPERATION: a keyword that activates a particular operation; operations are documented below");
         System.out.println("\n");
-        
+
         System.out.println("INSPECTOR OPERATIONS:");
         System.out.println("\n");
         System.out.println(" index: generates an index of files within the Spring Boot jar.");
@@ -72,16 +77,21 @@ public class SpringBootInspector {
 
     protected static Command parseArgs(String[] args) {
         // TODO this is pretty awkward but keeping it simple for now
-        
+
         Command cmd = new Command();
         cmd.mode = args[0];
         cmd.operation = args[1];
         System.out.println("Mode: "+cmd.mode);
         System.out.println("Operation: "+cmd.operation);
-        
+
         int optionalArgIndex = 2;
         if ("inspector".equals(cmd.mode)) {
             if ("index".equals(cmd.operation)) {
+                if (args.length < 4) {
+                    System.out.println("ERROR: Not enough arguments for the index command.");
+                    usage();
+                    return null;
+                }
                 cmd.jarFilepath = args[2];
                 cmd.outputPath = args[3];
                 System.out.println("Spring Boot Jar: "+cmd.jarFilepath);
@@ -92,7 +102,7 @@ public class SpringBootInspector {
         parseOptionalArgs(args, optionalArgIndex, cmd);
         return cmd;
     }
-    
+
     protected static void parseOptionalArgs(String[] args, int index, Command cmd) {
         for (int i = index; i<args.length; i++) {
             if ("--recursive".equals(args[i])) {
@@ -106,16 +116,16 @@ public class SpringBootInspector {
                 System.err.println("Unrecognized parameter "+args[i]+ ". Ignoring.");
             }
         }
-        
+
     }
-    
+
     public static class Command {
         // General args
         public String mode;
         public String operation;
         public String jarFilepath;
         public String outputPath;
-        
+
         // inspector:index args
         public boolean recursive = false;
         public String reportOptions = null;

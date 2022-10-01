@@ -65,8 +65,8 @@ if [ -z "${debug_springboot_rule}" ]; then
 else
     debugdir=$springboot_rule_tmpdir/debug/springboot
     mkdir -p $debugdir
-    debugfileNAME=$packagename-$packagesha
-    debugfile=$debugdir/$debugfileNAME.log
+    debugfileName=$packagename-$packagesha
+    debugfile=$debugdir/${debugfileName}.log
     echo "SPRING BOOT DEBUG LOG: $debugfile"
 fi
 >$debugfile

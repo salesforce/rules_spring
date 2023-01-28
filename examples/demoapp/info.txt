@@ -1,0 +1,3 @@
+This springboot jar was built by Bazel rules_spring.
+
+It is copied into the toplevel directory of the springboot jar as an 'addin'.

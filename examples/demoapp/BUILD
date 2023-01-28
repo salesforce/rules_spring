@@ -85,7 +85,11 @@ springboot(
 
     # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
     #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
-    deps_index_file = "demoapp_classpath.idx",
+    deps_index_file = ":demoapp_classpath.idx",
+
+    # sometimes packagers want to put certain files into the root of the springboot app jar
+    # these addins will be copied into the root of the generated springboot jar
+    addins = [":info.txt", ":author.txt"],
 )
 
 springboottest_deps = [

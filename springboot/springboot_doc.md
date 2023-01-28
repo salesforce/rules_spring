@@ -36,6 +36,7 @@ Note that the rule README has more detailed usage instructions for each attribut
 | bazelrun_jvm_flags |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*   |  <code>None</code> |
 | bazelrun_data |  Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.   |  <code>None</code> |
 | bazelrun_background |  Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.   |  <code>False</code> |
+| addins | Uncommon option to add additional files to the root of the springboot jar. For example a license file. Pass an array of files from the package. | <code>None</code> |
 | tags |  Optional. Bazel standard attribute.   |  <code>[]</code> |
 | testonly |  Optional. Bazel standard attribute.   |  <code>False</code> |
 | visibility |  Optional. Bazel standard attribute.   |  <code>None</code> |

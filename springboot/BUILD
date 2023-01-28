@@ -20,6 +20,7 @@ exports_files([
     "default_bazelrun_script.sh",
     "dupe_class_jar_allowlist.txt",
     "empty.txt",
+    "addin_end.txt",
 ])
 
 py_binary(

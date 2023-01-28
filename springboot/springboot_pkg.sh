@@ -29,7 +29,7 @@ appjar=$7
 manifest=$8
 gitpropsfile=$9
 deps_index_file=${10}
-first_jar_arg=11
+first_addin_arg=11
 
 if [ $deps_starlark_order = "True" ]; then
   deps_starlark_order=true
@@ -86,6 +86,7 @@ echo "  appjar_name     $appjar_name (unused, is the appjar filename without the
 echo "  manifest        $manifest    (the location of the generated manifest.MF file)" >> $debugfile
 echo "  deps_index_file $deps_index_file (the location of the classpath index file - optional)" >> $debugfile
 echo "  deplibs         (list of upstream transitive dependencies, these will be incorporated into the jar file in BOOT-INF/lib )" >> $debugfile
+echo "*************************************************************************************" >> $debugfile
 
 # compute path to jar utility
 pushd . > /dev/null
@@ -94,15 +95,6 @@ jar_command=$(pwd)/jar
 popd > /dev/null
 echo "Jar command:" >> $debugfile
 echo $jar_command >> $debugfile
-
-# log the list of dep jars we were given
-i=$first_jar_arg
-while [ "$i" -le "$#" ]; do
-  eval "lib=\${$i}"
-  echo "     DEPLIB:      $lib" >> $debugfile
-  i=$((i + 1))
-done
-echo "" >> $debugfile
 
 echo $shasum_install_msg >> $debugfile
 echo "Unique identifier for this build: [$packagesha] computed from [$packagesha_raw]" >> $debugfile
@@ -118,6 +110,33 @@ mkdir -p $working_dir/BOOT-INF/classes
 # We need a unique scratch work area
 TMP_working_dir=$base_working_dir/tmp
 mkdir -p $TMP_working_dir
+
+# Addins is the feature to add files to the root of the springboot jar
+# The addins are listed in order as args, until the addin_end.txt file marks the end 
+i=$first_addin_arg
+while [ "$i" -le "$#" ]; do
+  eval "addin=\${$i}"
+  echo "     ADDINt: $addin" >> $debugfile
+  if [[ $addin == *addin_end.txt ]]; then
+    i=$((i + 1))
+    echo "     ADDIN end found: $addin" >> $debugfile
+    break
+  fi
+  echo "     ADDIN: $addin" >> $debugfile
+  cp $addin $working_dir
+  i=$((i + 1))
+done
+first_jar_arg=$i
+echo "" >> $debugfile
+
+# log the list of dep jars we were given
+i=$first_jar_arg
+while [ "$i" -le "$#" ]; do
+  eval "lib=\${$i}"
+  echo "     DEPLIB:      $lib" >> $debugfile
+  i=$((i + 1))
+done
+echo "" >> $debugfile
 
 # Extract the compiled Boot application classes into BOOT-INF/classes
 #    this must include the application's main class (annotated with @SpringBootApplication)

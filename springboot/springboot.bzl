@@ -434,6 +434,7 @@ def springboot(
         testonly = testonly,
         outs = [_get_springboot_jar_file_name(name)],
         toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
+        visibility = visibility,
     )
 
     # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE BAZELRUN LAUNCHER SCRIPT

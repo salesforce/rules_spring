@@ -5,7 +5,7 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-release_version=2.2.3
+release_version=2.2.4
 
 # remove/relocate local build artifacts and tools
 rm -rf bazel-*

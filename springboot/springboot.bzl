@@ -249,6 +249,7 @@ def springboot(
         deps_use_starlark_order = None,
         dupeclassescheck_enable = None,
         dupeclassescheck_ignorelist = None,
+        include_git_properties_file=True,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
         bazelrun_data = None,
@@ -295,6 +296,7 @@ def springboot(
         once, but with a different hash. This indicates that your dependency tree has conflicting libraries.
       dupeclassescheck_ignorelist: Optional. When using the duplicate class check, this attribute provides a file
         that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*
+      include_git_properties_file: If *True*, will include a git.properties file in the resulting jar.
       bazelrun_script: Optional. When launching the application using 'bazel run', a default launcher script is used.
         This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*
       bazelrun_jvm_flags: Optional. When launching the application using 'bazel run', an optional set of JVM flags
@@ -406,12 +408,13 @@ def springboot(
     #    param3: jdk path for running java tools e.g. jar; $(JAVABASE)
     #    param4: compiled application jar name
     #    param5: use build file deps order [True|False]
-    #    param6: executable jar output filename to write to
-    #    param7: compiled application jar
-    #    param8: manifest file
-    #    param9: git.properties file
-    #    param10: classpath_index file
-    #    param11-N: upstream transitive dependency jar(s)
+    #    param6: include git.properties file in resulting jar
+    #    param7: executable jar output filename to write to
+    #    param8: compiled application jar
+    #    param9: manifest file
+    #    param10: git.properties file
+    #    param11: classpath_index file
+    #    param12-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
         srcs = [
@@ -425,7 +428,7 @@ def springboot(
         ],
         cmd = "$(location @rules_spring//springboot:springboot_pkg.sh) " +
               "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
-              " $(JAVABASE) " + name + " " + str(deps_use_starlark_order) + " $@ $(SRCS)",
+              " $(JAVABASE) " + name + " " + str(deps_use_starlark_order) + " " + str(include_git_properties_file) + " $@ $(SRCS)",
         tools = [
             "@rules_spring//springboot:springboot_pkg.sh",
             "@bazel_tools//tools/jdk:singlejar",

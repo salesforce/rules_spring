@@ -24,17 +24,25 @@ mainclass=$2
 javabase=$3
 appjar_name=$4
 deps_starlark_order=$5
-outputjar=$6
-appjar=$7
-manifest=$8
-gitpropsfile=$9
-deps_index_file=${10}
-first_addin_arg=11
+include_git_properties_file=$6
+outputjar=$7
+appjar=$8
+manifest=$9
+gitpropsfile=$10
+deps_index_file=${11}
+first_addin_arg=12
 
+# converting starlark booleans to bash booleans
 if [ $deps_starlark_order = "True" ]; then
   deps_starlark_order=true
 else
   deps_starlark_order=false
+fi
+
+if [ $include_git_properties_file = "True" ]; then
+  include_git_properties_file=true
+else
+  include_git_properties_file=false
 fi
 
 # package name (not guaranteed to be globally unique)
@@ -225,9 +233,14 @@ echo "DEBUG: finished copying transitives into BOOT-INF/lib, elapsed time (secon
 # Inject the Git properties into a properties file in the jar
 # (the -f is needed when remote caching is used, as cached files come down as r-x and
 #  if you rerun the build it needs to overwrite)
-echo "DEBUG: adding git.properties" >> $debugfile
-cat $ruledir/$gitpropsfile >> $debugfile
-cp -f $ruledir/$gitpropsfile $working_dir/BOOT-INF/classes
+echo $include_git_properties_file
+if [[ $include_git_properties_file = true ]]; then
+  echo "DEBUG: adding git.properties" >> $debugfile
+  cat $ruledir/$gitpropsfile >> $debugfile
+  echo "DEBUG: kaaa" >> $debugfile
+  cp -f $ruledir/$gitpropsfile $working_dir/BOOT-INF/classes
+  echo "DEBUG: baaa" >> $debugfile
+fi
 
 # Inject the classpath index (unless it is the default empty.txt file). Requires Spring Boot version 2.3+
 # https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath

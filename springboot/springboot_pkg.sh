@@ -28,7 +28,7 @@ include_git_properties_file=$6
 outputjar=$7
 appjar=$8
 manifest=$9
-gitpropsfile=$10
+gitpropsfile=${10}
 deps_index_file=${11}
 first_addin_arg=12
 
@@ -94,6 +94,7 @@ echo "  appjar_name     $appjar_name (unused, is the appjar filename without the
 echo "  manifest        $manifest    (the location of the generated manifest.MF file)" >> $debugfile
 echo "  deps_index_file $deps_index_file (the location of the classpath index file - optional)" >> $debugfile
 echo "  deplibs         (list of upstream transitive dependencies, these will be incorporated into the jar file in BOOT-INF/lib )" >> $debugfile
+echo "  gitpropsfile    $gitpropsfile (the location of the generated git.properties file)" >> $debugfile
 echo "*************************************************************************************" >> $debugfile
 
 # compute path to jar utility
@@ -233,13 +234,10 @@ echo "DEBUG: finished copying transitives into BOOT-INF/lib, elapsed time (secon
 # Inject the Git properties into a properties file in the jar
 # (the -f is needed when remote caching is used, as cached files come down as r-x and
 #  if you rerun the build it needs to overwrite)
-echo $include_git_properties_file
-if [[ $include_git_properties_file = true ]]; then
+if [[ "$include_git_properties_file" == true ]]; then
   echo "DEBUG: adding git.properties" >> $debugfile
   cat $ruledir/$gitpropsfile >> $debugfile
-  echo "DEBUG: kaaa" >> $debugfile
   cp -f $ruledir/$gitpropsfile $working_dir/BOOT-INF/classes
-  echo "DEBUG: baaa" >> $debugfile
 fi
 
 # Inject the classpath index (unless it is the default empty.txt file). Requires Spring Boot version 2.3+

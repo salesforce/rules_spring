@@ -14,6 +14,7 @@ exports_files([
     "springboot.bzl",
     "springboot_pkg.sh",
     "check_dupe_classes.py",
+    "detect_javax_classes.py",
     "write_gitinfo_properties.sh",
     "write_manifest.sh",
     "write_bazelrun_env.sh",
@@ -22,6 +23,14 @@ exports_files([
     "empty.txt",
     "addin_end.txt",
 ])
+
+py_binary(
+    name = "detect_javax_classes",
+    srcs = [
+        "detect_javax_classes.py",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 py_binary(
     name = "check_dupe_classes",

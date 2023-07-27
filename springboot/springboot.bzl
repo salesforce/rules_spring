@@ -144,6 +144,59 @@ _dupeclasses_rule = rule(
     toolchains = ["@bazel_tools//tools/python:toolchain_type"],
 )
 
+def _javaxdetect_rule_impl(ctx):
+    # setup the output file (contains SUCCESS, NOT_RUN, or the list of errors)
+    output = ctx.actions.declare_file(ctx.attr.out)
+    outputs = [output]
+
+    if not ctx.attr.javaxdetect_enable:
+        ctx.actions.write(output, "NOT_RUN", is_executable = False)
+        return [DefaultInfo(files = depset(outputs))]
+
+    inputs = []
+    input_args = ctx.actions.args()
+
+    # inputs (dupe checker python script, spring boot jar file, ignorelist)
+    inputs.append(ctx.attr.script.files.to_list()[0])
+    input_args.add(ctx.attr.script.files.to_list()[0].path)
+    inputs.append(ctx.attr.springbootjar.files.to_list()[0])
+    input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
+    if ctx.attr.javaxdetect_ignorelist != None:
+        inputs.append(ctx.attr.javaxdetect_ignorelist.files.to_list()[0])
+        input_args.add(ctx.attr.javaxdetect_ignorelist.files.to_list()[0].path)
+    else:
+        input_args.add("no_ignorelist")
+
+    # add the output file to the args, so python script knows where to write result
+    input_args.add(output.path)
+
+    # compute the location of python
+    python_interpreter = _compute_python_executable(ctx)
+
+    # run the dupe checker
+    ctx.actions.run(
+        executable = python_interpreter,
+        outputs = outputs,
+        inputs = inputs,
+        arguments = [input_args],
+        progress_message = "Checking for javax classes in the Spring Boot jar (candidates for jakarta migration)...",
+        mnemonic = "JavaxDetect",
+    )
+    return [DefaultInfo(files = depset(outputs))]
+
+_javaxdetect_rule = rule(
+    implementation = _javaxdetect_rule_impl,
+    attrs = {
+        "javaxdetect_rule": attr.label(),
+        "script": attr.label(),
+        "springbootjar": attr.label(),
+        "javaxdetect_ignorelist": attr.label(allow_files=True),
+        "javaxdetect_enable": attr.bool(),
+        "out": attr.string(),
+    },
+    toolchains = ["@bazel_tools//tools/python:toolchain_type"],
+)
+
 def _compute_python_executable(ctx):
     python_interpreter = None
 
@@ -228,6 +281,7 @@ _springboot_rule = rule(
         "gengitinfo_rule": attr.label(),
         "genjar_rule": attr.label(),
         "dupecheck_rule": attr.label(),
+        "javaxdetect_rule": attr.label(),
         "apprun_rule": attr.label(),
 
         "bazelrun_script": attr.label(allow_files=True),
@@ -249,6 +303,8 @@ def springboot(
         deps_use_starlark_order = None,
         dupeclassescheck_enable = None,
         dupeclassescheck_ignorelist = None,
+        javaxdetect_enable = None,
+        javaxdetect_ignorelist = None,
         include_git_properties_file=True,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
@@ -296,6 +352,10 @@ def springboot(
         once, but with a different hash. This indicates that your dependency tree has conflicting libraries.
       dupeclassescheck_ignorelist: Optional. When using the duplicate class check, this attribute provides a file
         that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*
+      javaxdetect_enable: If *True*, will analyze the list of dependencies looking for any class from javax.*
+        package. This is a candidate for migration to jakarta.
+      javaxdetect_ignorelist: Optional. When using the javax detect check, this attribute provides a file
+        that contains a list of libraries excluded from the analysis. Ex: *javaxdetect_ignorelist.txt*
       include_git_properties_file: If *True*, will include a git.properties file in the resulting jar.
       bazelrun_script: Optional. When launching the application using 'bazel run', a default launcher script is used.
         This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*
@@ -325,6 +385,7 @@ def springboot(
     gengitinfo_rule = native.package_name() + "_gengitinfo"
     genjar_rule = native.package_name() + "_genjar"
     dupecheck_rule = native.package_name() + "_dupecheck"
+    javaxdetect_rule = native.package_name() + "_javaxdetect"
     apprun_rule = native.package_name() + "_apprun"
 
     # Handle deprecated attribute names; if modern name is not set then take
@@ -454,7 +515,7 @@ def springboot(
         testonly = testonly,
     )
 
-    # SUBRULE 4: RUN THE DUPE CHECKER (if enabled)
+    # SUBRULE 4a: RUN THE DUPE CHECKER (if enabled)
     # Skip the dupecheck_rule instantiation entirely if disabled because
     # running this rule requires Python3 installed. If a workspace does not have
     # Python3 available, they can just never enable dupeclassescheck_enable and be ok
@@ -471,6 +532,24 @@ def springboot(
             testonly = testonly,
         )
         dupecheck_rule_label = ":" + dupecheck_rule
+
+    # SUBRULE 4b: RUN THE JAVAX DETECTOR (if enabled)
+    # Skip the javaxdetect_rule instantiation entirely if disabled because
+    # running this rule requires Python3 installed. If a workspace does not have
+    # Python3 available, they can just never enable javaxdetect_enable and be ok
+    javaxdetect_rule_label = None
+    if javaxdetect_enable:
+        _javaxdetect_rule(
+            name = javaxdetect_rule,
+            script = "@rules_spring//springboot:detect_javax_classes",
+            springbootjar = genjar_rule,
+            javaxdetect_enable = javaxdetect_enable,
+            javaxdetect_ignorelist = javaxdetect_ignorelist,
+            out = "javaxdetect_results.txt",
+            tags = tags,
+            testonly = testonly,
+        )
+        javaxdetect_rule_label = ":" + javaxdetect_rule
 
     # SUBRULE 5: PROVIDE A WELL KNOWN RUNNABLE RULE TYPE FOR IDE SUPPORT
     # The presence of this rule  makes a Spring Boot entry point class runnable
@@ -500,6 +579,7 @@ def springboot(
         gengitinfo_rule = ":" + gengitinfo_rule,
         genjar_rule = ":" + genjar_rule,
         dupecheck_rule = dupecheck_rule_label,
+        javaxdetect_rule = javaxdetect_rule_label,
         apprun_rule = ":" + apprun_rule,
 
         bazelrun_script = bazelrun_script,

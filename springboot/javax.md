@@ -36,16 +36,21 @@ These jars are half migrated jars that allow you to take the migration steps inc
 The best way to explain them is to provide an example:
 
 - Javax Jar:
-  - GAV: *javax.json:javax.json-api:1.1.4* Java package: *javax.json*
-- Transition Jar:
-  - GAV: *jakarta.json:jakarta.json-api:1.1.6* Java package: *javax.json*
+  - GAV: *javax.json:javax.json-api:1.1.4*
+  - Java package: *javax.json*
+- Transitional Jar:
+  - GAV: *jakarta.json:jakarta.json-api:1.1.6*
+  - Java package: *javax.json*
 - Jakarta Jar:
-  - GAV: *jakarta.json:jakarta.json-api:2.1.2* Java package: *jakarta.json*
+  - GAV: *jakarta.json:jakarta.json-api:2.1.2*
+  - Java package: *jakarta.json*
 
-This allows you to update to an early version of the *jakarta* GAV, without adopting the Java package change too.
-After upgrading to the transitional jars, you should enable the
+This allows you to update to a transitional version of the *jakarta* GAV, without adopting the Java package change too.
+That first step is just a build metadata change.
+
+:key: After upgrading to the transitional jars, you should enable the
 [springboot rule duplicate class check](https://github.com/salesforce/rules_spring/blob/main/springboot/unwanted_classes.md#detecting-duplicate-classes)
-  which should highlight any jars bringing in old versions of the migrating *javax* classes.
+  which should highlight any jars bringing in old versions of the *javax* classes.
 
 ### Javax Detect Mode
 

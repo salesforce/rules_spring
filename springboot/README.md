@@ -6,9 +6,10 @@ The output of this rule is a jar file that can be copied to production environme
 See the [top-level README](../README.md) for the stanza to add to your *WORKSPACE* file to load the rule.
 The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
 
-:eyes: this package also contains a CLI for inspecting Spring Boot jars after they have been built.
-This can be useful when troubleshooting behavior differences over time due to changing dependencies.
-See [the CLI user guide](cli.md) for details.
+:eyes: are you an existing rules_spring user upgrading to Spring Boot 3?
+Do you understand the *javax* -> *jakarta* migration requirements for that upgrade?
+We have a short explainer, plus a new diagnostic feature, to help with that.
+See our [Javax to Jakarta migration guide](javax.md) for details.
 
 ### Use the rule in your BUILD file
 
@@ -152,3 +153,9 @@ This topic is covered in our dedicated [testing guide](testing_springboot.md).
 ### Customizing the Spring Boot rule
 
 To understand how this rule works, start by reading the [springboot.bzl file](springboot.bzl).
+
+### Springboot CLI
+
+This package also contains a CLI for inspecting Spring Boot jars after they have been built.
+This can be useful when troubleshooting behavior differences over time due to changing dependencies.
+See [the CLI user guide](cli.md) for details.

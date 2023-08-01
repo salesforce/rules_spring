@@ -84,9 +84,9 @@ def _check_for_javax_classes(springbootzip_filepath, ignorelisted_jars, output_f
             innerjar_tmp_fileondisk.close()
 
     if found_javax:
-      result = "Spring Boot packaging has failed for %s because jars with javax classes, were found:\n" % springbootzip_filepath
+      result = "Spring Boot packaging has failed for %s because jars with unexpected javax classes, were found:\n" % springbootzip_filepath
       result += javax_message_lines
-      result += "You should eliminate the javax dependencies, or if that is not possible you can add these jars to the javaxdetect_ignorelist file:\n"
+      result += "You should investigate the javax dependencies, and eliminate them or add these jars to the javaxdetect_ignorelist file:\n"
       for ignorelist_candidate in javax_containing_jars:
           result += "   %s\n" % ignorelist_candidate
       print(result)

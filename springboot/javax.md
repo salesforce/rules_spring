@@ -52,6 +52,13 @@ That first step is just a build metadata change.
 [springboot rule duplicate class check](https://github.com/salesforce/rules_spring/blob/main/springboot/unwanted_classes.md#detecting-duplicate-classes)
   which should highlight any jars bringing in old versions of the *javax* classes.
 
+### Not All javax is Migrating to jakarta
+
+Before you try to rip out *all* javax usages in your Spring Boot jar, know that not every
+  *javax* package is migrating to *jakarta*.
+The detection tooling is empathetic to this.
+You can ignore jars that have non-migrating *javax* classes for this reason.
+
 ### Javax Detect Mode
 
 After upgrading to the transitional jars, and enabling the duplicate class checker, you need to continue to look for *javax* classes
@@ -77,30 +84,53 @@ springboot(
 )
 ```
 
-where the contents of the *javaxdetect_ignorelist.txt* file is:
+where the contents of the *javaxdetect_ignorelist.txt* file will look like this when you are transitioning:
 
 ```
-# these are transitional jars, these are ok:
+# TEMPORARY IGNORES
+
+# These are jakarta transitional jars: they use jakarta GAV but still have javax Java packaging.
+# We need these entries until we switch to later versions that contain jakarta packaging.
 jakarta.activation-api-1.2.2.jar
 jakarta.annotation-api-1.3.5.jar
 jakarta.el-3.0.4.jar
+jakarta.enterprise.cdi-api-2.0.2.jar
+jakarta.inject-2.6.1.jar
 jakarta.inject-api-1.0.5.jar
 jakarta.interceptor-api-1.2.5.jar
+jakarta.jms-api-2.0.3.jar
+jakarta.json-1.1.6.jar
 jakarta.json-api-1.1.6.jar
+jakarta.jws-api-2.1.0.jar
 jakarta.persistence-api-2.2.3.jar
 jakarta.servlet-api-4.0.4.jar
 jakarta.transaction-api-1.3.3.jar
 jakarta.validation-api-2.0.2.jar
+jakarta.websocket-api-1.1.2.jar
+jakarta.websocket-client-api-1.1.2.jar
 jakarta.ws.rs-api-2.1.6.jar
 jakarta.xml.bind-api-2.3.3.jar
+jakarta.xml.soap-api-1.4.2.jar
+jakarta.xml.ws-api-2.3.3.jar
 
-# TODO: what is going on here, why do these jars have javax classes in them?
-# Within salesforce, we have a bunch of these, each needs to be researched.
-# You might be SURPRISED to see how many projects do dumb things, like embedding
-# standard javax classes in their own jars.
-abc-1.0.0.jar
-def-2.0.0.jar
-ghi-3.0.0.jar
+# PERMANENT IGNORES
+
+# javax.measure:unit-api
+# This jar is the outcome of [JSR-363](https://jcp.org/en/jsr/detail?id=363).
+# It appears to have no public plans to migrate, and so will remain javax for the foreseeable future.
+unit-api-1.0.jar
+
+# com.google.code.findbugs:jsr305
+# This was an early JSR that never progressed beyond proposal, so it is a dormant JSR.
+# However, Google emitted this findbugs jar, and a bunch of people use it.
+# But since it isn't an official javax product, it has no migration plan.
+jsr305-3.0.2.jar
+
+# javax.cache:cache-api
+# This is the outcome of [JSR-107](https://www.jcp.org/en/jsr/detail?id=107) (aka JCache).
+# Discussion about migration: [JCache for jakarta](https://github.com/jsr107/jsr107spec/issues/415)
+# But since JCache was never adopted by JavaEE, it is not planned for migration.
+cache-api-1.1.1.jar
 ```
 
 For completeness, this is the BUILD file at *//tools/springboot*:
@@ -120,13 +150,17 @@ We don't have that. I wish we did.
 
 ### Finishing the Jakarta Migration
 
-Once you have moved to the transitional jars, and have identified jars with javax classes in them, you will be ready
+Once you have moved to the transitional jars, and have investigated and resolved jars with *javax* classes in them, you will be ready
   to finish your migration.
-You need to move from the transitional GAV, to the jakarta GAV.
-This must happen at the same time as upgrading:
-- Spring Boot 3
-- Spring 6
-- Jetty 11
-- and others
+You need to move from the **transitional GAV**, to the **jakarta GAV**.
+This is officially documented as the [JaveEE 10 migration.](https://blogs.oracle.com/javamagazine/post/transition-from-java-ee-to-jakarta-ee)
+When you do this step, remove the jakarta transitional jars from your ignore list since you should
+  now be using newer versions that use jakarta packages.
+
+In addition, the following must happen at the same time as upgrading:
+- [Spring Boot 3](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide)
+- [Spring 6](https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x)
+- [Jetty 11](https://webtide.com/jetty-10-and-11-have-arrived/)
+- and others, depending on what libraries your service uses
 
 It is going to be fun.

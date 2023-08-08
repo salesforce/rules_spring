@@ -27,4 +27,6 @@ mv $tmpdir/bin tools/python_interpreter
 mv $tmpdir/captive_python3 tools/python_interpreter
 
 echo "RELEASE built: rules-spring-${release_version}.zip"
-echo "Remember to update the http_archive stanza in the top level README.md"
+echo "Remember to complete these tasks:"
+echo " 1. update the http_archive stanza in the top level README.md"
+echo " 2. update the version in the MODULE.bazel file"

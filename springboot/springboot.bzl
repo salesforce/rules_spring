@@ -239,6 +239,7 @@ else
   # it into an absolute path using exec_root
   exec_root=${SCRIPT_DIR%%bazel-out*}
   JAVA_TOOLCHAIN="${exec_root}${JAVA_TOOLCHAIN_RELATIVE}"
+  JAVA_TOOLCHAIN_NAME=%java_toolchain_name_attr%
 fi
 
 # the env variables file is found in SCRIPT_DIR
@@ -277,6 +278,8 @@ def _springboot_rule_impl(ctx):
       java_bin = [f for f in java_runtime.files.to_list() if f.path.endswith("bin/java")][0]
       outer_bazelrun_script_contents = outer_bazelrun_script_contents \
           .replace("%java_toolchain_attr%", java_bin.path)
+      outer_bazelrun_script_contents = outer_bazelrun_script_contents \
+          .replace("%java_toolchain_name_attr%", ctx.attr.bazelrun_java_toolchain.label.name)
     else:
       outer_bazelrun_script_contents = outer_bazelrun_script_contents \
           .replace("%java_toolchain_attr%", "")
@@ -319,6 +322,7 @@ _springboot_rule = rule(
 
         "bazelrun_java_toolchain": attr.label(
             mandatory = False,
+            default = "@bazel_tools//tools/jdk:current_java_toolchain",
             providers = [java_common.JavaToolchainInfo],
         ),
     },

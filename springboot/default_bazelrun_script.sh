@@ -26,8 +26,9 @@ set -e
 #   JVM from @bazel_tools//tools/jdk:current_java_toolchain. But you can override that.
 #  1. honor any environmental variable BAZEL_RUN_JAVA (optional)
 #  2. use the java executable from the java toolchain passed into the rule (default)
-#  3. use non-hermetic JAVA_HOME (dead code, we no longer allow this)
-#  4. as a last resort, use 'which java' (dead code, we no longer allow this)
+#  3. use non-hermetic JAVA_HOME (fallback, we only get here if there is a bug in the above logic)
+#  4. as a last resort, use 'which java'
+
 if [ -f "${BAZEL_RUN_JAVA}" ]; then
   echo "Selected the JVM using the BAZEL_RUN_JAVA environment variable."
   java_cmd=$BAZEL_RUN_JAVA

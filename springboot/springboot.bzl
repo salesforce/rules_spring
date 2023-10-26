@@ -225,6 +225,22 @@ set -e
 # SCRIPT_DIR is the directory in which bazel run executes
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+# Detect Java Toolchain (optional)
+# If the bazelrun_java_toolchain attribute on the springboot rule is set, the springboot
+# rule impl below will replace the java_toolchain_attr tag with the relative path
+# from exec root to the JVM. We have to do some Bash hijinks to resolve the
+# absolute path.
+JAVA_TOOLCHAIN_RELATIVE=%java_toolchain_attr%
+if [ -z ${JAVA_TOOLCHAIN_RELATIVE+x} ]; then
+  # the springboot rule did not set the bazelrun_java_toolchain attribute
+  unset JAVA_TOOLCHAIN
+else
+  # the springboot rule did set the bazelrun_java_toolchain attribute, convert
+  # it into an absolute path using exec_root
+  exec_root=${SCRIPT_DIR%%bazel-out*}
+  JAVA_TOOLCHAIN="${exec_root}${JAVA_TOOLCHAIN_RELATIVE}"
+fi
+
 # the env variables file is found in SCRIPT_DIR
 source $SCRIPT_DIR/bazelrun_env.sh
 
@@ -248,9 +264,23 @@ def _springboot_rule_impl(ctx):
     ])
 
     # resolve the full path of the launcher script that runs "java -jar <springboot.jar>" when calling
-    # "bazel run" with the springboot target (bazel run //examples/helloworld)
+    # "bazel run" with the springboot target (bazel run //examples/helloworld) and string sub it
+    # into the _bazelrun_script_template text defined above
     outer_bazelrun_script_contents = _bazelrun_script_template \
         .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].path)
+
+    # the bazelrun_java_toolchain optional, if set, we use it as the jvm for bazel run
+    if ctx.attr.bazelrun_java_toolchain != None:
+      # lookup the path to selected java toolchain, and string sub it into the bazel run script
+      # text _bazelrun_script_template defined above
+      java_runtime = ctx.attr.bazelrun_java_toolchain[java_common.JavaToolchainInfo].java_runtime
+      java_bin = [f for f in java_runtime.files.to_list() if f.path.endswith("bin/java")][0]
+      outer_bazelrun_script_contents = outer_bazelrun_script_contents \
+          .replace("%java_toolchain_attr%", java_bin.path)
+    else:
+      outer_bazelrun_script_contents = outer_bazelrun_script_contents \
+          .replace("%java_toolchain_attr%", "")
+
     outer_bazelrun_script_file = ctx.actions.declare_file("%s" % ctx.label.name)
     ctx.actions.write(outer_bazelrun_script_file, outer_bazelrun_script_contents, is_executable = True)
 
@@ -286,6 +316,11 @@ _springboot_rule = rule(
 
         "bazelrun_script": attr.label(allow_files=True),
         "bazelrun_data": attr.label_list(allow_files=True),
+
+        "bazelrun_java_toolchain": attr.label(
+            mandatory = False,
+            providers = [java_common.JavaToolchainInfo],
+        ),
     },
 )
 
@@ -306,6 +341,7 @@ def springboot(
         javaxdetect_enable = None,
         javaxdetect_ignorelist = None,
         include_git_properties_file=True,
+        bazelrun_java_toolchain = None,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
         bazelrun_data = None,
@@ -357,6 +393,7 @@ def springboot(
       javaxdetect_ignorelist: Optional. When using the javax detect check, this attribute provides a file
         that contains a list of libraries excluded from the analysis. Ex: *javaxdetect_ignorelist.txt*
       include_git_properties_file: If *True*, will include a git.properties file in the resulting jar.
+      bazelrun_java_toolchain: Optional. Label to the Java toolchain to use when launching the application using 'bazel run'
       bazelrun_script: Optional. When launching the application using 'bazel run', a default launcher script is used.
         This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*
       bazelrun_jvm_flags: Optional. When launching the application using 'bazel run', an optional set of JVM flags
@@ -573,6 +610,7 @@ def springboot(
     _springboot_rule(
         name = name,
         app_compile_rule = java_library,
+        bazelrun_java_toolchain = bazelrun_java_toolchain,
         dep_aggregator_rule = ":" + dep_aggregator_rule,
         genmanifest_rule = ":" + genmanifest_rule,
         genbazelrunenv_rule = ":" + genbazelrunenv_rule,

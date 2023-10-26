@@ -22,11 +22,23 @@ set -e
 # versions of Bazel because they are documented:
 #  https://docs.bazel.build/versions/master/user-manual.html#run
 
-# soon we will use one of the jdk locations already known to Bazel, see Issue #16
-if [ -z ${JAVA_HOME} ]; then
-  java_cmd="$(which java)"
-else
+# Picking the Java VM to run is a bit of an ordeal.
+# 1. honor any environmental variable BAZEL_RUN_JAVA (optional)
+# 2. use the java executable from the java toolchain passed into the rule (optional)
+# 3. use non-hermetic JAVA_HOME
+# 4. as a last resort, use 'which java'
+if [ -d "${BAZEL_RUN_JAVA}" ]; then
+  echo "Selected the JVM using the BAZEL_RUN_JAVA environment variable."
+  java_cmd=$BAZEL_RUN_JAVA
+elif [ -f "$JAVA_TOOLCHAIN" ]; then
+  echo "Selected the JVM using the bazelrun_java_toolchain attribute on the springboot rule."
+  java_cmd=$JAVA_TOOLCHAIN
+elif [ -d "${JAVA_HOME}" ]; then
+  echo "Selected the JVM using the JAVA_HOME environment variable."
   java_cmd="${JAVA_HOME}/bin/java"
+else
+  echo "Selected the JVM by executing 'which java'"
+  java_cmd="$(which java)"
 fi
 
 if [ -z "${java_cmd}" ]; then

@@ -34,6 +34,7 @@ Note that the rule README has more detailed usage instructions for each attribut
 | dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>None</code> |
 | dupeclassescheck_ignorelist |  Optional. When using the duplicate class check, this attribute provides a file   that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*   |  <code>None</code> |
 | include_git_properties_file |  If *True*, will include a git.properties file in the resulting jar.   |  <code>True</code> |
+| bazelrun_java_toolchain |  Optional. When launching the application using 'bazel run', this attribute can identify the label of the Java toolchain used to launch the JVM. Ex: *//tools/jdk:my_default_toolchain*. See *default_java_toolchain* in the Bazel documentation.  |  <code>None</code> |
 | bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> |
 | bazelrun_jvm_flags |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*   |  <code>None</code> |
 | bazelrun_data |  Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.   |  <code>None</code> |
@@ -49,5 +50,3 @@ Note that the rule README has more detailed usage instructions for each attribut
 | duplicate_class_allowlist |  Deprecated synonym of *dupeclassescheck_ignorelist*   |  <code>None</code> |
 | jvm_flags |  Deprecated synonym of *bazelrun_jvm_flags*   |  <code>""</code> |
 | data |  Deprecated synonym of *bazelrun_data*   |  <code>[]</code> |
-
-

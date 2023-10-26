@@ -18,21 +18,24 @@ See the [Bazel Java docs](https://bazel.build/docs/bazel-and-java) on how toolch
 However, there are multiple ways to override this.
 
 First, you can set the `BAZEL_RUN_JAVA` environment variable to the Java executable of your choice.
-This works well for local overrides, when you want to test new Java distributions.
+For example, this works well for local override when you want to quickly test your service on an alternate JVM.
 This variable, when set, takes priority over the toolchain configurations.
 
 ```
+# note this is different than setting JAVA_HOME, it needs the path to the actual java executable
 export BAZEL_RUN_JAVA=/opt/my_jdk/bin/java
 ```
 
-Second, you can use the `bazelrun_java_toolchain` to pass the label to a Java toolchain
-  defined in your Bazel workspace.
-The bazel run script will use the JVM from the toolchain.
+Second, you can use the `bazelrun_java_toolchain` attribute on the `springboot` rule to pass the label 
+  of a specific Java toolchain defined in your Bazel workspace.
+This is useful when your workspace has multiple Java toolchains, and you want the service to use an
+  alternate one when launching with `bazel run`.
+When set, the launcher will use the JVM from the toolchain.
 
 ```
 springboot(
    ...
-   bazelrun_java_toolchain = "//tools/jdk:my_default_toolchain",  
+   bazelrun_java_toolchain = "//tools/jdk:my_other_toolchain",  
 )
 ```
 

@@ -22,16 +22,17 @@ set -e
 # versions of Bazel because they are documented:
 #  https://docs.bazel.build/versions/master/user-manual.html#run
 
-# Picking the Java VM to run is a bit of an ordeal.
-# 1. honor any environmental variable BAZEL_RUN_JAVA (optional)
-# 2. use the java executable from the java toolchain passed into the rule (optional)
-# 3. use non-hermetic JAVA_HOME
-# 4. as a last resort, use 'which java'
-if [ -d "${BAZEL_RUN_JAVA}" ]; then
+# Picking the Java VM to run is a bit of an ordeal. We now default to using the
+#   JVM from @bazel_tools//tools/jdk:current_java_toolchain. But you can override that.
+#  1. honor any environmental variable BAZEL_RUN_JAVA (optional)
+#  2. use the java executable from the java toolchain passed into the rule (default)
+#  3. use non-hermetic JAVA_HOME (dead code, we no longer allow this)
+#  4. as a last resort, use 'which java' (dead code, we no longer allow this)
+if [ -f "${BAZEL_RUN_JAVA}" ]; then
   echo "Selected the JVM using the BAZEL_RUN_JAVA environment variable."
   java_cmd=$BAZEL_RUN_JAVA
 elif [ -f "$JAVA_TOOLCHAIN" ]; then
-  echo "Selected the JVM using the bazelrun_java_toolchain attribute on the springboot rule."
+  echo "Selected the JVM using the Bazel Java toolchain: $JAVA_TOOLCHAIN_NAME"
   java_cmd=$JAVA_TOOLCHAIN
 elif [ -d "${JAVA_HOME}" ]; then
   echo "Selected the JVM using the JAVA_HOME environment variable."
@@ -42,7 +43,7 @@ else
 fi
 
 if [ -z "${java_cmd}" ]; then
-  echo "ERROR: no java found, either set JAVA_HOME or add the java executable to your PATH"
+  echo "ERROR: no java found. See the Bazel Run docs in rules_spring for details."
   exit 1
 fi
 echo "Using Java at ${java_cmd}"

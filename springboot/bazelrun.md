@@ -10,6 +10,36 @@ But you may wish to customize the launch.
 The *springboot* rule supports several features for customization.
 Note that these features do **not** apply when running the application directly using ```java -jar [file]```.
 
+### Launcher JVM
+
+By default, the service will be started using the JVM from the current Java toolchain in your
+  Bazel workspace - `@bazel_tools//tools/jdk:current_java_toolchain`
+See the [Bazel Java docs](https://bazel.build/docs/bazel-and-java) on how toolchains are defined.
+However, there are multiple ways to override this.
+
+First, you can set the `BAZEL_RUN_JAVA` environment variable to the Java executable of your choice.
+This works well for local overrides, when you want to test new Java distributions.
+This variable, when set, takes priority over the toolchain configurations.
+
+```
+export BAZEL_RUN_JAVA=/opt/my_jdk/bin/java
+```
+
+Second, you can use the `bazelrun_java_toolchain` to pass the label to a Java toolchain
+  defined in your Bazel workspace.
+The bazel run script will use the JVM from the toolchain.
+
+```
+springboot(
+   ...
+   bazelrun_java_toolchain = "//tools/jdk:my_default_toolchain",  
+)
+```
+
+Finally, you can provide a custom launcher script (see below) that can tailor JVM selection as needed.
+This is the most flexible option, but it may cause compatibility issues with newer versions of rules_spring.
+
+
 ### Java Startup Options
 
 You may wish to customize the bazel run launcher with JVM options.

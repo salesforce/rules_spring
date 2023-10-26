@@ -44,7 +44,15 @@ def _check_for_javax_classes(springbootzip_filepath, ignorelisted_jars, output_f
     # Starting the search....
     # iterate through the springboot jar file, and find inner jars,
     # open each inner jar and catalog each .class file found
-    springbootzip = zipfile.ZipFile(springbootzip_filepath)
+    try:
+        springbootzip = zipfile.ZipFile(springbootzip_filepath)
+    except zipfile.BadZipFile:
+        # this error happened to me when my computer ran out of disk space during a build
+        result = "Spring Boot javax detection has failed for %s because the generated jar file is corrupt, please delete this file.\n" % springbootzip_filepath
+        print(result)
+        _write_result_to_output_file(output_filepath, result)
+        return True
+
     sprintbootzipentries = springbootzip.infolist()
     for springbootzipentry in sprintbootzipentries:
         if springbootzipentry.filename.endswith(".jar"):

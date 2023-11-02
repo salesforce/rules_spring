@@ -5,7 +5,7 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-release_version=2.2.5-M1
+release_version=2.2.5
 
 # remove/relocate local build artifacts and tools
 rm -rf bazel-*
@@ -26,7 +26,16 @@ jar -cvf rules-spring-${release_version}.zip *
 mv $tmpdir/bin tools/python_interpreter
 mv $tmpdir/captive_python3 tools/python_interpreter
 
-echo "RELEASE built: rules-spring-${release_version}.zip"
-echo "Remember to complete these tasks:"
-echo " 1. update the http_archive stanza in the top level README.md"
-echo " 2. update the version in the MODULE.bazel file"
+echo "RELEASE artifact built successfully: rules-spring-${release_version}.zip"
+echo ""
+echo "Remember to complete these tasks to make the official release:"
+echo " 1. Create a new release on GitHub and upload the zip file to it. Look at previous releases and use the same doc conventions. Make sure you tag the release."
+echo " 2. Compute the SHA256 for the zip file, for example: shasum -a 256 rules_spring-2.2.5.zip"
+echo " 3. Update the http_archive stanza in the top level README.md to refer to the latest release."
+echo " 4. Update the version in the MODULE.bazel file"
+echo ""
+echo "!!! Hey, did you see the task list above, that is work you need to do !!!"
+read YESIDID
+echo ""
+echo "OK, go do those tasks now, please."
+echo ""

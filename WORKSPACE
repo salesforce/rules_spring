@@ -9,6 +9,12 @@ workspace(name = "rules_spring")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
+#
+# RULE_JVM_EXTERNAL
+#
+# This section is only used for building the examples. This is not a required
+# dependency of rules_spring itself
+#
 RULES_JVM_EXTERNAL_TAG = "3.3"
 RULES_JVM_EXTERNAL_SHA = "d85951a92c0908c80bd8551002d66cb23c3434409c814179c0ff026b53544dab"
 
@@ -19,14 +25,15 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
-load("//:repositories.bzl", "rules_spring_deps")
-rules_spring_deps()
+load("//:repositories.bzl", "rules_spring_example_deps")
+rules_spring_example_deps()
 
 load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
 
 load("@spring_boot_starter_jetty//:defs.bzl", pinned_spring_boot_starter_jetty_install = "pinned_maven_install")
 pinned_spring_boot_starter_jetty_install()
+
 
 #
 # CAPTIVE PYTHON

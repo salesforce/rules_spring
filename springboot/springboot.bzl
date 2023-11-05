@@ -57,8 +57,8 @@ def _depaggregator_rule_impl(ctx):
                 # print("Spring Boot Including: "+dep.owner.name+" as "+dep.path)
                 jars.append(dep)
 
-    # print("AGGREGATED DEPS")
-    # print(jars)
+    #print("AGGREGATED DEPS")
+    #print(jars)
 
     return [DefaultInfo(files = depset(jars))]
 
@@ -144,6 +144,9 @@ _dupeclasses_rule = rule(
     toolchains = ["@bazel_tools//tools/python:toolchain_type"],
 )
 
+# ***************************************************************
+# JAVAX DETECT Rule
+
 def _javaxdetect_rule_impl(ctx):
     # setup the output file (contains SUCCESS, NOT_RUN, or the list of errors)
     output = ctx.actions.declare_file(ctx.attr.out)
@@ -212,6 +215,52 @@ def _compute_python_executable(ctx):
 
     # print(python_interpreter)
     return python_interpreter
+
+# ***************************************************************
+# BANNED DEPS RULE
+
+def _banneddeps_rule_impl(ctx):
+    output = ctx.actions.declare_file(ctx.attr.out)
+    outputs = [output]
+
+    if ctx.attr.deps_banned == None:
+        ctx.actions.write(output, "NOT_RUN", is_executable = False)
+        return [DefaultInfo(files = depset(outputs))]
+
+    # iterate through the transitive set; this set has already had the deps_exclude
+    # rules applied, so this is the filtered list
+    found_banned = False
+    banned_filenames = ""
+    deps = ctx.attr.deps
+    for dep in deps:
+        for file in dep.files.to_list():
+            for currentmatcher in ctx.attr.deps_banned:
+                if currentmatcher in file.basename:
+                    # found a banned dep
+                    banned_filenames = banned_filenames + file.basename + "\n"
+                    found_banned = True
+
+    if found_banned:
+        ctx.actions.write(output, "FAIL", is_executable = False)
+        fail("Found banned jars in the springboot rule [" + ctx.label.name
+          + "] dependency list:\n" + banned_filenames
+          + "\nSee the deps_banned attribute on this rule for the matched patterns.")
+    else:
+        ctx.actions.write(output, "SUCCESS", is_executable = False)
+    return [DefaultInfo(files = depset(outputs))]
+
+_banneddeps_rule = rule(
+    implementation = _banneddeps_rule_impl,
+    attrs = {
+        "banneddeps_rule": attr.label(),
+        "springboot_rule_name": attr.string(),
+        "deps_banned": attr.string_list(),
+        "deps": attr.label_list(),
+        "out": attr.string(),
+    }
+)
+
+
 
 # ***************************************************************
 # Outer launcher script for "bazel run"
@@ -315,6 +364,7 @@ _springboot_rule = rule(
         "genjar_rule": attr.label(),
         "dupecheck_rule": attr.label(),
         "javaxdetect_rule": attr.label(),
+        "banneddeps_rule": attr.label(),
         "apprun_rule": attr.label(),
 
         "bazelrun_script": attr.label(allow_files=True),
@@ -336,6 +386,7 @@ def springboot(
         java_library,
         boot_app_class,
         deps = None,
+        deps_banned = None,
         deps_exclude = None,
         deps_exclude_paths = None,
         deps_index_file = None,
@@ -375,6 +426,10 @@ def springboot(
         Ex: *com.sample.SampleMain*
       deps: Optional. An additional set of Java dependencies to add to the executable.
         Normally all dependencies are set on the *java_library*.
+      deps_banned: Optional. A list of strings to match against the jar filenams in the transitive graph of
+        dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail.
+        This is useful for detecting jars that should never go to production. The list of dependencies is
+        obtained after the deps_exclude processing has run.
       deps_exclude: Optional. A list of jar labels that will be omitted from the final packaging step.
         This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream.
         Ex: *["@maven//:commons_cli_commons_cli"]*.
@@ -427,6 +482,7 @@ def springboot(
     genjar_rule = native.package_name() + "_genjar"
     dupecheck_rule = native.package_name() + "_dupecheck"
     javaxdetect_rule = native.package_name() + "_javaxdetect"
+    bannedcheck_rule = native.package_name() + "_bannedcheck"
     apprun_rule = native.package_name() + "_apprun"
 
     # Handle deprecated attribute names; if modern name is not set then take
@@ -445,7 +501,6 @@ def springboot(
         bazelrun_jvm_flags = jvm_flags
     if bazelrun_data == None:
         bazelrun_data = data
-
 
     # assemble deps; generally all deps will come transitively through the java_library
     # but a user may choose to add in more deps directly into the springboot jar (rare)
@@ -557,7 +612,7 @@ def springboot(
     )
 
     # SUBRULE 4a: RUN THE DUPE CHECKER (if enabled)
-    # Skip the dupecheck_rule instantiation entirely if disabled because
+    # Skip the dupeclasses_rule instantiation entirely if disabled because
     # running this rule requires Python3 installed. If a workspace does not have
     # Python3 available, they can just never enable dupeclassescheck_enable and be ok
     dupecheck_rule_label = None
@@ -591,6 +646,23 @@ def springboot(
             testonly = testonly,
         )
         javaxdetect_rule_label = ":" + javaxdetect_rule
+
+    # SUBRULE 4c: RUN THE BANNED DEP CHECKER (if enabled)
+    # Skip the bannedcheck_rule instantiation entirely if disabled because
+    # running this rule requires Python3 installed. If a workspace does not have
+    # Python3 available, they can just never enable dupeclassescheck_enable and be ok
+    bannedcheck_rule_label = None
+    if deps_banned != None:
+        _banneddeps_rule(
+            springboot_rule_name = name,
+            name = bannedcheck_rule,
+            deps = [":" + dep_aggregator_rule],
+            deps_banned = deps_banned,
+            out = "bannedcheck_results.txt",
+            tags = tags,
+            testonly = testonly,
+        )
+        bannedcheck_rule_label = ":" + bannedcheck_rule
 
     # SUBRULE 5: PROVIDE A WELL KNOWN RUNNABLE RULE TYPE FOR IDE SUPPORT
     # The presence of this rule  makes a Spring Boot entry point class runnable
@@ -633,7 +705,6 @@ def springboot(
     )
 
 # end springboot macro
-
 
 def _get_springboot_jar_file_name(name):
     if name.endswith(".jar"):

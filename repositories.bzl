@@ -30,7 +30,7 @@ repositories = [
     "https://repo1.maven.org/maven2",
 ]
 
-def rules_spring_deps():
+def rules_spring_example_deps():
     maven_install(
         artifacts = [
             "org.slf4j:slf4j-api:1.7.30",

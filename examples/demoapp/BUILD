@@ -71,6 +71,13 @@ springboot(
     dupeclassescheck_enable = True,
     dupeclassescheck_ignorelist = "demoapp_dupeclass_allowlist.txt",
 
+    # BANNED DEPS
+    # These are dependencies that you never want in your springboot jar.
+    # This is used to detect mistakes in your transitive dependency graph. They
+    # might be test jars, or compile time jars like lombok. The list of strings
+    # is matched against the dependency jar filenames with a 'contains' match.
+    deps_banned = ["junit", "mockito", "lombok"],
+
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
 

@@ -10,11 +10,14 @@ But sometimes you have a transitive dependency that causes problems when include
 This can cause problems such as:
 - multiple jars have the same class, but at different versions
 - an unwanted class carries a Spring annotation such that the class gets instantiated at startup
+- a jar file should never be deployed to production, by version_conflict_policy
 
-These problems are difficult to diagnose.
+These problems are difficult to detect ordinarily.
 The Spring Boot rule has a set of strategies and features for dealing with this situation, which unfortunately
   is somewhat common.
 
+
+## Detection
 
 ### Detecting Duplicate Classes
 
@@ -41,10 +44,48 @@ See [the Captive Python documentation](../python_interpreter) for more informati
 *Advanced:* In some cases, you will have a classes that are duplicated and would normally fail this check - but you cannot remove them.
 There is an [ignorelist](#duplicate-class-detection-ignorelist) feature that will ignore specific jars with duplicated classes.
 
-### Removing Unwanted Classes by Removing a Dependency in the BUILD File
+### Detecting Banned Dependencies
 
-The best way to handle duplicate classes is to remove the dependency that brings in the unwanted class from the *java_library* rule.
+In some cases your repository will contain jar files that should *never* be included in your springboot application.
+Perhaps there is a licensing issue, or a security issue, or you just want to be hygienic.
+
+But if a transitive dependency 5 layers deep in your app's graph decides to add such a jar,
+  you won't ordinarily be notified of the problem.
+Bazel will silently add the jar to your springboot transitive graph, and the jar will get packaged into your service.
+
+The *deps_banned* attribute is provided for this case.
+It should be set to the list of strings to look for in the dependency filenames.
+If the string is found, the rule will fail with a descriptive message.
+
+```starlark
+springboot(
+    name = "helloworld",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+
+    # Example use cases
+    # 1. Some Maven libs forget to make junit/mockito test scoped
+    # 2. lombok is only needed at compile time
+    # 3. topsecret-1.2.3.jar has some code in it that should only be used by internal apps
+    # 4. acme-5.0.0.jar is a commercial jar, that isn't licensed for production use
+    deps_banned = ["junit", "mockito", "lombok", "topsecret", "acme"],
+)
+```
+
+The list of dependencies is obtained after the *deps_exclude* processing has run.
+
+## Remediation
+
+### Removing Unwanted Libraries and Classes by Removing a Dependency in the BUILD File
+
+The best way to handle unwanted libraries and  classes is to remove the dependency that brings
+  in the unwanted artifact from the *java_library* rule.
 This eliminates it from usage for the Spring Boot application.
+Bazel query is the best way to do this:
+
+```bash
+bazel query 'somepath(//examples/helloworld:helloworld_lib, "@maven//:org_springframework_spring_webmvc")'
+```
 
 ### Removing Unwanted Classes with an Exclude List
 
@@ -159,6 +200,7 @@ It only works if you first explode the executable jar, and then invoke the *JarL
 $ jar -xf helloworld.jar
 $ java org.springframework.boot.loader.JarLauncher
 ```
+
 
 ### Advanced Use Cases
 

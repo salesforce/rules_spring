@@ -21,16 +21,17 @@ set -e
 ruledir=$(pwd)
 singlejar_cmd=$(pwd)/$1
 mainclass=$2
-javabase=$3
-appjar_name=$4
-deps_starlark_order=$5
-include_git_properties_file=$6
-outputjar=$7
-appjar=$8
-manifest=$9
-gitpropsfile=${10}
-deps_index_file=${11}
-first_addin_arg=12
+spring_boot_launcher_class=${3}
+javabase=$4
+appjar_name=$5
+deps_starlark_order=$6
+include_git_properties_file=$7
+outputjar=$8
+appjar=$9
+manifest=${10}
+gitpropsfile=${11}
+deps_index_file=${12}
+first_addin_arg=13
 
 # converting starlark booleans to bash booleans
 if [ $deps_starlark_order = "True" ]; then
@@ -87,6 +88,7 @@ echo "SPRING BOOT PACKAGER FOR BAZEL" >> $debugfile
 echo "  ruledir         $ruledir     (build working directory)" >> $debugfile
 echo "  singlejar       $singlejar_cmd (path to the singlejar utility)" >> $debugfile
 echo "  mainclass       $mainclass   (classname of the @SpringBootApplication class for the manifest.MF file entry)" >> $debugfile
+echo "  bootloader      $spring_boot_launcher_class   (classname of the Spring Boot Loader to use)" >> $debugfile
 echo "  outputjar       $outputjar   (the executable JAR that will be built from this rule)" >> $debugfile
 echo "  javabase        $javabase    (the path to the JDK2)" >> $debugfile
 echo "  appjar          $appjar      (contains the .class files for the Spring Boot application)" >> $debugfile
@@ -307,7 +309,7 @@ cd $working_dir
 # so we have to respecify the manifest data
 # TODO we should rewrite write_manfiest.sh to produce inputs compatible for singlejar (Issue #27)
 singlejar_options="--normalize --dont_change_compression" # add in --verbose for more details from command
-singlejar_mainclass="--main_class org.springframework.boot.loader.JarLauncher"
+singlejar_mainclass="--main_class $spring_boot_launcher_class"
 $singlejar_cmd $singlejar_options $singlejar_mainclass \
     --deploy_manifest_lines "Start-Class: $mainclass" \
     --sources $raw_output_jar \

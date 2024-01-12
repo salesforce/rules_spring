@@ -173,7 +173,7 @@ while [ "$i" -le "$#" ]; do
       # the Spring Boot Loader classes are special, they must be extracted at the root level /,
       #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class
       # we only extract org/* since we don't want the toplevel META-INF files
-      $jar_command xf $ruledir/$lib org
+      $jar_command xf $ruledir/$lib org META-INF/services
     else
       # copy the jar into BOOT-INF/lib, being mindful to prevent name collisions by using subdirectories (see Issue #61)
       # the logic to truncate paths below doesnt need to be perfect, it just hopes to simplify the jar paths so they look better for most cases

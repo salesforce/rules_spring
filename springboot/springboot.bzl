@@ -385,7 +385,7 @@ def springboot(
         name,
         java_library,
         boot_app_class,
-        spring_boot_launcher_class = "org.springframework.boot.loader.JarLauncher",
+        boot_launcher_class = "org.springframework.boot.loader.JarLauncher",
         deps = None,
         deps_banned = None,
         deps_exclude = None,
@@ -526,7 +526,7 @@ def springboot(
     native.genrule(
         name = genmanifest_rule,
         srcs = [":" + dep_aggregator_rule],
-        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " " + spring_boot_launcher_class + " $@ $(JAVABASE) $(SRCS)",
+        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " " + boot_launcher_class + " $@ $(JAVABASE) $(SRCS)",
         #      message = "SpringBoot rule is writing the MANIFEST.MF...",
         tools = ["@rules_spring//springboot:write_manifest.sh"],
         outs = [genmanifest_out],
@@ -586,7 +586,7 @@ def springboot(
             ":" + dep_aggregator_rule,
         ],
         cmd = "$(location @rules_spring//springboot:springboot_pkg.sh) " +
-              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class + " " + spring_boot_launcher_class +
+              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class + " " + boot_launcher_class +
               " $(JAVABASE) " + name + " " + str(deps_use_starlark_order) + " " + str(include_git_properties_file) + " $@ $(SRCS)",
         tools = [
             "@rules_spring//springboot:springboot_pkg.sh",

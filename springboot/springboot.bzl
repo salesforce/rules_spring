@@ -385,6 +385,7 @@ def springboot(
         name,
         java_library,
         boot_app_class,
+        boot_launcher_class = "org.springframework.boot.loader.JarLauncher",
         deps = None,
         deps_banned = None,
         deps_exclude = None,
@@ -525,7 +526,7 @@ def springboot(
     native.genrule(
         name = genmanifest_rule,
         srcs = [":" + dep_aggregator_rule],
-        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " $@ $(JAVABASE) $(SRCS)",
+        cmd = "$(location @rules_spring//springboot:write_manifest.sh) " + boot_app_class + " " + boot_launcher_class + " $@ $(JAVABASE) $(SRCS)",
         #      message = "SpringBoot rule is writing the MANIFEST.MF...",
         tools = ["@rules_spring//springboot:write_manifest.sh"],
         outs = [genmanifest_out],
@@ -562,16 +563,17 @@ def springboot(
     #    param0: directory containing the springboot rule
     #    param1: location of the jar utility (singlejar)
     #    param2: boot application main classname (the @SpringBootApplication class)
-    #    param3: jdk path for running java tools e.g. jar; $(JAVABASE)
-    #    param4: compiled application jar name
-    #    param5: use build file deps order [True|False]
-    #    param6: include git.properties file in resulting jar
-    #    param7: executable jar output filename to write to
-    #    param8: compiled application jar
-    #    param9: manifest file
-    #    param10: git.properties file
-    #    param11: classpath_index file
-    #    param12-N: upstream transitive dependency jar(s)
+    #    param3: spring boot launcher class
+    #    param4: jdk path for running java tools e.g. jar; $(JAVABASE)
+    #    param5: compiled application jar name
+    #    param6: use build file deps order [True|False]
+    #    param7: include git.properties file in resulting jar
+    #    param8: executable jar output filename to write to
+    #    param9: compiled application jar
+    #    param10: manifest file
+    #    param11: git.properties file
+    #    param12: classpath_index file
+    #    param13-N: upstream transitive dependency jar(s)
     native.genrule(
         name = genjar_rule,
         srcs = [
@@ -584,7 +586,7 @@ def springboot(
             ":" + dep_aggregator_rule,
         ],
         cmd = "$(location @rules_spring//springboot:springboot_pkg.sh) " +
-              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class +
+              "$(location @bazel_tools//tools/jdk:singlejar) " + boot_app_class + " " + boot_launcher_class +
               " $(JAVABASE) " + name + " " + str(deps_use_starlark_order) + " " + str(include_git_properties_file) + " $@ $(SRCS)",
         tools = [
             "@rules_spring//springboot:springboot_pkg.sh",

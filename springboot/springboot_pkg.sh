@@ -123,7 +123,7 @@ TMP_working_dir=$base_working_dir/tmp
 mkdir -p $TMP_working_dir
 
 # Addins is the feature to add files to the root of the springboot jar
-# The addins are listed in order as args, until the addin_end.txt file marks the end 
+# The addins are listed in order as args, until the addin_end.txt file marks the end
 i=$first_addin_arg
 while [ "$i" -le "$#" ]; do
   eval "addin=\${$i}"
@@ -170,12 +170,12 @@ while [ "$i" -le "$#" ]; do
   echo "DEBUG: libname: $libname" >> $debugfile
   if [[ $libname == *jar ]]; then
     # we only want to process .jar files as libs
-    if [[ $libname == *spring-boot-loader* ]] || [[ $libname == *spring_boot_loader* ]]; then
+    if [[ $libname == *spring-boot-loader* ]] || [[ $libname == *spring_boot_loader* ]] || [[ $libname == librootclassloader_lib* ]]; then
       # if libname contains the string 'spring-boot-loader' then...
       # the Spring Boot Loader classes are special, they must be extracted at the root level /,
       #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class
-      # we only extract org/* since we don't want the toplevel META-INF files
-      $jar_command xf $ruledir/$lib org META-INF/services
+      # we only extract org/* and com/* since we don't want the toplevel META-INF files
+      $jar_command xf $ruledir/$lib com org META-INF/services
     else
       # copy the jar into BOOT-INF/lib, being mindful to prevent name collisions by using subdirectories (see Issue #61)
       # the logic to truncate paths below doesnt need to be perfect, it just hopes to simplify the jar paths so they look better for most cases

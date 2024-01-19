@@ -17,7 +17,7 @@ public class SampleMain {
   // this is only a problem if the springboot rule is configured to fail on dupes.
   static private IntentionalDupedClass dupedClass = new IntentionalDupedClass();
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     System.out.println("SampleMain: Launching the sample SpringBoot demo application...");
     StringBuffer sb = new StringBuffer();
     for (String arg : args) {
@@ -28,6 +28,10 @@ public class SampleMain {
     System.out.println("SampleMain:  Command line args: "+sb.toString());
 
     System.out.println("\nSampleMain:  Intentional duped class version: "+dupedClass.hello());
+
+    // test that the root class is available
+    Class.forName("com.sample.SampleRootClass");
+    System.out.println("\nSampleMain:  loaded the root class com.sample.SampleRootClass");
 
     SpringApplication.run(SampleMain.class, args);
   }

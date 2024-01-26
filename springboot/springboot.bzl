@@ -722,7 +722,7 @@ def _get_relative_package_path():
     """Convert the current package name into a relative file system path. Because
     this value is used as a positional argument, if native.package_name() returns
     empty string (e.g. the target is //:foo), we replace it with a token so that
-    it wont confuse the parsing of the positional arguments.
+    it won't confuse the parsing of the positional arguments.
     """
     if not native.package_name():
         return "root"

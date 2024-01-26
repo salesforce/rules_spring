@@ -22,7 +22,7 @@ public class SampleAutoConfiguration {
     private static class SampleSignalHandler implements Runnable {
         @Override
         public void run() {
-            System.out.println("Caught an Interupt signal.");
+            System.out.println("Caught an Interrupt signal.");
             System.exit(0);
         }
     }

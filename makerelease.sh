@@ -13,7 +13,7 @@ echo ""
 echo "Please enter the release version (e.g. 2.3.1):"
 read release_version
 echo ""
-echo "You have entered $release_version, are you good with this version? Enter to contine, ctrl-c to abort."
+echo "You have entered $release_version, are you good with this version? Enter to continue, ctrl-c to abort."
 read DOTHETHING
 
 # write the MODULE.bazel file

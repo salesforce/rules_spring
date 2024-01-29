@@ -178,7 +178,7 @@ while [ "$i" -le "$#" ]; do
       $jar_command xf $ruledir/$lib org META-INF/services
     else
       # copy the jar into BOOT-INF/lib, being mindful to prevent name collisions by using subdirectories (see Issue #61)
-      # the logic to truncate paths below doesnt need to be perfect, it just hopes to simplify the jar paths so they look better for most cases
+      # the logic to truncate paths below doesn't need to be perfect, it just hopes to simplify the jar paths so they look better for most cases
       # for maven_install deps, the algorithm to correctly identify the end of the server path and the groupId is not defined
       #
       # a note on duplicate artifacts:

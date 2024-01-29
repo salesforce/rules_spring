@@ -18,7 +18,7 @@ public class IndexOfFiles {
     protected String jarPath;
     
     // if this is an index of a jar file inside the executable jar (nested jar) this will point to the 
-    // spring boot exectuable jar index
+    // spring boot executable jar index
     protected IndexedFile parentIndex;
     
     // The lists of found files:

@@ -2,7 +2,7 @@
 
 In addition to the Bazel rule, this package also contains a CLI for inspecting Spring Boot jars after they have been built.
 This can be useful when troubleshooting behavior differences over time due to changing dependencies.
-The CLI works on any exectuable Spring Boot jar, regardless of whether it was built with Bazel, Maven, or Gradle.
+The CLI works on any executable Spring Boot jar, regardless of whether it was built with Bazel, Maven, or Gradle.
 
 
 ### Running the CLI

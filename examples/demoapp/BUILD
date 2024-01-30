@@ -42,6 +42,11 @@ java_library(
     deps = springboot_deps + lib_deps,
 )
 
+java_library(
+    name = "rootclassloader_lib",
+    srcs = glob(["src_root/main/java/**/*.java"]),
+)
+
 test_deps = [
     "@maven//:junit_junit",
     "@maven//:org_hamcrest_hamcrest_core",
@@ -61,7 +66,7 @@ springboot(
 
     # DEPS ARE OPTIONAL HERE
     #  The springboot rule inherits all deps and runtime_deps from the java_library
-    # deps = [],
+    deps = [ ":rootclassloader_lib", ],
 
     # TO TEST THE DUPE CLASSES FEATURE:
     #   There is an intentionally duplicated class in lib1 and lib2. Do this:

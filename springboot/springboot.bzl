@@ -103,9 +103,7 @@ def _dupeclasses_rule_impl(ctx):
     inputs = []
     input_args = ctx.actions.args()
 
-    # inputs (dupe checker python script, spring boot jar file, ignorelist)
-    inputs.append(ctx.attr.script.files.to_list()[0])
-    input_args.add(ctx.attr.script.files.to_list()[0].path)
+    # inputs (spring boot jar file, ignorelist)
     inputs.append(ctx.attr.springbootjar.files.to_list()[0])
     input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
     if ctx.attr.dupeclassescheck_ignorelist != None:
@@ -117,12 +115,9 @@ def _dupeclasses_rule_impl(ctx):
     # add the output file to the args, so python script knows where to write result
     input_args.add(output.path)
 
-    # compute the location of python
-    python_interpreter = _compute_python_executable(ctx)
-
     # run the dupe checker
     ctx.actions.run(
-        executable = python_interpreter,
+        executable = ctx.executable.script,
         outputs = outputs,
         inputs = inputs,
         arguments = [input_args],
@@ -135,13 +130,16 @@ _dupeclasses_rule = rule(
     implementation = _dupeclasses_rule_impl,
     attrs = {
         "dupeclasses_rule": attr.label(),
-        "script": attr.label(),
+        "script": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+        ),
         "springbootjar": attr.label(),
-        "dupeclassescheck_ignorelist": attr.label(allow_files=True),
+        "dupeclassescheck_ignorelist": attr.label(allow_files = True),
         "dupeclassescheck_enable": attr.bool(),
         "out": attr.string(),
     },
-    toolchains = ["@bazel_tools//tools/python:toolchain_type"],
 )
 
 # ***************************************************************
@@ -159,9 +157,7 @@ def _javaxdetect_rule_impl(ctx):
     inputs = []
     input_args = ctx.actions.args()
 
-    # inputs (dupe checker python script, spring boot jar file, ignorelist)
-    inputs.append(ctx.attr.script.files.to_list()[0])
-    input_args.add(ctx.attr.script.files.to_list()[0].path)
+    # inputs (spring boot jar file, ignorelist)
     inputs.append(ctx.attr.springbootjar.files.to_list()[0])
     input_args.add(ctx.attr.springbootjar.files.to_list()[0].path)
     if ctx.attr.javaxdetect_ignorelist != None:
@@ -173,12 +169,9 @@ def _javaxdetect_rule_impl(ctx):
     # add the output file to the args, so python script knows where to write result
     input_args.add(output.path)
 
-    # compute the location of python
-    python_interpreter = _compute_python_executable(ctx)
-
     # run the dupe checker
     ctx.actions.run(
-        executable = python_interpreter,
+        executable = ctx.executable.script,
         outputs = outputs,
         inputs = inputs,
         arguments = [input_args],
@@ -191,30 +184,17 @@ _javaxdetect_rule = rule(
     implementation = _javaxdetect_rule_impl,
     attrs = {
         "javaxdetect_rule": attr.label(),
-        "script": attr.label(),
+        "script": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+        ),
         "springbootjar": attr.label(),
-        "javaxdetect_ignorelist": attr.label(allow_files=True),
+        "javaxdetect_ignorelist": attr.label(allow_files = True),
         "javaxdetect_enable": attr.bool(),
         "out": attr.string(),
     },
-    toolchains = ["@bazel_tools//tools/python:toolchain_type"],
 )
-
-def _compute_python_executable(ctx):
-    python_interpreter = None
-
-    # hard requirement on python3 being available
-    python_runtime = ctx.toolchains["@bazel_tools//tools/python:toolchain_type"].py3_runtime
-    if python_runtime != None:
-        if python_runtime.interpreter != None:
-            # registered python toolchain, or the Bazel python wrapper script (for system python)
-            python_interpreter = python_runtime.interpreter
-        elif python_runtime.interpreter_path != None:
-            # legacy python only?
-            python_interpreter = python_runtime.interpreter_path
-
-    # print(python_interpreter)
-    return python_interpreter
 
 # ***************************************************************
 # BANNED DEPS RULE

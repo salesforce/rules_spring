@@ -10,6 +10,8 @@
 
 # See the README.md file for detailed usage instructions.
 
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+
 exports_files([
     "springboot.bzl",
     "springboot_pkg.sh",

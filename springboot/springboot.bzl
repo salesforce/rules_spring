@@ -386,6 +386,8 @@ def springboot(
         tags = [],
         testonly = False,
         visibility = None,
+        bazelrun_addopens = [],
+        bazelrun_addexports = [],
         exclude = [], # deprecated
         classpath_index = "@rules_spring//springboot:empty.txt", # deprecated
         use_build_dependency_order = True, # deprecated
@@ -585,6 +587,8 @@ def springboot(
         name = genbazelrunenv_rule,
         cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name)
             + " " + _get_relative_package_path() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background)
+            + " " + " ".join(["--add-exports=" + element for element in bazelrun_addexports])
+            + " " + " ".join(["--add-opens=" + element for element in bazelrun_addopens])
             + " " + bazelrun_jvm_flags,
         #      message = "SpringBoot rule is writing the bazel run launcher env...",
         tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],

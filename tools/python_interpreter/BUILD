@@ -26,8 +26,11 @@ py_binary(
 # rule invocations below. This is disabled by default. To enable, follow these steps:
 # 1. Create a subdirectory 'captive_python3' and install python3 into it. You should
 #    end up with ./captive_python3/bin/python3 existing on the filesystem.
+#    If you have python3 in your path, you can do this with 'python3 -m venv captive_python3' in this directory
 # 2. Uncomment the rule invocations below.
 # 3. Uncomment the python toolchain invocation in the WORKSPACE file.
+# 4. Change `is_default = True` -> `is_default = False` in MODULE.bazel OR specify an extra toolchain e.g.
+#    --extra_toolchains //tools/python_interpreter:captive_python_toolchain
 
 #py_runtime(
 #    name = "python3",

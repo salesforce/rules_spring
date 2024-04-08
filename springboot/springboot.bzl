@@ -416,7 +416,7 @@ def springboot(
       deps_exclude: Optional. A list of jar labels that will be omitted from the final packaging step.
         This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream.
         Ex: *["@maven//:commons_cli_commons_cli"]*.
-      deps_exclude: Optional. This attribute provides a list of partial paths that will be omitted
+      deps_exclude_paths: Optional. This attribute provides a list of partial paths that will be omitted
         from the final packaging step if the string is contained within the dep filename. This is a more raw method
         than deps_exclude for eliminating a problematic dependency/file that cannot be eliminated upstream.
         Ex: [*jackson-databind-*].

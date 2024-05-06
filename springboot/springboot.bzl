@@ -222,9 +222,9 @@ def _banneddeps_rule_impl(ctx):
 
     if found_banned:
         ctx.actions.write(output, "FAIL", is_executable = False)
-        fail("Found banned jars in the springboot rule [" + ctx.label.name
-          + "] dependency list:\n" + banned_filenames
-          + "\nSee the deps_banned attribute on this rule for the matched patterns.")
+        fail("Found banned jars in the springboot rule [" + ctx.label.name +
+             "] dependency list:\n" + banned_filenames +
+             "\nSee the deps_banned attribute on this rule for the matched patterns.")
     else:
         ctx.actions.write(output, "SUCCESS", is_executable = False)
     return [DefaultInfo(files = depset(outputs))]
@@ -237,10 +237,8 @@ _banneddeps_rule = rule(
         "deps_banned": attr.string_list(),
         "deps": attr.label_list(),
         "out": attr.string(),
-    }
+    },
 )
-
-
 
 # ***************************************************************
 # Outer launcher script for "bazel run"
@@ -301,17 +299,17 @@ def _springboot_rule_impl(ctx):
 
     # the bazelrun_java_toolchain optional, if set, we use it as the jvm for bazel run
     if ctx.attr.bazelrun_java_toolchain != None:
-      # lookup the path to selected java toolchain, and string sub it into the bazel run script
-      # text _bazelrun_script_template defined above
-      java_runtime = ctx.attr.bazelrun_java_toolchain[java_common.JavaToolchainInfo].java_runtime
-      java_bin = [f for f in java_runtime.files.to_list() if f.path.endswith("bin/java")][0]
-      outer_bazelrun_script_contents = outer_bazelrun_script_contents \
-          .replace("%java_toolchain_attr%", java_bin.path)
-      outer_bazelrun_script_contents = outer_bazelrun_script_contents \
-          .replace("%java_toolchain_name_attr%", ctx.attr.bazelrun_java_toolchain.label.name)
+        # lookup the path to selected java toolchain, and string sub it into the bazel run script
+        # text _bazelrun_script_template defined above
+        java_runtime = ctx.attr.bazelrun_java_toolchain[java_common.JavaToolchainInfo].java_runtime
+        java_bin = [f for f in java_runtime.files.to_list() if f.path.endswith("bin/java") or f.path.endswith("bin/java.exe")][0]
+        outer_bazelrun_script_contents = outer_bazelrun_script_contents \
+            .replace("%java_toolchain_attr%", java_bin.path)
+        outer_bazelrun_script_contents = outer_bazelrun_script_contents \
+            .replace("%java_toolchain_name_attr%", ctx.attr.bazelrun_java_toolchain.label.name)
     else:
-      outer_bazelrun_script_contents = outer_bazelrun_script_contents \
-          .replace("%java_toolchain_attr%", "")
+        outer_bazelrun_script_contents = outer_bazelrun_script_contents \
+            .replace("%java_toolchain_attr%", "")
 
     outer_bazelrun_script_file = ctx.actions.declare_file("%s" % ctx.label.name)
     ctx.actions.write(outer_bazelrun_script_file, outer_bazelrun_script_contents, is_executable = True)
@@ -323,8 +321,8 @@ def _springboot_rule_impl(ctx):
 
     # and add any data files to runfiles
     if ctx.attr.bazelrun_data != None:
-      for data_target in ctx.attr.bazelrun_data:
-        runfiles_list.append(data_target.files.to_list()[0])
+        for data_target in ctx.attr.bazelrun_data:
+            runfiles_list.append(data_target.files.to_list()[0])
 
     return [DefaultInfo(
         files = outs,
@@ -346,10 +344,8 @@ _springboot_rule = rule(
         "javaxdetect_rule": attr.label(),
         "banneddeps_rule": attr.label(),
         "apprun_rule": attr.label(),
-
-        "bazelrun_script": attr.label(allow_files=True),
-        "bazelrun_data": attr.label_list(allow_files=True),
-
+        "bazelrun_script": attr.label(allow_files = True),
+        "bazelrun_data": attr.label_list(allow_files = True),
         "bazelrun_java_toolchain": attr.label(
             mandatory = False,
             default = "@bazel_tools//tools/jdk:current_java_toolchain",
@@ -376,7 +372,7 @@ def springboot(
         dupeclassescheck_ignorelist = None,
         javaxdetect_enable = None,
         javaxdetect_ignorelist = None,
-        include_git_properties_file=True,
+        include_git_properties_file = True,
         bazelrun_java_toolchain = None,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
@@ -388,14 +384,13 @@ def springboot(
         visibility = None,
         bazelrun_addopens = [],
         bazelrun_addexports = [],
-        exclude = [], # deprecated
-        classpath_index = "@rules_spring//springboot:empty.txt", # deprecated
-        use_build_dependency_order = True, # deprecated
-        fail_on_duplicate_classes = False, # deprecated
-        duplicate_class_allowlist = None, # deprecated
-        jvm_flags = "", # deprecated
-        data = [], # deprecated
-        ):
+        exclude = [],  # deprecated
+        classpath_index = "@rules_spring//springboot:empty.txt",  # deprecated
+        use_build_dependency_order = True,  # deprecated
+        fail_on_duplicate_classes = False,  # deprecated
+        duplicate_class_allowlist = None,  # deprecated
+        jvm_flags = "",  # deprecated
+        data = []):  # deprecated
     """Bazel rule for packaging an executable Spring Boot application.
 
     Note that the rule README has more detailed usage instructions for each attribute.
@@ -585,11 +580,11 @@ def springboot(
     genbazelrunenv_out = "bazelrun_env.sh"
     native.genrule(
         name = genbazelrunenv_rule,
-        cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name)
-            + " " + _get_relative_package_path() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background)
-            + " " + " ".join(["--add-exports=" + element for element in bazelrun_addexports])
-            + " " + " ".join(["--add-opens=" + element for element in bazelrun_addopens])
-            + " " + bazelrun_jvm_flags,
+        cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name) +
+              " " + _get_relative_package_path() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background) +
+              " " + " ".join(["--add-exports=" + element for element in bazelrun_addexports]) +
+              " " + " ".join(["--add-opens=" + element for element in bazelrun_addopens]) +
+              " " + bazelrun_jvm_flags,
         #      message = "SpringBoot rule is writing the bazel run launcher env...",
         tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],
         outs = [genbazelrunenv_out],
@@ -681,10 +676,8 @@ def springboot(
         dupecheck_rule = dupecheck_rule_label,
         javaxdetect_rule = javaxdetect_rule_label,
         apprun_rule = ":" + apprun_rule,
-
         bazelrun_script = bazelrun_script,
         bazelrun_data = bazelrun_data,
-
         tags = tags,
         testonly = testonly,
         visibility = visibility,
@@ -699,7 +692,7 @@ def _get_springboot_jar_file_name(name):
 
 def _convert_starlarkbool_to_bashbool(starlarkbool):
     if starlarkbool:
-      return "true"
+        return "true"
     return "false"
 
 def _get_relative_package_path():

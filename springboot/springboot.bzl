@@ -304,7 +304,7 @@ def _springboot_rule_impl(ctx):
       # lookup the path to selected java toolchain, and string sub it into the bazel run script
       # text _bazelrun_script_template defined above
       java_runtime = ctx.attr.bazelrun_java_toolchain[java_common.JavaToolchainInfo].java_runtime
-      java_bin = [f for f in java_runtime.files.to_list() if f.path.endswith("bin/java")][0]
+      java_bin = [f for f in java_runtime.files.to_list() if f.path.endswith("bin/java") or f.path.endswith("bin/java.exe")][0]
       outer_bazelrun_script_contents = outer_bazelrun_script_contents \
           .replace("%java_toolchain_attr%", java_bin.path)
       outer_bazelrun_script_contents = outer_bazelrun_script_contents \

@@ -44,7 +44,7 @@ fi
 java_string=$($javabase/bin/java -version 2>&1)
 
 #get the first line of the version details and get the version
-java_version=$(echo "$java_string" | head -n1 | cut -d ' ' -f 3 | rev | cut -c2- | rev | cut -c2- )
+java_version=$(echo "$java_string" | head -n1 | cut -d ' ' -f 3 | awk '{print substr($0, 2, length($0)-2)}' )
 
 echo "Manifest-Version: 1.0" > $manifestfile
 echo "Created-By: Bazel" >> $manifestfile

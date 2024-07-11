@@ -48,6 +48,7 @@ The required *springboot* rule attributes are as follows:
 -  name:    name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
 -  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
 -  java_library: the library containing your service code
+- dep:
 
 There are many more attributes described below and in the [generated Stardoc](springboot_doc.md).
 
@@ -57,7 +58,7 @@ After installing the rule into your workspace, you are ready to build.
 Add the rule invocation to your Spring Boot application *BUILD* file as shown above.
 ```bash
 # Build
-bazel build //examples/helloworld
+bazel build //examples/demoapp
 # Run
 bazel run //examples/helloworld
 # Run with arguments

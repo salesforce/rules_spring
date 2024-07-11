@@ -7,14 +7,13 @@
 package com.bazel.demo;
 
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
-public class IntentionalDupedClassTest {
+public class HelloLib1Test {
 
     @Test
     public void helloTest() {
-      IntentionalDupedClass testClass = new IntentionalDupedClass();
-      assertEquals("Hello LIB2!", testClass.hello());
+      HelloLib1 testClass = new HelloLib1();
+      assertEquals("Hello LIB1!", testClass.hello());
     }
 }

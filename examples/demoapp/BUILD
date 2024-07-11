@@ -11,7 +11,7 @@
 #   "@rules_spring//springboot" when you consume the official release via http_archive.
 
 # load our Spring Boot rule
-load("//springboot:springboot.bzl", "springboot")
+load("//springboot:springbootjar.bzl", "springbootjar")
 
 # dependencies from other packages in the workspace
 lib_deps = [
@@ -59,49 +59,12 @@ java_test(
 )
 
 # Build the app as a Spring Boot executable jar
-springboot(
+springbootjar(
     name = "demoapp",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":demoapp_lib",
 
-    # DEPS ARE OPTIONAL HERE
-    #  The springboot rule inherits all deps and runtime_deps from the java_library
     deps = [ ":rootclassloader_lib", ],
-
-    # TO TEST THE DUPE CLASSES FEATURE:
-    #   There is an intentionally duplicated class in lib1 and lib2. Do this:
-    #   1. set fail_on_duplicate_classes = True
-    #   2. comment out lib1 or lib2 in demoapp_dupeclass_allowlist.txt
-    #   Build should fail due to the duplicate class.
-    dupeclassescheck_enable = True,
-    dupeclassescheck_ignorelist = "demoapp_dupeclass_allowlist.txt",
-
-    # BANNED DEPS
-    # These are dependencies that you never want in your springboot jar.
-    # This is used to detect mistakes in your transitive dependency graph. They
-    # might be test jars, or compile time jars like lombok. The list of strings
-    # is matched against the dependency jar filenames with a 'contains' match.
-    deps_banned = ["junit", "mockito", "lombok"],
-
-    # Specify optional JVM args to use when the application is launched with 'bazel run'
-    bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
-
-    # data files can be made available in the working directory for when the app is launched with bazel run
-    bazelrun_data = ["example_data.txt"],
-
-    # run the application in the background (command returns immediately)
-    #bazelrun_background = True,
-
-    # you may choose to override the launcher script that is used when you invoke 'bazel run //examples/demoapp'
-    bazelrun_script = "custom_bazelrun_script.sh",
-
-    # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
-    #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
-    deps_index_file = ":demoapp_classpath.idx",
-
-    # sometimes packagers want to put certain files into the root of the springboot app jar
-    # these addins will be copied into the root of the generated springboot jar
-    addins = [":info.txt", ":author.txt"],
 )
 
 springboottest_deps = [

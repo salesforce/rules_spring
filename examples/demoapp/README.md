@@ -9,10 +9,4 @@ To build:
 bazel build //examples/demoapp
 ```
 
-To run:
-
-```bash
-bazel run //examples/demoapp
-```
-
 For full documentation, see the [//springboot](../../springboot) package documentation.

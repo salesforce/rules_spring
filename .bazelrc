@@ -1,17 +1,1 @@
-#
-# Copyright (c) 2017-2021, salesforce.com, inc.
-# All rights reserved.
-# Licensed under the BSD 3-Clause license.
-# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
-#
-
 common --enable_bzlmod
-
-# **********************************
-# ARTIFACT STAMPING
-# **********************************
-# These settings ensure Spring Boot artifacts are built with stamped version info.
-# The Spring Boot rule uses the stamping information to populate the /manage/info endpoint
-# refer to our tools/buildstamp/README.md for more details
-build --stamp
-build --workspace_status_command tools/buildstamp/get_workspace_status

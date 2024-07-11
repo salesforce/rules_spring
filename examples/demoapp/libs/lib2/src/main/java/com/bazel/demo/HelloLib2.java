@@ -6,7 +6,7 @@
 */
 package com.bazel.demo;
 
-public class IntentionalDupedClass {
+public class HelloLib2 {
     public String hello() {
       return "Hello LIB2!";
     }

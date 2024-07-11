@@ -8,14 +8,14 @@ package com.sample;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
-import com.bazel.demo.IntentionalDupedClass;
+import com.bazel.demo.HelloLib1;
+import com.bazel.demo.HelloLib2;
 
 @SpringBootApplication
 public class SampleMain {
 
-  // both //examples/demoapp/libs/lib1 and //examples/demoapp/libs/lib2 have this class
-  // this is only a problem if the springboot rule is configured to fail on dupes.
-  static private IntentionalDupedClass dupedClass = new IntentionalDupedClass();
+  static private HelloLib1 lib1 = new HelloLib1();
+  static private HelloLib2 lib2 = new HelloLib2();
 
   public static void main(String[] args) throws Exception {
     System.out.println("SampleMain: Launching the sample SpringBoot demo application...");
@@ -26,8 +26,6 @@ public class SampleMain {
       sb.append("] ");
     }
     System.out.println("SampleMain:  Command line args: "+sb.toString());
-
-    System.out.println("\nSampleMain:  Intentional duped class version: "+dupedClass.hello());
 
     // test that the root class is available
     Class.forName("com.sample.SampleRootClass");

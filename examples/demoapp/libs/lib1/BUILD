@@ -23,7 +23,7 @@ java_library(
 )
 
 java_test(
-   name = "IntentionalDupedClassTest",
-   srcs = ["src/test/java/com/bazel/demo/IntentionalDupedClassTest.java"],
+   name = "HelloLib1Test",
+   srcs = ["src/test/java/com/bazel/demo/HelloLib1Test.java"],
    deps = [ ":lib1" ] + test_deps,
 )

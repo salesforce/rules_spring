@@ -1,28 +1,22 @@
-#
-# Copyright (c) 2017-2021, salesforce.com, inc.
-# All rights reserved.
-# Licensed under the BSD 3-Clause license.
-# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
-#
+# generated
+**/src/generated/
 
-# bazel build dirs
+# Gradle
+.gradle/
+build/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+out/
+
+bin/
+.ijwb/
+.vscode/
 bazel-*
 
-# set your user to your public GitHub user in a script like this:
-#   git config --global user.email '#####+username@users.noreply.github.com'
-# but dont check it in
-setGitOSSUser.sh
+# Mac
+.DS_Store
 
-# python
-__pycache__
-
-# //tools/python_interpreter
-captive_python3
-bin
-
-# after running the //tools/codecoverage tooling you will be left with this root level folder
-# it contains your test results, so do not checkin
-coverage-reports
-
-# release zips
-rules-spring-*.zip
+.bazelrc.user

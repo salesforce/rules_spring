@@ -17,11 +17,11 @@ This is a *BUILD* file code snippet of how to invoke the rule:
 
 ```starlark
 # load our Spring Boot rule
-load("//springboot:springboot.bzl", "springboot",)
+load("@rules_spring//springboot:springboot.bzl", "springboot",)
 
 # create our deps list for Spring Boot, we have some convenience targets for this
 springboot_deps = [
-  "//springboot/import_bundles:springboot_required_deps",
+  "@rules_spring//springboot/import_bundles:springboot_required_deps",
   "@maven//:org_springframework_boot_spring_boot_starter_jetty",
   "@maven//:org_springframework_boot_spring_boot_starter_web",
   "@maven//:org_springframework_spring_webmvc",

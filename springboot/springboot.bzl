@@ -514,7 +514,7 @@ def springboot(
         outs = [genmanifest_out],
         tags = tags,
         testonly = testonly,
-        toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
+        toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],  # so that JAVABASE is computed
     )
 
     # SUBRULE 2B: GENERATE THE GIT PROPERTIES
@@ -577,7 +577,7 @@ def springboot(
         tags = tags,
         testonly = testonly,
         outs = [_get_springboot_jar_file_name(name)],
-        toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],  # so that JAVABASE is computed
+        toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],  # so that JAVABASE is computed
         visibility = visibility,
     )
 

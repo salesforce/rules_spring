@@ -303,17 +303,21 @@ else
 fi
 cd $working_dir
 
-
-# Use Bazel's singlejar to re-jar it which normalizes timestamps as Jan 1 2010
-# note that it does not use the manifest from the jar file, which is a bummer
-# so we have to respecify the manifest data
-# TODO we should rewrite write_manfiest.sh to produce inputs compatible for singlejar (Issue #27)
-singlejar_options="--normalize --dont_change_compression" # add in --verbose for more details from command
-singlejar_mainclass="--main_class $spring_boot_launcher_class"
-$singlejar_cmd $singlejar_options $singlejar_mainclass \
-    --deploy_manifest_lines "Start-Class: $mainclass" \
-    --sources $raw_output_jar \
-    --output $ruledir/$outputjar 2>&1 | tee -a $debugfile
+(
+    # Use Bazel's singlejar to re-jar it which normalizes timestamps as Jan 1 2010
+    # note that it does not use the manifest from the jar file, which is a bummer
+    # so we have to respecify the manifest data
+    # TODO we should rewrite write_manfiest.sh to produce inputs compatible for singlejar (Issue #27)
+    singlejar_options="--normalize --dont_change_compression" # add in --verbose for more details from command
+    singlejar_mainclass="--main_class $spring_boot_launcher_class"
+    # #205: Execute the singlejar command from the original ruledir, so the build-data.properties file
+    # contains a deterministic, relative path for 'build.target'.
+    cd "$ruledir"
+    $singlejar_cmd $singlejar_options $singlejar_mainclass \
+        --deploy_manifest_lines "Start-Class: $mainclass" \
+        --sources $raw_output_jar \
+        --output "$outputjar" 2>&1 | tee -a $debugfile
+)
 
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed creating the JAR file $working_dir." | tee -a $debugfile

@@ -45,6 +45,7 @@ Note that the rule README has more detailed usage instructions for each attribut
 | tags |  Optional. Bazel standard attribute.   |  <code>[]</code> |
 | testonly |  Optional. Bazel standard attribute. Defaults to False.   |  <code>False</code> |
 | visibility |  Optional. Bazel standard attribute.   |  <code>None</code> |
+| jartools_toolchains | Optional. Toolchains for running build tools like singlejar, override for obscure use cases. | <code>["@bazel_tools//tools/jdk:current_java_runtime"]</code> |
 | exclude |  Deprecated synonym of *deps_exclude*   |  <code>[]</code> |
 | classpath_index |  Deprecated synonym of *deps_index_file*   |  <code>"@rules_spring//springboot:empty.txt"</code> |
 | use_build_dependency_order |  Deprecated synonym of *deps_use_starlark_order*   |  <code>True</code> |

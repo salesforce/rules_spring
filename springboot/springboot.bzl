@@ -388,6 +388,7 @@ def springboot(
         visibility = None,
         bazelrun_addopens = [],
         bazelrun_addexports = [],
+        jartools_toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
         exclude = [], # deprecated
         classpath_index = "@rules_spring//springboot:empty.txt", # deprecated
         use_build_dependency_order = True, # deprecated
@@ -446,6 +447,7 @@ def springboot(
       tags: Optional. Bazel standard attribute.
       testonly: Optional. Bazel standard attribute. Defaults to False.
       visibility: Optional. Bazel standard attribute.
+      jartools_toolchains: Optional. Toolchains for running build tools like singlejar, override for obscure use cases. Default: ["@bazel_tools//tools/jdk:current_java_runtime"]
       exclude: Deprecated synonym of *deps_exclude*
       classpath_index: Deprecated synonym of *deps_index_file*
       use_build_dependency_order: Deprecated synonym of *deps_use_starlark_order*
@@ -514,7 +516,7 @@ def springboot(
         outs = [genmanifest_out],
         tags = tags,
         testonly = testonly,
-        toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],  # so that JAVABASE is computed
+        toolchains = jartools_toolchains,  # so that JAVABASE is computed
     )
 
     # SUBRULE 2B: GENERATE THE GIT PROPERTIES
@@ -577,7 +579,7 @@ def springboot(
         tags = tags,
         testonly = testonly,
         outs = [_get_springboot_jar_file_name(name)],
-        toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],  # so that JAVABASE is computed
+        toolchains = jartools_toolchains,  # so that JAVABASE is computed
         visibility = visibility,
     )
 

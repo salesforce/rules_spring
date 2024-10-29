@@ -223,8 +223,8 @@ def _banneddeps_rule_impl(ctx):
     if found_banned:
         ctx.actions.write(output, "FAIL", is_executable = False)
         fail("Found banned jars in the springboot rule [" + ctx.label.name
-          + "] dependency list:\n" + banned_filenames
-          + "\nSee the deps_banned attribute on this rule for the matched patterns.")
+          + "] dependency list. Filenames:\n" + banned_filenames
+          + "\nYou can ignore these by setting deps_banned = [] on the springboot() rule.\n")
     else:
         ctx.actions.write(output, "SUCCESS", is_executable = False)
     return [DefaultInfo(files = depset(outputs))]
@@ -367,7 +367,7 @@ def springboot(
         boot_app_class,
         boot_launcher_class = "org.springframework.boot.loader.JarLauncher",
         deps = None,
-        deps_banned = None,
+        deps_banned = [ "junit", "mockito", ], # detects common mistake of test dep pollution
         deps_exclude = None,
         deps_exclude_paths = None,
         deps_index_file = None,
@@ -409,10 +409,10 @@ def springboot(
         Ex: *com.sample.SampleMain*
       deps: Optional. An additional set of Java dependencies to add to the executable.
         Normally all dependencies are set on the *java_library*.
-      deps_banned: Optional. A list of strings to match against the jar filenams in the transitive graph of
+      deps_banned: Optional. A list of strings to match against the jar filenames in the transitive graph of
         dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail.
         This is useful for detecting jars that should never go to production. The list of dependencies is
-        obtained after the deps_exclude processing has run.
+        obtained after the deps_exclude processing has run. Default: [ "junit", "mockito" ]
       deps_exclude: Optional. A list of jar labels that will be omitted from the final packaging step.
         This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream.
         Ex: *["@maven//:commons_cli_commons_cli"]*.

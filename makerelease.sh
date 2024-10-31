@@ -5,12 +5,12 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-release_version=2.3.1
+release_version=2.4.1
 
 echo "RELEASE: You are about to create a local zip file that contains the release bits."
 echo "After it is created, there will be instructions on how to upload it to GitHub and create the release metadata."
 echo ""
-echo "Please enter the release version (e.g. 2.3.1):"
+echo "Please enter the release version (e.g. 2.4.1):"
 read release_version
 echo ""
 echo "You have entered $release_version, are you good with this version? Enter to continue, ctrl-c to abort."

@@ -91,7 +91,7 @@ Because the version of each dependency needs to be explicitly managed, it is lef
 
 ### Convenience Import Bundles
 
-The [//springboot/import_bundles](import_bundles) package contains a list of core set of Spring Boot dependencies.
+The [@rules_spring//springboot/import_bundles](import_bundles) package contains a list of core set of Spring Boot dependencies.
 We recommend starting with this list, and then creating your own bundles if it helps.
 
 ### Detecting, Excluding and Suppressing Unwanted Classes

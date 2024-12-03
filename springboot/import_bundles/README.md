@@ -6,6 +6,6 @@ We used to maintain others, but have since removed all other bundles.
 
 ```starlark
 deps = [
-  "//springboot/import_bundles:springboot_required_deps",
+  "@rules_spring//springboot/import_bundles:springboot_required_deps",
 ]
 ```

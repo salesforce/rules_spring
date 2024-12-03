@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2021, salesforce.com, inc.
+# Copyright (c) 2017-2024, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
@@ -13,8 +13,12 @@
 # load our Spring Boot rule
 load("//springboot:springboot.bzl", "springboot")
 
+# load the deps filter
+load("//springboot:deps_filter_transitive.bzl", "deps_filter_transitive")
+
+
 # dependencies from other packages in the workspace
-lib_deps = [
+deps = [
     "//examples/demoapp/libs/lib1",
     "//examples/demoapp/libs/lib2",
 ]
@@ -27,21 +31,32 @@ springboot_deps = [
     "@maven//:org_springframework_boot_spring_boot_loader_tools",
     "@maven//:org_springframework_spring_webmvc",
 
-    "@maven//:javax_annotation_javax_annotation_api",
-
     # bring in same dep again as above, but through a different maven_install
     # rule: the springboot rule does not package duplicate deps, first one wins
     "@spring_boot_starter_jetty//:org_springframework_boot_spring_boot_starter_jetty",
 ]
+
+# Sometimes you have a transitive that you don't want. The unwanted_classes.md doc
+# covers this case, and this snippet shows how to use it:
+deps_filter_transitive(
+    name = "filtered_deps",
+    deps = springboot_deps + deps, # the input list
+    deps_exclude = [
+        "@maven//:javax_annotation_javax_annotation_api", # exclude this transitive
+    ],
+    exclude_transitives = True,
+)
 
 # This Java library contains the app code
 java_library(
     name = "demoapp_lib",
     srcs = glob(["src/main/java/**/*.java"]),
     resources = glob(["src/main/resources/**"]),
-    deps = springboot_deps + lib_deps,
+    deps = [":filtered_deps"],
 )
 
+# This is just an example of having a dependency that you want only added to
+# the springboot jar, not the java_library. This is rare.
 java_library(
     name = "rootclassloader_lib",
     srcs = glob(["src_root/main/java/**/*.java"]),
@@ -65,7 +80,8 @@ springboot(
     java_library = ":demoapp_lib",
 
     # DEPS ARE OPTIONAL HERE
-    #  The springboot rule inherits all deps and runtime_deps from the java_library
+    #  The springboot rule inherits all deps and runtime_deps from the java_library()
+    #  but this jar for uncommon reason is just added to the springboot rule.
     deps = [ ":rootclassloader_lib", ],
 
     # TO TEST THE DUPE CLASSES FEATURE:

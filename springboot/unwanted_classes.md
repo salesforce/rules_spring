@@ -87,11 +87,59 @@ Bazel query is the best way to do this:
 bazel query 'somepath(//examples/helloworld:helloworld_lib, "@maven//:org_springframework_spring_webmvc")'
 ```
 
-### Removing Unwanted Classes with an Exclude List
+### Removing Unwanted Classes with a Filter
 
-In some cases you do not have the control to remove the dependency from the dependency graph.
-An exclude list can be passed to the Spring Boot rule which will prevent that dependency from being copied into the jar.
-This is the second best approach for handling unwanted classes.
+The next best way to exclude dependencies is to remove them before they are added to
+  the ```java_library``` rule invocation.
+This mechanism is not specific to ```springboot``` at all - it is a sample provided
+  by rules_spring because it is a commmon use case.
+The benefits to excluding dependencies this way (as opposed to the exclude lists)
+  is that your test execution will use the actual classpath set into
+  the ```springboot``` executable jar.
+
+In this example, the springboot jar wants the red, green and blue libraries, but
+does not want the yellow library (a transitive).
+```starlark
+load("//springboot:deps_filter_transitive.bzl", "deps_filter_transitive")
+
+deps = [
+    "@maven//:com_colors_red",
+    "@maven//:com_colors_green",
+    "@maven//:com_colors_blue",
+]
+
+deps_filter_transitive(
+    name = "filtered_deps",
+    deps = deps, # input list of deps
+    deps_exclude = [
+        "@maven//:com_colors_yellow", # yellow is a transitive of green, and we don't want it
+    ],
+    exclude_transitives = True, # also exclude any transitive of yellow
+)
+
+java_library(
+    name = "base_lib",
+    deps = [":filtered_deps"], # the filtered deps has yellow removed
+    ...  
+)
+
+springboot(
+    ...
+    java_library = ":base_lib",
+    ...
+)
+```
+
+
+### Removing Unwanted Classes with an Exclude List (deprecated)
+
+An exclude list can be passed to the Spring Boot rule which will prevent that dependency
+  from being copied into the jar during the packaging step.
+This was our original mechanism of removing dependencies from the dependency graph.
+
+:warning: The Exclude list approach is not recommended. The Filter list is more accurate.
+With Exclude lists, your tests will run without the exclusions, such that your test classpath
+will not match what will run with your executable jar.
 
 There are two forms: *deps_exclude* and *deps_exclude_paths*.
 - *deps_exclude* uses Bazel labels to match the desired target to exclude.
@@ -106,6 +154,7 @@ The path approach is easier for these cases.
 It is used like this:
 
 ```starlark
+# WARNING: This is an obsolete example. Use the filter mechanism instead.
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",

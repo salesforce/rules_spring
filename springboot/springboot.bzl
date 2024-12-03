@@ -396,6 +396,8 @@ def springboot(
         duplicate_class_allowlist = None, # deprecated
         jvm_flags = "", # deprecated
         data = [], # deprecated
+        restricted_to = [],
+        target_compatible_with = [],
         ):
     """Bazel rule for packaging an executable Spring Boot application.
 
@@ -502,6 +504,8 @@ def springboot(
         deps_exclude_paths = deps_exclude_paths,
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
     )
 
     # SUBRULE 2: GENERATE THE MANIFEST
@@ -516,6 +520,8 @@ def springboot(
         outs = [genmanifest_out],
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
         toolchains = jartools_toolchains,  # so that JAVABASE is computed
     )
 
@@ -528,6 +534,8 @@ def springboot(
         outs = [gengitinfo_out],
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
         stamp = 1,
     )
 
@@ -538,6 +546,8 @@ def springboot(
         app_dep = java_library,
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
     )
 
     # SUBRULE 3: INVOKE THE BASH SCRIPT THAT DOES THE PACKAGING
@@ -578,6 +588,8 @@ def springboot(
         ],
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
         outs = [_get_springboot_jar_file_name(name)],
         toolchains = jartools_toolchains,  # so that JAVABASE is computed
         visibility = visibility,
@@ -597,6 +609,8 @@ def springboot(
         outs = [genbazelrunenv_out],
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
     )
 
     # SUBRULE 4a: RUN THE DUPE CHECKER (if enabled)
@@ -614,6 +628,8 @@ def springboot(
             out = "dupecheck_results.txt",
             tags = tags,
             testonly = testonly,
+            restricted_to = restricted_to,
+            target_compatible_with = target_compatible_with,
         )
         dupecheck_rule_label = ":" + dupecheck_rule
 
@@ -632,6 +648,8 @@ def springboot(
             out = "javaxdetect_results.txt",
             tags = tags,
             testonly = testonly,
+            restricted_to = restricted_to,
+            target_compatible_with = target_compatible_with,
         )
         javaxdetect_rule_label = ":" + javaxdetect_rule
 
@@ -649,6 +667,8 @@ def springboot(
             out = "bannedcheck_results.txt",
             tags = tags,
             testonly = testonly,
+            restricted_to = restricted_to,
+            target_compatible_with = target_compatible_with,
         )
         bannedcheck_rule_label = ":" + bannedcheck_rule
 
@@ -665,6 +685,8 @@ def springboot(
         runtime_deps = java_deps,
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
     )
 
     if bazelrun_script == None:
@@ -689,6 +711,8 @@ def springboot(
 
         tags = tags,
         testonly = testonly,
+        restricted_to = restricted_to,
+        target_compatible_with = target_compatible_with,
         visibility = visibility,
     )
 

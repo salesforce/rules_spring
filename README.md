@@ -13,7 +13,7 @@ The Salesforce *springboot* rule can be found, along with documentation, in this
 This rule was developed and is supported by Salesforce.
 If you have any issues with this repository, please create a [GitHub Issue](https://github.com/salesforce/rules_spring/issues).
 We will try to quickly address problems and answer questions.
-Note that we do not yet support running these [rules on Windows](https://github.com/salesforce/rules_spring/issues/25).
+Note that we do not yet officially support running these [rules on Windows](https://github.com/salesforce/rules_spring/issues/25) but some users have gotten it to work.
 
 Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/rules_spring/projects).
 To see what bug fixes and new features are planned, consult the roadmaps located there.
@@ -55,22 +55,3 @@ That approach is sufficient if Bazel and your Bazel workspace (i.e. source code)
 - [rules_jvm_external Spring Boot example](https://github.com/bazelbuild/rules_jvm_external/tree/master/examples/spring_boot)
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.
-
-### Upgrades
-
-This section contains notes for specific upgrade steps needed to adopt newer versions of *rules-spring*.
-Starting with the 1.1.x line, we strive to adhere to [SemVer](https://semver.org/).
-This Git repository was renamed from *bazel-springboot-rule* to *rules_spring* on March 17, 2021.
-This was done to comply with required Bazel naming conventions for external rules.
-
-#### 2.0.0: March 13, 2021
-
-This release refactored the rule with the standardized Bazel rule layout conventions.
-When the Spring Boot rule was originally written, the conventions did not exist.
-This repackaging makes the rule more modern.
-
-For rule 1.x users upgrading to 2.0.0, you will need to do the following:
-- All WORKSPACE and BUILD file references to *bazel_springboot_rule* must be changed to *rules_spring*
-- All BUILD and .bzl file references to *//tools/springboot* must be changed to *//springboot*
-
-See [Repackaging work item](https://github.com/salesforce/rules_spring/issues/30) for more details.

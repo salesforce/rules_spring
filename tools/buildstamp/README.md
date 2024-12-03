@@ -63,8 +63,8 @@ This is done automatically for you in the [Spring Boot rule](../../springboot/sp
 gengitinfo_out = "git.properties"
 native.genrule(
     name = gengitinfo_rule,
-    cmd = "$(location //springboot:write_gitinfo_properties.sh) $@",
-    tools = ["//springboot:write_gitinfo_properties.sh"],
+    cmd = "$(location @rules_spring//springboot:write_gitinfo_properties.sh) $@",
+    tools = ["@rules_spring//springboot:write_gitinfo_properties.sh"],
     outs = [gengitinfo_out],
     tags = tags,
     stamp = 1,

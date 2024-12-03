@@ -100,7 +100,8 @@ The benefits to excluding dependencies this way (as opposed to the exclude lists
 In this example, the springboot jar wants the red, green and blue libraries, but
 does not want the yellow library (a transitive).
 ```starlark
-load("//springboot:deps_filter_transitive.bzl", "deps_filter_transitive")
+#
+load("@rules_spring//springboot:deps_filter_transitive.bzl", "deps_filter_transitive")
 
 deps = [
     "@maven//:com_colors_red",

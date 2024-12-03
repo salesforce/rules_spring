@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022, salesforce.com, inc.
+# Copyright (c) 2017-2024, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
@@ -30,22 +30,23 @@ rm -rf bazel-*
 # move some dev directories out, so they don't get zipped up in the archive
 tmpdir=/tmp/rules-spring-release
 mkdir $tmpdir 2>/dev/null
-mv tools/python_interpreter/bin $tmpdir 2>/dev/null
-mv tools/python_interpreter/captive_python3 $tmpdir 2>/dev/null
+mv examples $tmpdir 2>/dev/null
+mv tools/python_interpreter $tmpdir 2>/dev/null
 
 rm -rf coverage-reports
 rm -rf springboot/tests/__pycache__
 rm -rf springboot/__pycache__
+rm *.zip
 
 # jar up the code
 release_zip=rules-spring-${release_version}.zip
 jar -cvf $release_zip *
 
 # restore the dev directories
-mv $tmpdir/bin tools/python_interpreter 2>/dev/null
-mv $tmpdir/captive_python3 tools/python_interpreter 2>/dev/null
+mv $tmpdir/examples examples 2>/dev/null
+mv $tmpdir/python_interpreter tools/python_interpreter 2>/dev/null
 
-rm -rf /tmp/rules-spring-release
+rm -rf $tmpdir
 
 sha256=$(shasum -a 256 $release_zip)
 

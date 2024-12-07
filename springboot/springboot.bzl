@@ -396,7 +396,7 @@ def springboot(
         duplicate_class_allowlist = None, # deprecated
         jvm_flags = "", # deprecated
         data = [], # deprecated
-        restricted_to = [],
+        restricted_to = None,
         target_compatible_with = [],
         ):
     """Bazel rule for packaging an executable Spring Boot application.
@@ -450,6 +450,8 @@ def springboot(
       testonly: Optional. Bazel standard attribute. Defaults to False.
       visibility: Optional. Bazel standard attribute.
       jartools_toolchains: Optional. Toolchains for running build tools like singlejar, override for obscure use cases. Default: ["@bazel_tools//tools/jdk:current_java_runtime"]
+      restricted_to: Optional. Bazel standard attribute.
+      target_compatible_with: Optional. Bazel standard attribute.
       exclude: Deprecated synonym of *deps_exclude*
       classpath_index: Deprecated synonym of *deps_index_file*
       use_build_dependency_order: Deprecated synonym of *deps_use_starlark_order*

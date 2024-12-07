@@ -55,3 +55,26 @@ That approach is sufficient if Bazel and your Bazel workspace (i.e. source code)
 - [rules_jvm_external Spring Boot example](https://github.com/bazelbuild/rules_jvm_external/tree/master/examples/spring_boot)
 
 At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.
+
+### Upgrading to Spring Boot 3
+
+This is largely outside the scope of *rules_spring*.
+You will need to update your dependencies in your *maven_install* rules, of course.
+
+The one change that you will need to make for *rules_spring* is to choose the Boot3 launcher class.
+This is because Boot rewrote the launcher for Boot3 and it is available under a different name.
+The Boot2 launcher is the default for *rules_spring* so as not to break backwards compatibility.
+
+Example:
+```starlark
+springboot(
+    name = "helloworld_boot3",
+    boot_app_class = "com.sample.SampleMain",
+    java_library = ":helloworld_lib",
+
+    # SPRING BOOT 3
+    # The launcher class changed in between Boot2 and Boot3, so we provide the
+    # Boot3 launcher class here (the Boot2 one is the default)
+    boot_launcher_class = 'org.springframework.boot.loader.launch.JarLauncher',
+)
+```

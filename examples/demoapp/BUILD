@@ -42,6 +42,8 @@ deps_filter_transitive(
     name = "filtered_deps",
     deps = springboot_deps + deps, # the input list
     deps_exclude = [
+        # note that deps_exclude is no longer recommended, use an exclusion filter instead
+        # see unwanted_classes.md
         "@maven//:javax_annotation_javax_annotation_api", # exclude this transitive
     ],
     exclude_transitives = True,
@@ -74,10 +76,16 @@ java_test(
 )
 
 # Build the app as a Spring Boot executable jar
+# To launch: bazel run //examples/demoapp
 springboot(
     name = "demoapp",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":demoapp_lib",
+
+    # SPRING BOOT 3
+    # The launcher class changed in between Boot2 and Boot3, so we provide the
+    # Boot3 launcher class here (the Boot2 one is the default)
+    boot_launcher_class = 'org.springframework.boot.loader.launch.JarLauncher',
 
     # DEPS ARE OPTIONAL HERE
     #  The springboot rule inherits all deps and runtime_deps from the java_library()

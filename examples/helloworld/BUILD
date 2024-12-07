@@ -50,10 +50,16 @@ java_test(
 )
 
 # Build the app as a Spring Boot executable jar
+# To launch: bazel run //examples/helloworld
 springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
+
+    # SPRING BOOT 3
+    # The launcher class changed in between Boot2 and Boot3, so we provide the
+    # Boot3 launcher class here (the Boot2 one is the default)
+    boot_launcher_class = 'org.springframework.boot.loader.launch.JarLauncher',
 )
 
 springboottest_deps = [

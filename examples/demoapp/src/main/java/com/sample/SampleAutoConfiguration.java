@@ -1,6 +1,6 @@
 package com.sample;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.boot.loader.tools.SignalUtils;
 

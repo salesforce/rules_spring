@@ -10,12 +10,9 @@
 #   to local path "//springboot" work here. But you will need to change them to:
 #   "@rules_spring//springboot" when you consume the official release via http_archive.
 
-# load our Spring Boot rule
 load("//springboot:springboot.bzl", "springboot")
-
-# load the deps filter
 load("//springboot:deps_filter_transitive.bzl", "deps_filter_transitive")
-
+load("//tools/license:licenses_used.bzl", "licenses_used")
 
 # dependencies from other packages in the workspace
 deps = [
@@ -139,4 +136,10 @@ java_test(
     srcs = ["src/test/java/com/sample/SampleRestFuncTest.java"],
     deps = [ ":demoapp_lib" ] + test_deps + springboottest_deps,
     resources = glob(["src/test/resources/**"]),
+)
+
+licenses_used(
+    name = "demoapp_licenses",
+    out = "demoapp_licenses.json",
+    deps = [":demoapp"],
 )

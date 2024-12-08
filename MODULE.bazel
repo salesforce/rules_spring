@@ -7,6 +7,7 @@ module(
 
 bazel_dep(name = "rules_python", version = "0.40.0")
 
+# For Dupe Class checking support
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
     # This takes priority over captive python from //tools/python_interpreter unless extra toolchains are specified e.g.
@@ -15,11 +16,5 @@ python.toolchain(
     python_version = "3.11",
 )
 
+# For License support
 bazel_dep(name = "rules_license", version = "1.0.0")
-# Thank you Chuck Grindel
-# Bug fix for https://github.com/bazelbuild/rules_license/pull/161#issuecomment-2525346894
-git_override(
-    module_name = "rules_license",
-    remote = "https://github.com/cgrindel/rules_license.git",
-    commit="ed5bb2515c7e57ef48e361cc4977b54a25002d71",
-)

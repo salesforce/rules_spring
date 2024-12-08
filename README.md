@@ -25,10 +25,21 @@ To see what bug fixes and new features are planned, consult the roadmaps located
 
 Before you can use the rule in your BUILD files, you need to add it to your workspace.
 
-**Reference an official release**
-This loads a pre-built version of this rule into your workspace during the build.
-This is the recommended approach for most users.
+**Bzlmod**
 
+We aren't currently listed in the Bazel Central Registry (hopefully this will be fixed soon).
+```
+bazel_dep(name = "rules_spring", version = "2.4.1")
+git_override(
+    module_name = "rules_spring",
+    remote = "https://github.com/salesforce/rules_spring",
+    commit="29b4142597e54c49766b8c9b231cd098c2ea2b12",
+)
+```
+
+**WORKSPACE (legacy)**
+
+This loads a pre-built version of this rule into your workspace during the build.
 ```starlark
 http_archive(
     name = "rules_spring",
@@ -39,7 +50,7 @@ http_archive(
 )
 ```
 
-**Do not use a git_repository rule with our main branch**
+Do not use a git_repository rule with our main branch.
 If you choose not to use an official release, you may be tempted to use a *git_repository* workspace
   rule to point to our *main* branch,
 Please **do not** do this, as we use *main* for ongoing work.

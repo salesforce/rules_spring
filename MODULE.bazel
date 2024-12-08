@@ -14,3 +14,12 @@ python.toolchain(
     is_default = True,
     python_version = "3.11",
 )
+
+bazel_dep(name = "rules_license", version = "1.0.0")
+# Thank you Chuck Grindel
+# Bug fix for https://github.com/bazelbuild/rules_license/pull/161#issuecomment-2525346894
+git_override(
+    module_name = "rules_license",
+    remote = "https://github.com/cgrindel/rules_license.git",
+    commit="ed5bb2515c7e57ef48e361cc4977b54a25002d71",
+)

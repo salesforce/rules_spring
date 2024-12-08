@@ -11,6 +11,14 @@
 # See the README.md file for detailed usage instructions.
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@rules_license//rules:license.bzl", "license")
+
+# Using a package wide default ensure that all targets are associated with the
+# license.
+package(
+    default_applicable_licenses = [":license"],
+    default_visibility = ["//visibility:public"],
+)
 
 exports_files([
     "springboot.bzl",
@@ -25,6 +33,19 @@ exports_files([
     "empty.txt",
     "addin_end.txt",
 ])
+
+license(
+    name = "license",
+    copyright_notice = "Copyright (c) 2017-2024, Salesforce",
+    license_kinds = [
+        "@rules_license//licenses/spdx:Apache-2.0",
+    ],
+    license_text = "//:LICENSE.txt",
+    package_name = "@rules_spring//springboot",
+    package_url = "https://github.com/salesforce/rules_spring",
+    package_version = "2.4.2",
+    visibility = ["//visibility:public"],
+)
 
 py_binary(
     name = "detect_javax_classes",

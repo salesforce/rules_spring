@@ -23,14 +23,6 @@
 # Spring Boot git.properties:  //springboot/write_gitinfo_properties.sh
 # Spring Boot info actuator endpoint: ttps://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints
 
-# First, make sure the current working directory is the Bazel workspace root.
-# (assumes you do not have nested workspaces!)
-while [[ ! -f WORKSPACE ]]; do cd  .. ; done
-if [[ ! -f WORKSPACE ]]; then
-    echo "No WORKSPACE found"
-    exit 1
-fi
-
 
 # ********************************
 # ********************************

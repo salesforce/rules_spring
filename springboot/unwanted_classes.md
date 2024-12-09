@@ -37,9 +37,8 @@ It will scan all inner jars file, and fail the build if:
 - the same class (package + classname) is found in more than one inner jar, AND...
 - the MD5 hash of the classfile bytes differ
 
-The dupe class checking feature requires Python3.
+The dupe class checking feature requires Python3, which is included by default in MODULE.bazel.
 If you don't have Python3 available for your build, *dupeclassescheck_enable* must be False.
-See [the Captive Python documentation](../python_interpreter) for more information on how to configure Python3.
 
 *Advanced:* In some cases, you will have a classes that are duplicated and would normally fail this check - but you cannot remove them.
 There is an [ignorelist](#duplicate-class-detection-ignorelist) feature that will ignore specific jars with duplicated classes.

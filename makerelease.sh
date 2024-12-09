@@ -16,14 +16,6 @@ echo ""
 echo "You have entered $release_version, are you good with this version? Enter to continue, ctrl-c to abort."
 read DOTHETHING
 
-# write the MODULE.bazel file
-echo "module(" > MODULE.bazel
-echo "  name = \"rules_spring\"," >> MODULE.bazel
-echo "  version = \"$release_version\"," >> MODULE.bazel
-echo "  repo_name = \"rules_spring\"," >> MODULE.bazel
-echo "  compatibility_level = 1," >> MODULE.bazel
-echo ")" >> MODULE.bazel
-
 # remove/relocate local build artifacts and tools
 rm -rf bazel-*
 
@@ -31,7 +23,6 @@ rm -rf bazel-*
 tmpdir=/tmp/rules-spring-release
 mkdir $tmpdir 2>/dev/null
 mv examples $tmpdir 2>/dev/null
-mv tools/python_interpreter $tmpdir 2>/dev/null
 
 rm -rf coverage-reports
 rm -rf springboot/tests/__pycache__
@@ -44,7 +35,6 @@ jar -cvf $release_zip *
 
 # restore the dev directories
 mv $tmpdir/examples examples 2>/dev/null
-mv $tmpdir/python_interpreter tools/python_interpreter 2>/dev/null
 
 rm -rf $tmpdir
 
@@ -57,6 +47,7 @@ echo ""
 echo "Remember to complete these tasks to make the official release:"
 echo " 1. Create a new release on GitHub and upload the zip file to it. Look at previous releases and use the same doc conventions. Make sure you tag the release."
 echo " 2. Update the http_archive stanza in the top level README.md to refer to the latest release."
+echo " 3. Update the version identifier in MODULE.bazel"
 echo ""
 echo "!!! Hey, did you see the task list above, that is work you need to do !!!"
 read YESIDID

@@ -30,7 +30,7 @@ springboot_deps = [
 
     # bring in same dep again as above, but through a different maven_install
     # rule: the springboot rule does not package duplicate deps, first one wins
-    "@spring_boot_starter_jetty//:org_springframework_boot_spring_boot_starter_jetty",
+    #"@spring_boot_starter_jetty//:org_springframework_boot_spring_boot_starter_jetty",
 ]
 
 # Sometimes you have a transitive that you don't want. The unwanted_classes.md doc
@@ -39,9 +39,13 @@ deps_filter_transitive(
     name = "filtered_deps",
     deps = springboot_deps + deps, # the input list
     deps_exclude = [
-        # note that deps_exclude is no longer recommended, use an exclusion filter instead
-        # see unwanted_classes.md
-        "@maven//:javax_annotation_javax_annotation_api", # exclude this transitive
+        # tomcat comes in transitively, but we want to use jetty
+        "@maven//:org_apache_tomcat_embed_tomcat_embed_core",
+        "@maven//:org_apache_tomcat_embed_tomcat_embed_el",
+        "@maven//:org_apache_tomcat_embed_tomcat_embed_websocket",
+
+        # just a demo of excluding a transitive
+        "@maven//:javax_annotation_javax_annotation_api",
     ],
     exclude_transitives = True,
 )

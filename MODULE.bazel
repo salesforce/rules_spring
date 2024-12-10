@@ -1,6 +1,6 @@
 module(
     name = "rules_spring",
-    version = "2.5.0",
+    version = "2.5.1",
     compatibility_level = 2,
     repo_name = "rules_spring",
 )
@@ -22,7 +22,7 @@ bazel_dep(name = "rules_license", version = "1.0.0")
 
 # Maven dependencies for the examples
 bazel_dep(name = "rules_jvm_external", version = "6.6", dev_dependency = True)
-maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven", dev_dependency = True)
 maven.install(
     artifacts = [
         "org.slf4j:slf4j-api:2.0.13",

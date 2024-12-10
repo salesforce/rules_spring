@@ -245,8 +245,7 @@ _banneddeps_rule = rule(
 # ***************************************************************
 # Outer launcher script for "bazel run"
 
-_bazelrun_script_template = """
-#!/bin/bash
+_bazelrun_script_template = """#!/bin/bash
 
 set -e
 

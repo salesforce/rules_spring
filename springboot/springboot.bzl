@@ -296,7 +296,7 @@ def _springboot_rule_impl(ctx):
     # "bazel run" with the springboot target (bazel run //examples/helloworld) and string sub it
     # into the _bazelrun_script_template text defined above
     outer_bazelrun_script_contents = _bazelrun_script_template \
-        .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].path)
+        .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].short_path)
 
     # the bazelrun_java_toolchain optional, if set, we use it as the jvm for bazel run
     if ctx.attr.bazelrun_java_toolchain != None:

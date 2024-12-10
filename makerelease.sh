@@ -16,6 +16,15 @@ echo ""
 echo "You have entered $release_version, are you good with this version? Enter to continue, ctrl-c to abort."
 read DOTHETHING
 
+echo "STEP 1: update MODULE.bazel with version $release_version"
+echo "You must do this manually, I will wait for you. After it is done, press Enter here."
+read DOTHETHING
+
+
+echo ""
+echo "STEP 2: packaging the release zip file."
+echo "I can do this all by myself...."
+echo ""
 # remove/relocate local build artifacts and tools
 rm -rf bazel-*
 
@@ -40,14 +49,16 @@ rm -rf $tmpdir
 
 sha256=$(shasum -a 256 $release_zip)
 
+
 echo ""
 echo "RELEASE artifact built successfully: rules-spring-${release_version}.zip"
 echo "  SHA256 of the release artifact: $sha256"
 echo ""
-echo "Remember to complete these tasks to make the official release:"
+echo ""
+echo "STEP 3: post-release tasks - these are for you to do."
 echo " 1. Create a new release on GitHub and upload the zip file to it. Look at previous releases and use the same doc conventions. Make sure you tag the release."
-echo " 2. Update the http_archive stanza in the top level README.md to refer to the latest release."
-echo " 3. Update the version identifier in MODULE.bazel"
+echo " 2. Update the bzlmod/http_archive stanzas in the top level README.md to refer to the latest release."
+echo " 3. Update MODULE.bazel and test with the external demoapp repository: https://github.com/plaird/rules_spring_demoapp"
 echo ""
 echo "!!! Hey, did you see the task list above, that is work you need to do !!!"
 read YESIDID

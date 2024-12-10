@@ -29,7 +29,7 @@ Before you can use the rule in your BUILD files, you need to add it to your work
 
 We aren't currently listed in the Bazel Central Registry (hopefully this will be fixed soon).
 ```starlark
-# rules_spring is not in Bazel Central Registry yet, so specify the 2.5.0 commit
+# rules_spring is not in Bazel Central Registry yet, so specify the specific commit
 bazel_dep(name = "rules_spring", version = "2.5.1")
 git_override(
     module_name = "rules_spring",
@@ -58,16 +58,6 @@ Please **do not** do this, as we use *main* for ongoing work.
 We may check breaking changes into *main* at any time.
 
 
-### Alternate Approach for Building and Running Spring Boot Applications
-
-If you don't need to create a runnable executable jar file, there is an alternate approach to Spring Boot
-  in the *rules_jvm_external* repository.
-That approach is sufficient if Bazel and your Bazel workspace (i.e. source code) are available in
-  all environments that launch the application.
-- [rules_jvm_external Spring Boot example](https://github.com/bazelbuild/rules_jvm_external/tree/master/examples/spring_boot)
-
-At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.
-
 ### Upgrading to Spring Boot 3
 
 This is largely outside the scope of *rules_spring*.
@@ -90,3 +80,13 @@ springboot(
     boot_launcher_class = 'org.springframework.boot.loader.launch.JarLauncher',
 )
 ```
+
+### Appendix: Alternate Approach for Building and Running Spring Boot Applications
+
+If you don't need to create a runnable executable jar file, there is an alternate approach to Spring Boot
+  in the *rules_jvm_external* repository.
+That approach is sufficient if Bazel and your Bazel workspace (i.e. source code) are available in
+  all environments that launch the application.
+- [rules_jvm_external Spring Boot example](https://github.com/bazelbuild/rules_jvm_external/tree/master/examples/spring_boot)
+
+At Salesforce, Bazel is not available in production environments, and so this alternate approach is not viable.

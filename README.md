@@ -62,6 +62,8 @@ We may check breaking changes into *main* at any time.
 
 This is largely outside the scope of *rules_spring*.
 You will need to update your dependencies in your *maven_install* rules, of course.
+But there are [a ton of other steps](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide).
+Salesforce has some [docs/tools that will help](https://github.com/spring-projects/spring-boot/issues/43528) for Bazel users.
 
 The one change that you will need to make for *rules_spring* is to choose the Boot3 launcher class.
 This is because Boot rewrote the launcher for Boot3 and it is available under a different name.

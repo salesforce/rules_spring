@@ -1,8 +1,50 @@
-<!-- Generated with Stardoc: http://skydoc.bazel.build -->
+## Springboot() Attributes
 
-<a name="#springboot"></a>
+This doc explains conventions and reference for the rule attributes.
 
-## springboot
+### Standard Spring Boot Dependencies
+
+The [@rules_spring//springboot/import_bundles](import_bundles) package contains an
+    example list of core set of Spring Boot dependencies.
+We recommend starting with this list, and then creating your own lists that fit your needs.
+
+
+### Pattern of Repo-Wide Defaults
+
+Do you want to provide a default value for an attribute, across all _springboot()_ invocations in your repo?
+There is a pattern for that.
+This is just standard Bazel, nothing specific to *rules_spring*.
+
+First, create a Bazel file somewhere in your repo, with a function like this:
+```
+def mycompany_springboot(**kwargs):
+
+    # OVERRIDE: The rules_spring default list is [], which is too strict for mycompany,
+    #   open up some modules if the caller does not override it.
+    if kwargs.get("bazelrun_addopens") == None:
+        kwargs["bazelrun_addopens"] = [        
+            "java.base/java.base=ALL-UNNAMED",
+            "java.base/java.io=ALL-UNNAMED",
+            "java.base/java.math=ALL-UNNAMED",
+        ]
+
+    # And then delegate to the default impl
+    springboot(**kwargs)
+```
+
+And then use your function in your BUILD file like:
+```
+load("//tools/mycompany:myutils.bzl", "mycompany_springboot",
+
+mycompany_springboot(
+    name = "myapp",
+    java_library = ":base_lib",
+    boot_app_class = "com.mycompany.MyApp",
+)
+```
+
+
+### Attrbute Reference
 
 <pre>
 springboot(<a href="#springboot-name">name</a>, <a href="#springboot-java_library">java_library</a>, <a href="#springboot-boot_app_class">boot_app_class</a>, <a href="#springboot-deps">deps</a>, <a href="#springboot-deps_exclude">deps_exclude</a>, <a href="#springboot-deps_exclude_paths">deps_exclude_paths</a>,

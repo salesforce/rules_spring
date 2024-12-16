@@ -3,13 +3,14 @@
 This implements a Bazel rule for packaging a Spring Boot application as an executable jar file from a Bazel build.
 The output of this rule is a jar file that can be copied to production environments and run as an executable jar.
 
-See the [top-level README](../README.md) for the stanza to add to your *WORKSPACE* file to load the rule.
-The *springboot* rule runs on any version of Bazel 1.2.1 or higher.
+See the [top-level README](../README.md) for the stanza to add to your *MODULE.bazel* file to load the rule.
+The *springboot* rule runs on modern versions of Bazel.
+See the [.bazelversion](../.bazelversion) file to see which one is used for testing.
+
+### Spring Boot 3 Upgrade?
 
 :eyes: are you an existing rules_spring user upgrading to Spring Boot 3?
-Do you understand the *javax* -> *jakarta* migration requirements for that upgrade?
-We have a short explainer, plus a new diagnostic feature, to help with that.
-See our [Javax to Jakarta migration guide](javax.md) for details.
+We [have some docs for that](https://github.com/salesforce/rules_spring/issues/230).
 
 ### Use the rule in your BUILD file
 
@@ -19,9 +20,11 @@ This is a *BUILD* file code snippet of how to invoke the rule:
 # load our Spring Boot rule
 load("@rules_spring//springboot:springboot.bzl", "springboot",)
 
-# create our deps list for Spring Boot, we have some convenience targets for this
+# create our deps list for Spring Boot
 springboot_deps = [
+  # the import bundle has some common defaults
   "@rules_spring//springboot/import_bundles:springboot_required_deps",
+  # and add some others
   "@maven//:org_springframework_boot_spring_boot_starter_jetty",
   "@maven//:org_springframework_boot_spring_boot_starter_web",
   "@maven//:org_springframework_spring_webmvc",
@@ -32,7 +35,10 @@ java_library(
     name = 'helloworld_lib',
     srcs = glob(["src/main/java/**/*.java"]),
     resources = glob(["src/main/resources/**"]),
-    deps = springboot_deps,
+    deps = springboot_deps + [
+        "@maven//:green_lib", # red/green libs are fake, put each dep you need here
+        "@maven//:red_lib",
+    ],
 )
 
 # use the springboot rule to build the app as a Spring Boot executable jar
@@ -45,11 +51,11 @@ springboot(
 
 The required *springboot* rule attributes are as follows:
 
--  name:    name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
--  boot_app_class:  the classname (java package+type) of the @SpringBootApplication class in your app
--  java_library: the library containing your service code
+- *name*: name of your application; the convention is to use the same name as the enclosing folder (i.e. the Bazel package name)
+- *boot_app_class*: the classname (java package+type) of the @SpringBootApplication class in your app
+- *java_library*: the library containing your service code
 
-There are many more attributes described below and in the [generated Stardoc](springboot_doc.md).
+There are many more attributes described below and in the [Springboot() Attribute doc](springboot_doc.md).
 
 ## Build and Run
 
@@ -83,16 +89,19 @@ The executable jar file is ready to be copied to your production environment or
 The documentation below explains how to use (or links to subdocuments) all of the features supported by the _springboot_ rule.
 For reference, the full list attributes are documented in the [generated _springboot_ Stardoc file.](springboot_doc.md).
 
-### Manage External Dependencies in your WORKSPACE
+### Manage External Dependencies in your MODULE.bazel
 
-This repository has an example [WORKSPACE](../../WORKSPACE) file that lists necessary and some optional Spring Boot dependencies.
+This repository has an example [MODULE.bazel](../../MODULE.bazel) file that lists necessary and some optional Spring Boot dependencies.
 These will come from a Nexus/Artifactory repository, or Maven Central.
-Because the version of each dependency needs to be explicitly managed, it is left for you to review and add to your *WORKSPACE* file.
+Because the version of each dependency needs to be explicitly managed, it is left for you to review and add to your *MODULE.bazel* file.
 
-### Convenience Import Bundles
+### Required Attributes
 
-The [@rules_spring//springboot/import_bundles](import_bundles) package contains a list of core set of Spring Boot dependencies.
-We recommend starting with this list, and then creating your own bundles if it helps.
+The _springboot_ rule has sensible defaults for most attributes.
+But there are some attributes that require action on your part.
+
+The [springboot attributes doc](springboot_doc.md) has the details.
+
 
 ### Detecting, Excluding and Suppressing Unwanted Classes
 
@@ -124,16 +133,6 @@ As shown above, the *springboot* rule has support for launching the application 
 There are many ways to customize the way the application is launched.
 See the dedicated *bazel run* documentation for details:
 - [Customizing Bazel Run](bazelrun.md)
-
-### Other Rule Attributes
-
-The Spring Boot rule supports other attributes for use in the BUILD file:
-
-- *deps*: will add additional jar files into the Spring Boot jar in addition to what is transitively used by the *java_library*
-- *deps_exclude*: see the Exclude feature explained [in this document](unwanted_classes.md)
-- *deps_use_starlark_order*: see the Classpath Ordering feature explained in [this document](unwanted_classes.md)
-- *bazelrun_jvm_flags*: set of JVM flags used when launching the application with *bazel run*
-- *bazelrun_data*: behaves like the *data* attribute for *java_binary*
 
 
 ### Debugging the Rule Execution

@@ -17,21 +17,13 @@ SPRINGBOOTJAR_FILENAME=${2}
 LABEL_PATH=${3}
 OUTPUTFILE_PATH=${4}
 DO_BACKGROUND=${5}
-ADD_EXPORTS=${6}
-ADD_OPENS=${7}
-FIRST_JVMFLAG_ARG=8
+FIRST_JVMFLAG_ARG=6
 
 if [ "$LABEL_PATH" == "root" ]; then
     # token that indicates that the target is in the root path, which for the
     # purposes of the label path, is empty string
     LABEL_PATH=""
 fi
-
-#echo "Generating 'bazel run' env."
-#echo "SPRINGBOOTJAR_FILENAME=$SPRINGBOOTJAR_FILENAME"
-#echo "LABEL_PATH=$LABEL_PATH"
-#echo "OUTPUTFILE_PATH=$OUTPUTFILE_PATH"
-#echo "DO_BACKGROUND=$DO_BACKGROUND"
 
 JVM_FLAGS=""
 i=$FIRST_JVMFLAG_ARG
@@ -45,6 +37,14 @@ echo "export RULE_NAME=$RULE_NAME" > $OUTPUTFILE_PATH
 echo "export LABEL_PATH=$LABEL_PATH" >> $OUTPUTFILE_PATH
 echo "export SPRINGBOOTJAR_FILENAME=$SPRINGBOOTJAR_FILENAME" >> $OUTPUTFILE_PATH
 echo "export DO_BACKGROUND=$DO_BACKGROUND" >> $OUTPUTFILE_PATH
-echo "export ADD_EXPORTS=$ADD_EXPORTS" >> $OUTPUTFILE_PATH
-echo "export ADD_OPENS=$ADD_OPENS" >> $OUTPUTFILE_PATH
 echo "export JVM_FLAGS=\"$JVM_FLAGS\"" >> $OUTPUTFILE_PATH
+
+
+# DEBUG output
+#echo "Generating 'bazel run' env."
+#echo "SPRINGBOOTJAR_FILENAME=$SPRINGBOOTJAR_FILENAME"
+#echo "LABEL_PATH=$LABEL_PATH"
+#echo "OUTPUTFILE_PATH=$OUTPUTFILE_PATH"
+#echo "DO_BACKGROUND=$DO_BACKGROUND"
+#echo "JVM_FLAGS=$JVM_FLAGS"
+

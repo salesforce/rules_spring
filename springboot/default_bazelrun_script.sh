@@ -55,14 +55,6 @@ echo ""
 echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
 echo "Using bazelrun_jvm_flags from the BUILD file: ${JVM_FLAGS}"
 
-if [ -f "${ADD_EXPORTS}" ]; then
-  echo "Using ADD_EXPORTS from the environment: ${ADD_EXPORTS}"
-fi
-
-if [ -f "${ADD_OPENS}" ]; then
-  echo "Using ADD_OPENS from the environment: ${ADD_OPENS}"
-fi
-
 # main args
 main_args="$@"
 
@@ -72,7 +64,7 @@ jar=${SPRINGBOOTJAR_FILENAME}
 
 # assemble the command
 # use exec so that we can pass signals to the underlying process (https://github.com/salesforce/rules_spring/issues/91)
-cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} ${ADD_EXPORTS} ${ADD_OPENS} -jar ${path}${jar} ${main_args}"
+cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${path}${jar} ${main_args}"
 
 echo "Running ${cmd}"
 echo "In directory $(pwd)"

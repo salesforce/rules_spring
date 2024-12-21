@@ -380,6 +380,7 @@ def springboot(
         bazelrun_java_toolchain = None,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
+        bazelrun_jvm_flag_list = None,
         bazelrun_data = None,
         bazelrun_background = False,
         addins = [],
@@ -441,8 +442,9 @@ def springboot(
       bazelrun_java_toolchain: Optional. Label to the Java toolchain to use when launching the application using 'bazel run'
       bazelrun_script: Optional. When launching the application using 'bazel run', a default launcher script is used.
         This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*
-      bazelrun_jvm_flags: Optional. When launching the application using 'bazel run', an optional set of JVM flags
-        to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*
+      bazelrun_jvm_flags: Optional. Deprecated form of bazelrun_jvm_flag_list. Ex: *-Dcustomprop=gold -DcustomProp2=silver*
+      bazelrun_jvm_flag_list: Optional. When launching the application using 'bazel run', an optional set of JVM flags
+        to pass to the JVM at startup. Ex: *['-Dcustomprop=gold', '-DcustomProp2=silver']*
       bazelrun_data: Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.
       bazelrun_background: Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.
       addins: Uncommon option to add additional files to the root of the springboot jar. For example a license file. Pass an array of files from the package.
@@ -488,6 +490,10 @@ def springboot(
         dupeclassescheck_ignorelist = duplicate_class_allowlist
     if bazelrun_jvm_flags == None:
         bazelrun_jvm_flags = jvm_flags
+    if bazelrun_jvm_flags == None:
+        bazelrun_jvm_flags = ""
+    if bazelrun_jvm_flag_list != None:
+        bazelrun_jvm_flags = bazelrun_jvm_flags + " ".join(bazelrun_jvm_flag_list)
     if bazelrun_data == None:
         bazelrun_data = data
 

@@ -109,8 +109,18 @@ springboot(
     deps_banned = ["junit", "mockito", "lombok"],
 
     # Specify optional JVM args to use when the application is launched with 'bazel run'
-    bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver",
-
+    bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver", # old way
+    bazelrun_jvm_flag_list = ["-Dcustomprop3=bronze", "-DcustomProp4=copper"], # new way
+    bazelrun_addexports = [
+        "java.base/java.base=ALL-UNNAMED",
+        "java.base/java.io=ALL-UNNAMED",
+        "java.base/java.nio=ALL-UNNAMED",
+    ],
+    bazelrun_addopens = [
+        "java.base/java.util.concurrent=ALL-UNNAMED",
+        "java.base/java.util.logging=ALL-UNNAMED",
+    ],
+    
     # data files can be made available in the working directory for when the app is launched with bazel run
     bazelrun_data = ["example_data.txt"],
 

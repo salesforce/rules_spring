@@ -7,6 +7,11 @@ import org.springframework.boot.loader.tools.SignalUtils;
 public class SampleAutoConfiguration {
 
     @PostConstruct
+    public void logLoadedProperties() {
+        System.out.println("Loading SampleAutoConfiguration.");
+    }
+
+    @PostConstruct
     public void setupSignalHandler() {
         // SignalUtils is really limited, it only attaches to the INT signal (2)
         // You could steal the code and attach to other signals.

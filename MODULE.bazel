@@ -9,10 +9,6 @@ bazel_dep(name = "rules_python", version = "0.40.0")
 
 # Python for dupe class checking support
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(
-    python_version = "3.11",
-    ignore_root_user_error = True, # https://github.com/bazelbuild/rules_python/issues/1169
-)
 
 # For License support
 bazel_dep(name = "rules_license", version = "1.0.0")

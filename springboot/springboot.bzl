@@ -271,7 +271,7 @@ else
 fi
 
 # the env variables file is found in SCRIPT_DIR
-source $SCRIPT_DIR/bazelrun_env.sh
+source $SCRIPT_DIR/%name%_bazelrun_env.sh
 
 # the inner bazelrun script is found in the runfiles subdir
 # this is either default_bazelrun_script.sh or a custom one provided by the user
@@ -296,7 +296,8 @@ def _springboot_rule_impl(ctx):
     # "bazel run" with the springboot target (bazel run //examples/helloworld) and string sub it
     # into the _bazelrun_script_template text defined above
     outer_bazelrun_script_contents = _bazelrun_script_template \
-        .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].short_path)
+        .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].short_path) \
+        .replace("%name%", ctx.attr.name) 
 
     # the bazelrun_java_toolchain optional, if set, we use it as the jvm for bazel run
     if ctx.attr.bazelrun_java_toolchain != None:
@@ -462,16 +463,16 @@ def springboot(
     # NOTE: if you add/change any params, be sure to rerun the stardoc generator (see BUILD file)
 
     # Create the subrule names
-    dep_aggregator_rule = native.package_name() + "_deps"
-    appjar_locator_rule = native.package_name() + "_appjar_locator"
-    genmanifest_rule = native.package_name() + "_genmanifest"
-    genbazelrunenv_rule = native.package_name() + "_genbazelrunenv"
-    gengitinfo_rule = native.package_name() + "_gengitinfo"
-    genjar_rule = native.package_name() + "_genjar"
-    dupecheck_rule = native.package_name() + "_dupecheck"
-    javaxdetect_rule = native.package_name() + "_javaxdetect"
-    bannedcheck_rule = native.package_name() + "_bannedcheck"
-    apprun_rule = native.package_name() + "_apprun"
+    dep_aggregator_rule = native.package_name() + "_" + name + "_deps"
+    appjar_locator_rule = native.package_name() + "_" + name + "_appjar_locator"
+    genmanifest_rule = native.package_name() + "_" + name + "_genmanifest"
+    genbazelrunenv_rule = native.package_name() + "_" + name + "_genbazelrunenv"
+    gengitinfo_rule = native.package_name() + "_" + name + "_gengitinfo"
+    genjar_rule = native.package_name() + "_" + name + "_genjar"
+    dupecheck_rule = native.package_name() + "_" + name + "_dupecheck"
+    javaxdetect_rule = native.package_name() + "_" + name + "_javaxdetect"
+    bannedcheck_rule = native.package_name() + "_" + name + "_bannedcheck"
+    apprun_rule = native.package_name() + "_" + name + "_apprun"
 
     # Handle deprecated attribute names; if modern name is not set then take
     # the legacy attribute value (which may be set to a default, or set by the user)
@@ -511,7 +512,7 @@ def springboot(
 
     # SUBRULE 2: GENERATE THE MANIFEST
     #  NICER: derive the Build JDK and Boot Version values by scanning transitive deps
-    genmanifest_out = "MANIFEST.MF"
+    genmanifest_out = name + "_MANIFEST.MF"
     native.genrule(
         name = genmanifest_rule,
         srcs = [":" + dep_aggregator_rule],
@@ -527,7 +528,7 @@ def springboot(
     )
 
     # SUBRULE 2B: GENERATE THE GIT PROPERTIES
-    gengitinfo_out = "git.properties"
+    gengitinfo_out = name + "_git.properties"
     native.genrule(
         name = gengitinfo_rule,
         cmd = "$(location @rules_spring//springboot:write_gitinfo_properties.sh) $@",
@@ -597,7 +598,7 @@ def springboot(
     )
 
     # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE BAZELRUN LAUNCHER SCRIPT
-    genbazelrunenv_out = "bazelrun_env.sh"
+    genbazelrunenv_out = name + "_bazelrun_env.sh"
     native.genrule(
         name = genbazelrunenv_rule,
         cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name)

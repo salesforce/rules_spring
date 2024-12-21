@@ -324,7 +324,8 @@ def _springboot_rule_impl(ctx):
     # and add any data files to runfiles
     if ctx.attr.bazelrun_data != None:
       for data_target in ctx.attr.bazelrun_data:
-        runfiles_list.append(data_target.files.to_list()[0])
+        for data_target in data_target.files.to_list():
+            runfiles_list.append(data_target)
 
     return [DefaultInfo(
         files = outs,

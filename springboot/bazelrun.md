@@ -56,7 +56,7 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    bazelrun_jvm_flags = "-Dcustomprop=gold",
+    bazelrun_jvm_flag_list = ["-Dcustomprop=gold", "-Dcustomprop2=silver"],
 )
 ```
 
@@ -64,7 +64,7 @@ The environment variable *JAVA_OPTS* is useful when a developer wants to make a 
 It is set in your shell before launching the application:
 
 ```bash
-export JAVA_OPTS='-Dcustomprop=silver'
+export JAVA_OPTS='-Dcustomprop3=bronze'
 bazel run //examples/helloworld
 ```
 
@@ -72,7 +72,7 @@ Inside the bazel run launcher, these two options are injected into the command l
 
 ```bash
 # internally, this is how bazelrun_jvm_flags and JAVA_OPTS are passed to java
-java [bazelrun_jvm_flags] [JAVA_OPTS] -jar [springboot jar]
+java [bazelrun_jvm_flag_list] [JAVA_OPTS] -jar [springboot jar]
 ```
 
 ### Background the Application on Launch
@@ -115,10 +115,6 @@ bazel run //examples/helloworld -- --spring.config.location=/tmp/myconfig/
 ```
 
 otherwise Bazel will try to consume the '--' argument for itself.
-
-### Direct Invocation of the Launcher Script
-
-This is currently broken, see [Issue 110](https://github.com/salesforce/rules_spring/issues/110).
 
 
 ### Custom Launcher Script

@@ -17,7 +17,7 @@ SPRINGBOOTJAR_FILENAME=${2}
 LABEL_PATH=${3}
 OUTPUTFILE_PATH=${4}
 DO_BACKGROUND=${5}
-FIRST_JVMFLAG_ARG=6
+start_varargs=6
 
 if [ "$LABEL_PATH" == "root" ]; then
     # token that indicates that the target is in the root path, which for the
@@ -25,11 +25,22 @@ if [ "$LABEL_PATH" == "root" ]; then
     LABEL_PATH=""
 fi
 
+
+DATAFILES=""
 JVM_FLAGS=""
-i=$FIRST_JVMFLAG_ARG
+flags_started=0
+i=$start_varargs
 while [ "$i" -le "$#" ]; do
-  eval "FLAG=\${$i}"
-  JVM_FLAGS="$JVM_FLAGS $FLAG"
+  eval "arg=\${$i}"
+  if [ "$arg" = "start_flags" ]; then
+    flags_started=1
+  else
+    if [ $flags_started -eq 1 ]; then
+      JVM_FLAGS="$JVM_FLAGS $arg"
+    else
+      DATAFILES="${DATAFILES}$arg "
+    fi
+  fi
   i=$((i + 1))
 done
 
@@ -37,7 +48,13 @@ echo "export RULE_NAME=$RULE_NAME" > $OUTPUTFILE_PATH
 echo "export LABEL_PATH=$LABEL_PATH" >> $OUTPUTFILE_PATH
 echo "export SPRINGBOOTJAR_FILENAME=$SPRINGBOOTJAR_FILENAME" >> $OUTPUTFILE_PATH
 echo "export DO_BACKGROUND=$DO_BACKGROUND" >> $OUTPUTFILE_PATH
+echo "export DATAFILES=\"$DATAFILES\"" >> $OUTPUTFILE_PATH
 echo "export JVM_FLAGS=\"$JVM_FLAGS\"" >> $OUTPUTFILE_PATH
+
+if [ -f "$LABEL_PATH/application.properties" ]; then
+    echo "BAZELRUN: Found external app props"
+    echo "export USE_EXTERNAL_CONFIG=true" >> $OUTPUTFILE_PATH
+fi
 
 
 # DEBUG output
@@ -46,5 +63,10 @@ echo "export JVM_FLAGS=\"$JVM_FLAGS\"" >> $OUTPUTFILE_PATH
 #echo "LABEL_PATH=$LABEL_PATH"
 #echo "OUTPUTFILE_PATH=$OUTPUTFILE_PATH"
 #echo "DO_BACKGROUND=$DO_BACKGROUND"
+#echo "DATAFILES=$DATAFILES"
 #echo "JVM_FLAGS=$JVM_FLAGS"
+#echo "CURRENT DIR: $(pwd)"
+#echo "LABEL_PATH: $LABEL_PATH"
+
+
 

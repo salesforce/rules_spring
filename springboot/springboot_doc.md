@@ -44,24 +44,7 @@ mycompany_springboot(
 ```
 
 
-### Attrbute Reference
-
-<pre>
-springboot(<a href="#springboot-name">name</a>, <a href="#springboot-java_library">java_library</a>, <a href="#springboot-boot_app_class">boot_app_class</a>, <a href="#springboot-deps">deps</a>, <a href="#springboot-deps_exclude">deps_exclude</a>, <a href="#springboot-deps_exclude_paths">deps_exclude_paths</a>,
-           <a href="#springboot-deps_index_file">deps_index_file</a>, <a href="#springboot-deps_use_starlark_order">deps_use_starlark_order</a>, <a href="#springboot-dupeclassescheck_enable">dupeclassescheck_enable</a>,
-           <a href="#springboot-dupeclassescheck_ignorelist">dupeclassescheck_ignorelist</a>, <a href="#springboot-include_git_properties_file">include_git_properties_file</a>, <a href="#springboot-bazelrun_script">bazelrun_script</a>,
-           <a href="#springboot-bazelrun_jvm_flags">bazelrun_jvm_flags</a>, <a href="#springboot-bazelrun_data">bazelrun_data</a>, <a href="#springboot-bazelrun_background">bazelrun_background</a>, <a href="#springboot-addins">addins</a>, <a href="#springboot-tags">tags</a>, <a href="#springboot-testonly">testonly</a>, <a href="#springboot-visibility">visibility</a>,
-           <a href="#springboot-exclude">exclude</a>, <a href="#springboot-classpath_index">classpath_index</a>, <a href="#springboot-use_build_dependency_order">use_build_dependency_order</a>, <a href="#springboot-fail_on_duplicate_classes">fail_on_duplicate_classes</a>,
-           <a href="#springboot-duplicate_class_allowlist">duplicate_class_allowlist</a>, <a href="#springboot-jvm_flags">jvm_flags</a>, <a href="#springboot-data">data</a>)
-</pre>
-
-Bazel rule for packaging an executable Spring Boot application.
-
-Note that the rule README has more detailed usage instructions for each attribute.
-
-
-**PARAMETERS**
-
+### Attribute Reference
 
 | Name  | Description | Default Value |
 | :-------------: | :-------------: | :-------------: |
@@ -81,7 +64,8 @@ Note that the rule README has more detailed usage instructions for each attribut
 | bazelrun_java_toolchain |  Optional. When launching the application using 'bazel run', this attribute can identify the label of the Java toolchain used to launch the JVM. Ex: *//tools/jdk:my_default_toolchain*. See *default_java_toolchain* in the Bazel documentation.  |  <code>None</code> |
 | bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> |
 | bazelrun_jvm_flags |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*   |  <code>None</code> |
-| bazelrun_data |  Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.   |  <code>None</code> |
+| bazelrun_jvm_flag_list |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *["-Dcustomprop=gold", "-DcustomProp2=silver*"]   |  <code>None</code> |
+| bazelrun_data |  Option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*. See bazel run docs for special behavior when application.properties files are listed here. |  <code>None</code> |
 | bazelrun_background |  Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.   |  <code>False</code> |
 | addins |  Uncommon option to add additional files to the root of the springboot jar. For example a license file. Pass an array of files from the package.   |  <code>[]</code> |
 | tags |  Optional. Bazel standard attribute.   |  <code>[]</code> |

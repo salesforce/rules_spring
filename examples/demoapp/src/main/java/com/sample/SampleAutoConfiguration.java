@@ -16,12 +16,21 @@ public class SampleAutoConfiguration {
     @Value("${demoapp.config.configsubdirectory:not found}")
     String config_external_configsub;
 
+    @Value("${prop1:not found}")
+    String config_external_env_prop1;
+
+    @Value("${prop2:not found}")
+    String config_external_env_prop2;
+
     @PostConstruct
     public void logLoadedProperties() {
         System.out.println("SampleAutoConfiguration loading of application.properties files:");
         System.out.println("  internal application.properties: "+config_internal);
         System.out.println("  external application.properties: "+config_external_root);
         System.out.println("  external config/application.properties: "+config_external_configsub);
+        System.out.println("SampleAutoConfiguration loading of environment variables:");
+        System.out.println("  PROP1: "+config_external_env_prop1);
+        System.out.println("  PROP2: "+config_external_env_prop2);
     }
 
     @PostConstruct

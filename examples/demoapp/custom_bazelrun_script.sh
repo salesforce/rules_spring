@@ -29,11 +29,28 @@ echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 
 current_dir=$(pwd)
 
-# soon we will use one of the jdk locations already known to Bazel, see Issue #16
-if [ -z ${JAVA_HOME} ]; then
-  java_cmd="$(which java)"
-else
+# Picking the Java VM to run is a bit of an ordeal. 
+# Precedence order is documented here: 
+#   https://github.com/salesforce/rules_spring/blob/main/springboot/bazelrun.md#launcher-jvm
+
+if [ -f "${BAZEL_RUN_JAVA}" ]; then
+  # BAZEL_RUN_JAVA points to the actual java executable (file), not the java_home directory
+  echo "Selected the JVM using the BAZEL_RUN_JAVA environment variable."
+  java_cmd=$BAZEL_RUN_JAVA
+elif [ -f "${JAVABIN}" ]; then
+  # JAVABIN points to the actual java executable (file), not the java_home directory
+  # this is java_binary's convention: https://bazel.build/reference/be/java#java_binary
+  echo "Selected the JVM using the JAVABIN environment variable."
+  java_cmd=$JAVABIN
+elif [ -f "$JAVA_TOOLCHAIN" ]; then
+  echo "Selected the JVM using the Bazel Java toolchain: $JAVA_TOOLCHAIN_NAME"
+  java_cmd=$JAVA_TOOLCHAIN
+elif [ -d "${JAVA_HOME}" ]; then
+  echo "Selected the JVM using the JAVA_HOME environment variable."
   java_cmd="${JAVA_HOME}/bin/java"
+else
+  echo "Selected the JVM by executing 'which java'"
+  java_cmd="$(which java)"
 fi
 
 if [ -z "${java_cmd}" ]; then

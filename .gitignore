@@ -26,3 +26,5 @@ coverage-reports
 
 # release zips
 rules-spring-*.zip
+
+.vscode

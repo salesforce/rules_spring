@@ -26,7 +26,16 @@ This variable, when set, takes priority over the toolchain configurations.
 export BAZEL_RUN_JAVA=/opt/my_jdk/bin/java
 ```
 
-Second, you can use the `bazelrun_java_toolchain` attribute on the `springboot` rule to pass the label 
+Second, you can set the `JAVABIN` environment variable, set with the same convention as `BAZEL_RUN_JAVA`.
+`JAVABIN` is also used by [Bazel's java_binary()](https://bazel.build/reference/be/java#java_binary), 
+  so may be more convenient to use.
+
+```
+# note this is different than setting JAVA_HOME, it needs the path to the actual java executable
+export JAVABIN=/opt/my_jdk/bin/java
+```
+
+Third, you can use the `bazelrun_java_toolchain` attribute on the `springboot` rule to pass the label 
   of a specific Java toolchain defined in your Bazel workspace.
 This is useful when your workspace has multiple Java toolchains, and you want the service to use an
   alternate one when launching with `bazel run`.
@@ -39,7 +48,23 @@ springboot(
 )
 ```
 
-Finally, you can provide a custom launcher script (see below) that can tailor JVM selection as needed.
+Fourth, the default Java toolchain `@bazel_tools//tools/jdk:current_java_toolchain` will be used.
+
+Summary of the precedence order:
+1. environmental variable BAZEL_RUN_JAVA
+1. environmental variable JAVABIN 
+1. java executable from the custom java toolchain passed into the rule
+1. java executable from the default java toolchain (default)
+1. environmental variable JAVA_HOME (fallback, we only get here if there is a bug in the above logic)
+1. as a last resort, use 'which java'
+
+Additional usages of Bazel Java configuraiton, such as *runtime_java_version*, is perhaps desirable.
+But due to variations of implementation across Bazel versions, and other complexities, it has
+  not been implemented.
+The [Java configured for Bazel Run Issue](https://github.com/salesforce/rules_spring/issues/16) 
+  tracks thoughts and experiments with this feature. 
+
+Alternatively, you can provide a custom launcher script (see below) that can tailor JVM selection as needed.
 This is the most flexible option, but it may cause compatibility issues with newer versions of rules_spring.
 
 

@@ -25,16 +25,19 @@ set -e
 
 current_dir=$(pwd)
 
-# Picking the Java VM to run is a bit of an ordeal. We now default to using the
-#   JVM from @bazel_tools//tools/jdk:current_java_toolchain. But you can override that.
-#  1. honor any environmental variable BAZEL_RUN_JAVA (optional)
-#  2. use the java executable from the java toolchain passed into the rule (default)
-#  3. use non-hermetic JAVA_HOME (fallback, we only get here if there is a bug in the above logic)
-#  4. as a last resort, use 'which java'
+# Picking the Java VM to run is a bit of an ordeal. 
+# Precedence order is documented here: 
+#   https://github.com/salesforce/rules_spring/blob/main/springboot/bazelrun.md#launcher-jvm
 
 if [ -f "${BAZEL_RUN_JAVA}" ]; then
+  # BAZEL_RUN_JAVA points to the actual java executable (file), not the java_home directory
   echo "Selected the JVM using the BAZEL_RUN_JAVA environment variable."
   java_cmd=$BAZEL_RUN_JAVA
+elif [ -f "${JAVABIN}" ]; then
+  # JAVABIN points to the actual java executable (file), not the java_home directory
+  # this is java_binary's convention: https://bazel.build/reference/be/java#java_binary
+  echo "Selected the JVM using the JAVABIN environment variable."
+  java_cmd=$JAVABIN
 elif [ -f "$JAVA_TOOLCHAIN" ]; then
   echo "Selected the JVM using the Bazel Java toolchain: $JAVA_TOOLCHAIN_NAME"
   java_cmd=$JAVA_TOOLCHAIN

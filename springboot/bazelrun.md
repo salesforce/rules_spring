@@ -142,6 +142,28 @@ springboot(
 The default launcher script will detect filenames with pattern _application*.properties_ as being 
   external configuration files, and configure them as additional configuration files for Spring Boot.
 
+### External Configuration with Environment Variables
+
+Spring Boot will read in [shell environment variables](https://docs.spring.io/spring-boot/reference/features/external-config.html) 
+  as external configuration.
+This technique can be used to set individual configuration properties.
+
+This is surfaced in the *springboot* rule using the *bazelrun_env_flag_list* attribute, which is set as an array
+  of environment variables.
+
+```
+springboot(
+    ...
+    bazelrun_env_flag_list = ["PROP1=blue", "PROP2=green"],
+)
+```
+
+which could then be used in @Value annotations using lowercased names:
+
+```
+    @Value("${prop1:not found}")
+    String prop1;
+```
 
 ### Custom Launcher Script
 

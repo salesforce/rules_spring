@@ -25,18 +25,31 @@ if [ "$LABEL_PATH" == "root" ]; then
     LABEL_PATH=""
 fi
 
+# start the output file with the fixed args
+echo "export RULE_NAME=$RULE_NAME" > $OUTPUTFILE_PATH
+echo "export LABEL_PATH=$LABEL_PATH" >> $OUTPUTFILE_PATH
+echo "export SPRINGBOOTJAR_FILENAME=$SPRINGBOOTJAR_FILENAME" >> $OUTPUTFILE_PATH
+echo "export DO_BACKGROUND=$DO_BACKGROUND" >> $OUTPUTFILE_PATH
 
+# start processing of dynamic args, which will appear in this order:
+# zero or more datafiles, zero or more jvm flags, zero or more env variables
 DATAFILES=""
 JVM_FLAGS=""
-flags_started=0
+jvm_flags_started=0
+envs_started=0
 i=$start_varargs
 while [ "$i" -le "$#" ]; do
   eval "arg=\${$i}"
   if [ "$arg" = "start_flags" ]; then
-    flags_started=1
+    jvm_flags_started=1
+  elif [ "$arg" = "start_envs" ]; then
+    envs_started=1
+    jvm_flags_started=0
   else
-    if [ $flags_started -eq 1 ]; then
+    if [ $jvm_flags_started -eq 1 ]; then
       JVM_FLAGS="$JVM_FLAGS $arg"
+    elif [ $envs_started -eq 1 ]; then
+      echo "export $arg" >> $OUTPUTFILE_PATH
     else
       DATAFILES="${DATAFILES}$arg "
     fi
@@ -44,10 +57,6 @@ while [ "$i" -le "$#" ]; do
   i=$((i + 1))
 done
 
-echo "export RULE_NAME=$RULE_NAME" > $OUTPUTFILE_PATH
-echo "export LABEL_PATH=$LABEL_PATH" >> $OUTPUTFILE_PATH
-echo "export SPRINGBOOTJAR_FILENAME=$SPRINGBOOTJAR_FILENAME" >> $OUTPUTFILE_PATH
-echo "export DO_BACKGROUND=$DO_BACKGROUND" >> $OUTPUTFILE_PATH
 echo "export DATAFILES=\"$DATAFILES\"" >> $OUTPUTFILE_PATH
 echo "export JVM_FLAGS=\"$JVM_FLAGS\"" >> $OUTPUTFILE_PATH
 

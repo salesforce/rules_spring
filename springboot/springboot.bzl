@@ -382,6 +382,7 @@ def springboot(
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
         bazelrun_jvm_flag_list = None,
+        bazelrun_env_flag_list = None,
         bazelrun_data = None,
         bazelrun_background = False,
         addins = [],
@@ -446,6 +447,8 @@ def springboot(
       bazelrun_jvm_flags: Optional. Deprecated form of bazelrun_jvm_flag_list. Ex: *-Dcustomprop=gold -DcustomProp2=silver*
       bazelrun_jvm_flag_list: Optional. When launching the application using 'bazel run', an optional set of JVM flags
         to pass to the JVM at startup. Ex: *['-Dcustomprop=gold', '-DcustomProp2=silver']*
+      bazelrun_env_flag_list: Optional. When launching the application using 'bazel run', an optional set of environment
+        variables to pass to the launcher script at startup. Ex: *['PROP1=gold', 'PROP2=silver']*
       bazelrun_data: Uncommon option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*.
       bazelrun_background: Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.
       addins: Uncommon option to add additional files to the root of the springboot jar. For example a license file. Pass an array of files from the package.
@@ -495,6 +498,9 @@ def springboot(
         bazelrun_jvm_flags = ""
     if bazelrun_jvm_flag_list != None:
         bazelrun_jvm_flags = bazelrun_jvm_flags + " ".join(bazelrun_jvm_flag_list)
+    bazelrun_env_flags = ""
+    if bazelrun_env_flag_list != None:
+        bazelrun_env_flags = " ".join(bazelrun_env_flag_list)
     if bazelrun_data == None:
         bazelrun_data = data
 
@@ -617,7 +623,9 @@ def springboot(
             + " start_flags"
             + " " + " ".join(["--add-exports=" + element for element in bazelrun_addexports])
             + " " + " ".join(["--add-opens=" + element for element in bazelrun_addopens])
-            + " " + bazelrun_jvm_flags,
+            + " " + bazelrun_jvm_flags
+            + " start_envs"
+            + " " + bazelrun_env_flags,
         #      message = "SpringBoot rule is writing the bazel run launcher env...",
         tools = ["@rules_spring//springboot:write_bazelrun_env.sh"],
         outs = [genbazelrunenv_out],

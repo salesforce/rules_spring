@@ -121,6 +121,10 @@ springboot(
     # Specify optional JVM args to use when the application is launched with 'bazel run'
     bazelrun_jvm_flags = "-Dcustomprop=gold -DcustomProp2=silver", # old way
     bazelrun_jvm_flag_list = ["-Dcustomprop3=bronze", "-DcustomProp4=copper"], # new way
+    # Specify optional environment variables to set when the application is launched with 'bazel run'
+    bazelrun_env_flag_list = ["PROP1=blue", "PROP2=green"],
+
+    # add JVM exports/opens for Java modularization
     bazelrun_addexports = [
         "java.base/java.base=ALL-UNNAMED",
         "java.base/java.io=ALL-UNNAMED",

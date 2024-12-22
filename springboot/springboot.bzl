@@ -270,6 +270,8 @@ else
   JAVA_TOOLCHAIN_NAME=%java_toolchain_name_attr%
 fi
 
+JAVA_RUNTIME=${exec_root}%java_runtime_attr%
+
 # the env variables file is found in SCRIPT_DIR
 source $SCRIPT_DIR/%name%_bazelrun_env.sh
 
@@ -292,11 +294,15 @@ def _springboot_rule_impl(ctx):
         ctx.attr.genjar_rule.files,
     ])
 
+    java_runtime = ctx.attr.bazelrun_runtime_jdk[java_common.JavaRuntimeInfo]
+    java_runtime_path = "%s/bin/java" % java_runtime.java_home
+
     # resolve the full path of the launcher script that runs "java -jar <springboot.jar>" when calling
     # "bazel run" with the springboot target (bazel run //examples/helloworld) and string sub it
     # into the _bazelrun_script_template text defined above
     outer_bazelrun_script_contents = _bazelrun_script_template \
         .replace("%bazelrun_script%", ctx.attr.bazelrun_script.files.to_list()[0].short_path) \
+        .replace("%java_runtime_attr%", java_runtime_path) \
         .replace("%name%", ctx.attr.name) 
 
     # the bazelrun_java_toolchain optional, if set, we use it as the jvm for bazel run
@@ -356,6 +362,14 @@ _springboot_rule = rule(
             default = "@bazel_tools//tools/jdk:current_java_toolchain",
             providers = [java_common.JavaToolchainInfo],
         ),
+        "bazelrun_runtime_jdk": attr.label(
+            default = Label("@rules_java//toolchains:current_java_runtime"),
+            #default = Label("@rules_java//toolchains:current_host_java_runtime"),
+            #default = Label("@bazel_tools//tools/jdk:current_host_java_runtime"),
+            #default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            providers = [java_common.JavaRuntimeInfo],
+            cfg = "exec",
+        ),
     },
 )
 
@@ -379,6 +393,7 @@ def springboot(
         javaxdetect_ignorelist = None,
         include_git_properties_file=True,
         bazelrun_java_toolchain = None,
+        bazelrun_runtime_jdk = None,
         bazelrun_script = None,
         bazelrun_jvm_flags = None,
         bazelrun_jvm_flag_list = None,

@@ -35,6 +35,9 @@ current_dir=$(pwd)
 if [ -f "${BAZEL_RUN_JAVA}" ]; then
   echo "Selected the JVM using the BAZEL_RUN_JAVA environment variable."
   java_cmd=$BAZEL_RUN_JAVA
+elif [ -f "$JAVA_RUNTIME" ]; then
+  echo "Selected the JVM using the Bazel Java Runtime: $JAVA_RUNTIME"
+  java_cmd=$JAVA_RUNTIME
 elif [ -f "$JAVA_TOOLCHAIN" ]; then
   echo "Selected the JVM using the Bazel Java toolchain: $JAVA_TOOLCHAIN_NAME"
   java_cmd=$JAVA_TOOLCHAIN

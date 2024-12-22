@@ -84,16 +84,22 @@ main_args="$@"
 # spring boot jar; these are replaced by the springboot starlark code:
 path=${LABEL_PATH}
 jar=${SPRINGBOOTJAR_FILENAME}
+jar_path=${path}${jar}
+if [ ! -f $jar_path ]; then
+    # some folks like to hit the bazel run wrapper script directly, which requires us to dig for the jar in bazel-bin
+    # ./bazel-bin/examples/helloworld/helloworld  <= invocation command
+    jar_path="bazel-bin/${path}${jar}"
+fi
 
 # assemble the command
 # use exec so that we can pass signals to the underlying process (https://github.com/salesforce/rules_spring/issues/91)
-cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${path}${jar} ${main_args}"
+cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${jar_path} ${main_args}"
 
 echo "Running ${cmd}"
 echo "In directory $current_dir"
 echo ""
 echo "You can also run from the root of the repo:"
-echo "java -jar bazel-bin/${path}${jar}"
+echo "java -jar bazel-bin/${jar_path}"
 echo ""
 
 # DO_BACKGROUND is set to true if the bazelrun_background attribute on the springboot rule is set to True

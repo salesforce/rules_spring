@@ -604,12 +604,17 @@ def springboot(
         visibility = visibility,
     )
 
+
+
     # SUBRULE 3B: GENERATE THE ENV VARIABLES USED BY THE BAZELRUN LAUNCHER SCRIPT
     genbazelrunenv_out = name + "_bazelrun_env.sh"
     native.genrule(
         name = genbazelrunenv_rule,
+        srcs = bazelrun_data,
         cmd = "$(location @rules_spring//springboot:write_bazelrun_env.sh) " + name + " " + _get_springboot_jar_file_name(name)
             + " " + _get_relative_package_path() + " $@ " + _convert_starlarkbool_to_bashbool(bazelrun_background)
+            + " $(SRCS)"
+            + " start_flags"
             + " " + " ".join(["--add-exports=" + element for element in bazelrun_addexports])
             + " " + " ".join(["--add-opens=" + element for element in bazelrun_addopens])
             + " " + bazelrun_jvm_flags,

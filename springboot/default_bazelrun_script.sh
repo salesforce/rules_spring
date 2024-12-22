@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2021, salesforce.com, inc.
+# Copyright (c) 2021-2024, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
@@ -11,16 +11,19 @@ set -e
 # Launcher Script for launching a SpringBoot application with 'bazel run'
 
 # The following environment variables will be set by the springboot rule, and can
-# be reliably used for scripting:
+# be reliably used for scripting (with example values):
 #  RULE_NAME=helloworld
 #  LABEL_PATH=examples/helloworld/
 #  SPRINGBOOTJAR_FILENAME=helloworld.jar
+#  DATAFILES=application.properties
 #  JVM_FLAGS="-Dcustomprop=gold  -DcustomProp2=silver"
 #  DO_BACKGROUND=true/false   (if true, the caller is expecting the launcher not to block and return immediately)
 #
 # There are several other env variables set by Bazel. These should be stable between
 # versions of Bazel because they are documented:
 #  https://docs.bazel.build/versions/master/user-manual.html#run
+
+current_dir=$(pwd)
 
 # Picking the Java VM to run is a bit of an ordeal. We now default to using the
 #   JVM from @bazel_tools//tools/jdk:current_java_toolchain. But you can override that.
@@ -51,6 +54,26 @@ echo "Using Java at ${java_cmd}"
 ${java_cmd} -version
 echo ""
 
+# data files, which may include external config files
+if [ ! -z "${DATAFILES}" ]; then
+  configpaths=""
+  echo "Available datafiles:"
+  for datafile in ${DATAFILES}; do
+      echo "  datafile: $current_dir/$datafile"
+      if [[ $datafile == *"application"*".properties" ]]; then
+          path="file:$current_dir/$datafile"
+          if [ ! -z "${configpaths}" ]; then
+            configpaths="$configpaths,"
+          fi
+          configpaths="$configpaths$path"
+      fi
+  done
+  if [ ! -z "${configpaths}" ]; then
+      JVM_FLAGS="${JVM_FLAGS} -Dspring.config.additional-location=$configpaths"
+  fi
+  echo ""
+fi
+
 # java args
 echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
 echo "Using bazelrun_jvm_flags from the BUILD file: ${JVM_FLAGS}"
@@ -67,7 +90,7 @@ jar=${SPRINGBOOTJAR_FILENAME}
 cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${path}${jar} ${main_args}"
 
 echo "Running ${cmd}"
-echo "In directory $(pwd)"
+echo "In directory $current_dir"
 echo ""
 echo "You can also run from the root of the repo:"
 echo "java -jar bazel-bin/${path}${jar}"

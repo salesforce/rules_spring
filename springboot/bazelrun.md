@@ -116,6 +116,32 @@ bazel run //examples/helloworld -- --spring.config.location=/tmp/myconfig/
 
 otherwise Bazel will try to consume the '--' argument for itself.
 
+### External Configuration with application.properties
+
+Spring Boot will load internal application.properties files, typically put in *src/main/resources* and
+add to your *java_library* resources attribute.
+
+But when launching with *bazel run*, you may also provide external application.properties files.
+This is done via Bazel's [data dependencies](https://bazel.build/concepts/dependencies#data-dependencies) capability, surfaced in the *springboot* rule via the *bazelrun_data* attribute.
+
+```
+filegroup(
+    name = "bazelrun_data_files",
+    srcs = [
+        "application.properties",
+        "application-dev.properties",
+        "config/application.properties",
+    ],
+)
+
+springboot(
+    ...
+    bazelrun_data = [":bazelrun_data_files"],
+)
+```
+The default launcher script will detect filenames with pattern _application*.properties_ as being 
+  external configuration files, and configure them as additional configuration files for Spring Boot.
+
 
 ### Custom Launcher Script
 

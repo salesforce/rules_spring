@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2021, salesforce.com, inc.
+# Copyright (c) 2021-2024, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
@@ -9,7 +9,7 @@
 set -e
 
 # Custom Launcher Script for launching a SpringBoot application with 'bazel run'
-# this is wired up in the springboot rule (the launcher_script attribute)
+# this is wired up in the springboot rule (the bazelrun_script attribute)
 
 echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 
@@ -27,6 +27,8 @@ echo "USING A CUSTOM LAUNCHER SCRIPT AS A DEMO (see custom_launcher_script.sh)"
 # versions of Bazel because they are documented:
 #  https://docs.bazel.build/versions/master/user-manual.html#run
 
+current_dir=$(pwd)
+
 # soon we will use one of the jdk locations already known to Bazel, see Issue #16
 if [ -z ${JAVA_HOME} ]; then
   java_cmd="$(which java)"
@@ -41,6 +43,26 @@ fi
 echo "Using Java at ${java_cmd}"
 ${java_cmd} -version
 echo ""
+
+# data files, which may include external config files
+if [ ! -z "${DATAFILES}" ]; then
+  echo "Available datafiles:"
+  configpaths=""
+  for datafile in ${DATAFILES}; do
+      echo "  datafile: $current_dir/$datafile"
+      if [[ $datafile == *"application"*".properties" ]]; then
+          path="file:$current_dir/$datafile"
+          if [ ! -z "${configpaths}" ]; then
+            configpaths="$configpaths,"
+          fi
+          configpaths="$configpaths$path"
+      fi
+  done
+  if [ ! -z "${configpaths}" ]; then
+      JVM_FLAGS="${JVM_FLAGS} -Dspring.config.additional-location=$configpaths"
+  fi
+  echo ""
+fi
 
 # java args
 echo "Using JAVA_OPTS from the environment: ${JAVA_OPTS}"
@@ -58,7 +80,7 @@ jar=${SPRINGBOOTJAR_FILENAME}
 cmd="exec ${java_cmd} ${JVM_FLAGS} ${JAVA_OPTS} -jar ${path}${jar} ${main_args}"
 
 echo "Running ${cmd}"
-echo "In directory $(pwd)"
+echo "In directory $current_dir"
 echo ""
 echo "You can also run from the root of the repo:"
 echo "java -jar bazel-bin/${path}${jar}"

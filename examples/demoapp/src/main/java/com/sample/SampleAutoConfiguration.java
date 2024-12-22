@@ -1,14 +1,27 @@
 package com.sample;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.boot.loader.tools.SignalUtils;
 
 public class SampleAutoConfiguration {
 
+    @Value("${demoapp.config.internal:not found}")
+    String config_internal;
+
+    @Value("${demoapp.config.rootdirectory:not found}")
+    String config_external_root;
+
+    @Value("${demoapp.config.configsubdirectory:not found}")
+    String config_external_configsub;
+
     @PostConstruct
     public void logLoadedProperties() {
-        System.out.println("Loading SampleAutoConfiguration.");
+        System.out.println("SampleAutoConfiguration loading of application.properties files:");
+        System.out.println("  internal application.properties: "+config_internal);
+        System.out.println("  external application.properties: "+config_external_root);
+        System.out.println("  external config/application.properties: "+config_external_configsub);
     }
 
     @PostConstruct

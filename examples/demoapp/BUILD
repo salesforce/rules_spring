@@ -76,6 +76,16 @@ java_test(
    deps = [ ":demoapp_lib" ] + test_deps,
 )
 
+filegroup(
+    name = "bazelrun_data_files",
+    srcs = [
+        "application.properties",
+        "application-dev.properties",
+        "config/application.properties",
+        "example_data.txt"
+    ],
+)
+
 # Build the app as a Spring Boot executable jar
 # To launch: bazel run //examples/demoapp
 springboot(
@@ -122,7 +132,7 @@ springboot(
     ],
     
     # data files can be made available in the working directory for when the app is launched with bazel run
-    bazelrun_data = ["example_data.txt"],
+    bazelrun_data = [":bazelrun_data_files"],
 
     # run the application in the background (command returns immediately)
     #bazelrun_background = True,

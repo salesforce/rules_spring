@@ -391,7 +391,7 @@ def springboot(
         visibility = None,
         bazelrun_addopens = [],
         bazelrun_addexports = [],
-        jartools_toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
+        jartools_toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"], # Issue 250
         exclude = [], # deprecated
         classpath_index = "@rules_spring//springboot:empty.txt", # deprecated
         use_build_dependency_order = True, # deprecated

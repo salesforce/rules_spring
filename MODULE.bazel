@@ -1,6 +1,6 @@
 module(
     name = "rules_spring",
-    version = "2.6.0",
+    version = "2.6.1",
     compatibility_level = 2,
     repo_name = "rules_spring",
 )

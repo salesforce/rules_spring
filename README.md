@@ -30,11 +30,11 @@ Before you can use the rule in your BUILD files, you need to add it to your work
 We aren't currently listed in the Bazel Central Registry (hopefully this will be fixed soon).
 ```starlark
 # rules_spring is not in Bazel Central Registry yet, so use the specific commit
-bazel_dep(name = "rules_spring", version = "2.6.0")
+bazel_dep(name = "rules_spring", version = "2.6.1")
 git_override(
     module_name = "rules_spring",
     remote = "https://github.com/salesforce/rules_spring",
-    commit="531594577e815ca790ef4c10b1d84c7eb5281e24",
+    commit="9342782519d69a12aa92c47e06214802ed3ab265",
 )
 ```
 
@@ -44,9 +44,9 @@ This loads a pre-built version of this rule into your workspace during the build
 ```starlark
 http_archive(
     name = "rules_spring",
-    sha256 = "b8c2de8a8123906c9d0fc5afd35dfde5f55d6030c4d72266e4dfd0543f621d89",
+    sha256 = "98143672b2edd2eb84762a6ebe6afc3a194d1ec06bdfaaf0cc87d4d750476db0",
     urls = [
-        "https://github.com/salesforce/rules_spring/releases/download/2.6.0/rules-spring-2.6.0.zip",
+        "https://github.com/salesforce/rules_spring/releases/download/2.6.1/rules-spring-2.6.1.zip",
     ],
 )
 ```

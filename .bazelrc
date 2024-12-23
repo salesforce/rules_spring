@@ -1,9 +1,13 @@
 #
-# Copyright (c) 2017-2021, salesforce.com, inc.
+# Copyright (c) 2017-2024, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
+
+# **********************************
+# BZLMOD
+# **********************************
 
 common --enable_bzlmod
 
@@ -15,3 +19,19 @@ common --enable_bzlmod
 # refer to our tools/buildstamp/README.md for more details
 build --stamp
 build --workspace_status_command tools/buildstamp/get_workspace_status
+
+
+# **********************************
+# JAVA COMPILATION
+# **********************************
+
+# Currently, only the exmaples use Java, so these settings are limited to the examples.
+# Spring Boot 3 requires JDK17
+
+# Compile and Test/Run JDKs
+common --java_language_version=17 # used for compilation (version for compiling java sources)
+common --java_runtime_version=17  # used for execution & testing java binaries
+
+# Tools - the jdk used for running tools that get executed during the build
+common --tool_java_language_version=17
+common --tool_java_runtime_version=17

@@ -54,7 +54,7 @@ mycompany_springboot(
 | boot_launcher_class |  Optional. Allows you to switch to the new *org.springframework.boot.loader.launch.JarLauncher* introduced in Boot 3.2.0. Defaults to the old launcher.   |  *org.springframework.boot.loader.JarLauncher* | [details](../README.md#upgrading-to-spring-boot-3) |
 | include_git_properties_file |  If *True*, will include a git.properties file with build details in the resulting jar.   |  <code>True</code> | [details](README.md#build-stamping-of-the-spring-boot-jar) |
 | addins |  Uncommon option to add additional files to the root of the springboot jar. For example, a license file. Pass an array of files from the package.   |  <code>[]</code> | |
-| jartools_toolchains | Optional. Toolchains for running build tools like singlejar, override for obscure cross compiling use cases. | <code>["@bazel_tools//tools/jdk:current_java_runtime"]</code> | |
+| jartools_toolchains | Optional. Toolchain for running build tools like singlejar | <code>["@bazel_tools//tools/jdk:current_host_java_runtime"]</code> | see [Issue 250](https://github.com/salesforce/rules_spring/issues/250) |
 | **Dependencies** | | | |
 | deps |  Optional. An additional set of Java dependencies to add to the executable. Normally all dependencies are set on the *java_library*.   |  <code>None</code> | |
 | deps_exclude | Optional. A list of jar labels that will be omitted from the final packaging step. This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream. Ex: *["@maven//:commons_cli_commons_cli"]*. |  <code>None</code> | [details](unwanted_classes.md) |
@@ -74,6 +74,10 @@ mycompany_springboot(
 | tags |  Optional. Bazel standard attribute.   |  <code>[]</code> | |
 | testonly |  Optional. Bazel standard attribute. Defaults to False.   |  <code>False</code> | |
 | visibility |  Optional. Bazel standard attribute.   |  <code>None</code> | |
+| **Javax -> Jakarta** | | | |
+| javaxdetect_enable | If *True*, will analyze the list of dependencies looking for any class from javax.* package and fail the build if found. The lib is a candidate for migration to jakarta. | <code>False</code> | [details](javax.md) |
+| javaxdetect_ignorelist | Optional. When using the javax detect check, this attribute provides a file that contains a list of libraries excluded from the analysis. Ex: *javaxdetect_ignorelist.txt* | <code>None</code> | [details](javax.md) |
+
 
 The following attributes are deprecated and will be removed in a future release.
 | Name  | Description |

@@ -71,7 +71,6 @@ The [Java configured for Bazel Run Issue](https://github.com/salesforce/rules_sp
 Alternatively, you can provide a custom launcher script (see below) that can tailor JVM selection as needed.
 This is the most flexible option, but it may cause compatibility issues with newer versions of rules_spring.
 
-
 ### Java Startup Options
 
 You may wish to customize the bazel run launcher with JVM options.
@@ -103,27 +102,6 @@ Inside the bazel run launcher, these two options are injected into the command l
 # internally, this is how bazelrun_jvm_flags and JAVA_OPTS are passed to java
 java [bazelrun_jvm_flag_list] [JAVA_OPTS] -jar [springboot jar]
 ```
-
-### Background the Application on Launch
-
-By default, the *bazel run* command will block on the application.
-Control will not return until the Spring Boot application has terminated.
-
-For some use cases, this is not desirable.
-You may want the *bazel run* command to return immediately, and leave the Spring Boot application running in the background.
-This is common for integration testing, where you want to have a scripted flow such as:
-- start the application
-- run the integration tests
-- stop the application
-
-This is supported.
-There are two mechanisms for signaling that the application should be started in the background:
-- the *springboot* rule supports the optional *bazelrun_background* attribute, which can be set to *True*
-- the user may set the environment variable *BAZELRUN_DO_BACKGROUND=true* in the shell prior to invoking *bazel run*
-
-If either the attribute or environment variable are set to true, the application will be launched in the background and:
-- the process id will be persisted to a file (/tmp/${rulename}.pid)
-- stdout and stderr will be piped to a file (/tmp/${rulename}.log)
 
 ### Application Arguments
 
@@ -209,3 +187,49 @@ springboot(
     bazelrun_script = "my_custom_bazelrun_script.sh",
 )
 ```
+
+### Background the Application on Launch
+
+By default, the *bazel run* command will block on the application.
+Control will not return until the Spring Boot application has terminated.
+
+For some use cases, this is not desirable.
+You may want the *bazel run* command to return immediately, and leave the Spring Boot application running in the background.
+This is common for integration testing, where you want to have a scripted flow such as:
+- start the application
+- run the integration tests
+- stop the application
+
+This is supported.
+There are two mechanisms for signaling that the application should be started in the background:
+- the *springboot* rule supports the optional *bazelrun_background* attribute, which can be set to *True*
+- the user may set the environment variable *BAZELRUN_DO_BACKGROUND=true* in the shell prior to invoking *bazel run*
+
+If either the attribute or environment variable are set to true, the application will be launched in the background and:
+- the process id will be persisted to a file (/tmp/${rulename}.pid)
+- stdout and stderr will be piped to a file (/tmp/${rulename}.log)
+
+### Bazel Run Internals
+
+If you need to modify your service launch via *bazel run* using the above options, it is sometimes helpful
+  to understand how it all works.
+There are three main components to it.
+
+The biggest reveal is that *bazel run* is nothing more than a shell script invocation of a "wrapper script".
+The springboot() rule writes that wrapper script, plus two other scripts to support launch.
+In fact, you can invoke the wrapper script directly, which is useful when troubleshooting.
+
+```
+# Direct invocation
+# Format: bazel-bin/relative-path/packagename/targetname
+# The last element of the path is a file, named the same as your target name. 
+# It is without a .sh suffix, even though it is a shell script file.
+./bazel-bin/examples/demoapp/demoapp
+```
+
+The best way to learn is to inspect the script files.
+The paths below are listed for the //examples/demoapp service.
+
+- **wrapper script** (*bazel-bin/examples/demoapp/demoapp*): is mostly boiler plate; the contents are embedded directly into the [springboot.bzl](springboot.bzl) code - look for the *_bazelrun_script_template* variable. It coordinates the launch of the other two scripts.
+- **env script** (*bazel-bin/examples/demoapp/demoapp_bazelrun_env.sh*): is written by the [write_bazelrun_env.sh](write_bazelrun_env.sh) script that is run by the springboot macro. Certain springboot() attributes allow you to add more variables to this file (e.g. *bazelrun_data* and *bazelrun_env_flag_list*).
+- **launcher script** (*bazel-bin/examples/demoapp/demoapp.runfiles/_main/springboot/default_bazelrun_script.sh*): actually launches the springboot jar. The default launcher script is [default_bazelrun_script.sh](default_bazelrun_script.sh). This script can be completely replaced by using the *bazelrun_script* attribute to fully customize your service launch. 

@@ -67,7 +67,8 @@ mycompany_springboot(
 | **Bazel Run** | | | |
 | bazelrun_java_toolchain |  Optional. When launching the application using 'bazel run', this attribute can identify the label of the Java toolchain used to launch the JVM. Ex: *//tools/jdk:my_default_toolchain*. See *default_java_toolchain* in the Bazel documentation.  |  <code>None</code> | [details](bazelrun.md) |
 | bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> | [details](bazelrun.md) |
-| bazelrun_jvm_flag_list |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *["-Dcustomprop=gold", "-DcustomProp2=silver*"]   |  <code>None</code> | [details](bazelrun.md) |
+| bazelrun_jvm_flag_list |  Optional. An optional set of JVM flags to pass to the JVM at startup. Ex: *["-Dcustomprop=gold", "-DcustomProp2=silver*"]   |  <code>None</code> | [details](bazelrun.md) |
+| bazelrun_env_flag_list | Optional. An optional set of OS environment variables to set before startup. Ex: *["PROP1", "PROP2=copper"] |  <code>None</code> | [details](bazelrun.md) |
 | bazelrun_data |  Optional. Adds data files to target's runfiles. Behaves like the *data* attribute defined for *java_binary*. See *bazel run* docs for special behavior when application.properties files are listed here. |  <code>None</code> | [details](bazelrun.md) |
 | bazelrun_background |  Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.   |  <code>False</code> | [details](bazelrun.md) |
 | **Standard Attributes** | | | |

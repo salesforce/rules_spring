@@ -15,8 +15,13 @@ If you have any issues with this repository, please create a [GitHub Issue](http
 We will try to quickly address problems and answer questions.
 Note that we do not yet officially support running these [rules on Windows](https://github.com/salesforce/rules_spring/issues/25) but some users have gotten it to work.
 
-Ongoing development is planned and tracked using this GitHub repository's [Project Manager](https://github.com/salesforce/rules_spring/projects).
-To see what bug fixes and new features are planned, consult the roadmaps located there.
+Ongoing development is planned and tracked using this GitHub repository's [Issues list](issues).
+To see what bug fixes and new features are planned, consult the backlog located there.
+Generally, we prioritize based on our internal requirements at Salesforce, but if you need something 
+  please post a comment on the issue and that will help us prioritize.
+To see what features/fixes were delivered in a particular release, use the release 
+  [version labels](https://github.com/salesforce/rules_spring/issues/labels) and filter on Closed issues.
+  [(example)](https://github.com/salesforce/rules_spring/issues?q=label%3A2.6.1+is%3Aclosed).
 
 :octocat: Please do us a **huge favor**. If you think this project could be useful for you, now or in the future,
   please hit the **Star** button at the top. That helps us advocate for more time and resources on this project. Thanks!

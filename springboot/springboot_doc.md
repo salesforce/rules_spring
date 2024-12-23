@@ -46,36 +46,43 @@ mycompany_springboot(
 
 ### Attribute Reference
 
-| Name  | Description | Default Value |
-| :-------------: | :-------------: | :-------------: |
-| name |  **Required**. The name of the Spring Boot application. Typically this is set the same as the package name.   Ex: *helloworld*.   |  none |
-| java_library |  **Required**. The built jar, identified by the name of the java_library rule, that contains the   Spring Boot application.   |  none |
-| boot_app_class |  **Required**. The fully qualified name of the class annotated with @SpringBootApplication.   Ex: *com.sample.SampleMain*   |  none |
-| boot_launcher_class |  **Optional**. Allows you to switch to the new *org.springframework.boot.loader.launch.JarLauncher* introduced in Boot 3.2.0. Defaults to the old launcher.   |  *org.springframework.boot.loader.JarLauncher* |
-| deps |  Optional. An additional set of Java dependencies to add to the executable.   Normally all dependencies are set on the *java_library*.   |  <code>None</code> |
-| deps_banned| Optional. A list of strings to match against the jar filenames in the transitive graph of dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail. This is useful for detecting jars that should never go to production. The list of dependencies is obtained after the deps_exclude processing has run. | <code>[ "junit", "mockito" ]</code> |
-| deps_exclude |  Optional. This attribute provides a list of partial paths that will be omitted   from the final packaging step if the string is contained within the dep filename. This is a more raw method   than deps_exclude for eliminating a problematic dependency/file that cannot be eliminated upstream.   Ex: [*jackson-databind-*].   |  <code>None</code> |
-| deps_exclude_paths |  <p align="center"> - </p>   |  <code>None</code> |
-| deps_index_file |  Optional. Uses Spring Boot's   [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)   to define classpath order. This feature is not commonly used, as the application must be extracted from the jar   file for it to work. Ex: *my_classpath_index.idx*   |  <code>None</code> |
-| deps_use_starlark_order |  When running the Spring Boot application from the executable jar file, setting this attribute to   *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.   |  <code>None</code> |
-| dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>None</code> |
-| dupeclassescheck_ignorelist |  Optional. When using the duplicate class check, this attribute provides a file   that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*   |  <code>None</code> |
-| include_git_properties_file |  If *True*, will include a git.properties file in the resulting jar.   |  <code>True</code> |
-| bazelrun_java_toolchain |  Optional. When launching the application using 'bazel run', this attribute can identify the label of the Java toolchain used to launch the JVM. Ex: *//tools/jdk:my_default_toolchain*. See *default_java_toolchain* in the Bazel documentation.  |  <code>None</code> |
-| bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> |
-| bazelrun_jvm_flags |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *-Dcustomprop=gold -DcustomProp2=silver*   |  <code>None</code> |
-| bazelrun_jvm_flag_list |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *["-Dcustomprop=gold", "-DcustomProp2=silver*"]   |  <code>None</code> |
-| bazelrun_data |  Option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*. See bazel run docs for special behavior when application.properties files are listed here. |  <code>None</code> |
-| bazelrun_background |  Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.   |  <code>False</code> |
-| addins |  Uncommon option to add additional files to the root of the springboot jar. For example a license file. Pass an array of files from the package.   |  <code>[]</code> |
-| tags |  Optional. Bazel standard attribute.   |  <code>[]</code> |
-| testonly |  Optional. Bazel standard attribute. Defaults to False.   |  <code>False</code> |
-| visibility |  Optional. Bazel standard attribute.   |  <code>None</code> |
-| jartools_toolchains | Optional. Toolchains for running build tools like singlejar, override for obscure use cases. | <code>["@bazel_tools//tools/jdk:current_java_runtime"]</code> |
-| exclude |  Deprecated synonym of *deps_exclude*   |  <code>[]</code> |
-| classpath_index |  Deprecated synonym of *deps_index_file*   |  <code>"@rules_spring//springboot:empty.txt"</code> |
-| use_build_dependency_order |  Deprecated synonym of *deps_use_starlark_order*   |  <code>True</code> |
-| fail_on_duplicate_classes |  Deprecated synonym of *dupeclassescheck_enable*   |  <code>False</code> |
-| duplicate_class_allowlist |  Deprecated synonym of *dupeclassescheck_ignorelist*   |  <code>None</code> |
-| jvm_flags |  Deprecated synonym of *bazelrun_jvm_flags*   |  <code>""</code> |
-| data |  Deprecated synonym of *bazelrun_data*   |  <code>[]</code> |
+| Name  | Description | Default Value | Doc Link |
+| :-------------: | :-------------: | :-------------: | :-------------: |
+| name |  **Required**. The name of the Spring Boot application. Typically this is set the same as the package name.   Ex: *helloworld*.   |  none | |
+| java_library |  **Required**. The built jar, identified by the name of the java_library rule, that contains the   Spring Boot application.   |  none | |
+| boot_app_class |  **Required**. The fully qualified name of the class annotated with @SpringBootApplication.   Ex: *com.sample.SampleMain*   |  none | |
+| boot_launcher_class |  **Optional**. Allows you to switch to the new *org.springframework.boot.loader.launch.JarLauncher* introduced in Boot 3.2.0. Defaults to the old launcher.   |  *org.springframework.boot.loader.JarLauncher* | [details](../README.md#upgrading-to-spring-boot-3) |
+| include_git_properties_file |  If *True*, will include a git.properties file with build details in the resulting jar.   |  <code>True</code> | [details](README.md#build-stamping-of-the-spring-boot-jar) |
+| addins |  Uncommon option to add additional files to the root of the springboot jar. For example a license file. Pass an array of files from the package.   |  <code>[]</code> | |
+| Dependencies | | | |
+| deps |  Optional. An additional set of Java dependencies to add to the executable.   Normally all dependencies are set on the *java_library*.   |  <code>None</code> | |
+| deps_banned| Optional. A list of strings to match against the jar filenames in the transitive graph of dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail. This is useful for detecting jars that should never go to production. The list of dependencies is obtained after the deps_exclude processing has run. | <code>[ "junit", "mockito" ]</code> | [details](unwanted_classes.md) |
+| deps_exclude |  Optional. This attribute provides a list of partial paths that will be omitted   from the final packaging step if the string is contained within the dep filename. This is a more raw method   than deps_exclude for eliminating a problematic dependency/file that cannot be eliminated upstream.   Ex: [*jackson-databind-*].   |  <code>None</code> | |
+| deps_exclude_paths |  <p align="center"> - </p>   |  <code>None</code> | [details](unwanted_classes.md) |
+| dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>None</code> | [details](unwanted_classes.md) |
+| dupeclassescheck_ignorelist |  Optional. When using the duplicate class check, this attribute provides a file   that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*   |  <code>None</code> | [details](unwanted_classes.md) |
+| deps_index_file |  Optional. Uses Spring Boot's index to define classpath order. This feature is not commonly used, as the application must be extracted from the jar   file for it to work. Ex: *my_classpath_index.idx*   |  <code>None</code> | [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath) |
+| deps_use_starlark_order |  When running the Spring Boot application from the executable jar file, setting this attribute to   *True* will use the classpath order as expressed by the order of deps in the BUILD file. Otherwise it is random order.   |  <code>None</code> | |
+| Bazel Run | | | |
+| bazelrun_java_toolchain |  Optional. When launching the application using 'bazel run', this attribute can identify the label of the Java toolchain used to launch the JVM. Ex: *//tools/jdk:my_default_toolchain*. See *default_java_toolchain* in the Bazel documentation.  |  <code>None</code> | [details](bazelrun.md) |
+| bazelrun_script |  Optional. When launching the application using 'bazel run', a default launcher script is used.   This attribute can be used to provide a customized launcher script. Ex: *my_custom_script.sh*   |  <code>None</code> | [details](bazelrun.md) |
+| bazelrun_jvm_flag_list |  Optional. When launching the application using 'bazel run', an optional set of JVM flags   to pass to the JVM at startup. Ex: *["-Dcustomprop=gold", "-DcustomProp2=silver*"]   |  <code>None</code> | [details](bazelrun.md) |
+| bazelrun_data |  Option to add data files to runfiles. Behaves like the *data* attribute defined for *java_binary*. See bazel run docs for special behavior when application.properties files are listed here. |  <code>None</code> | [details](bazelrun.md) |
+| bazelrun_background |  Optional. If True, the *bazel run* launcher will not block. The run command will return and process will remain running.   |  <code>False</code> | [details](bazelrun.md) |
+| jartools_toolchains | Optional. Toolchains for running build tools like singlejar, override for obscure use cases. | <code>["@bazel_tools//tools/jdk:current_java_runtime"]</code> | |
+| Standard Attributes | | | |
+| tags |  Optional. Bazel standard attribute.   |  <code>[]</code> | |
+| testonly |  Optional. Bazel standard attribute. Defaults to False.   |  <code>False</code> | |
+| visibility |  Optional. Bazel standard attribute.   |  <code>None</code> | |
+
+The following attributes are deprecated and will be removed in a future release.
+| Name  | Description |
+| :-------------: | :-------------: | 
+| exclude |  Deprecated synonym of *deps_exclude* |
+| classpath_index |  Deprecated synonym of *deps_index_file* |
+| use_build_dependency_order |  Deprecated synonym of *deps_use_starlark_order* |
+| fail_on_duplicate_classes |  Deprecated synonym of *dupeclassescheck_enable* |
+| duplicate_class_allowlist |  Deprecated synonym of *dupeclassescheck_ignorelist* |
+| jvm_flags |  Deprecated form of *bazelrun_jvm_flag_list* |
+| bazelrun_jvm_flags |  Deprecated form of *bazelrun_jvm_flag_list* |
+| data |  Deprecated synonym of *bazelrun_data* |

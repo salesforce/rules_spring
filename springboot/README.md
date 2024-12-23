@@ -55,7 +55,7 @@ The required *springboot* rule attributes are as follows:
 - *boot_app_class*: the classname (java package+type) of the @SpringBootApplication class in your app
 - *java_library*: the library containing your service code
 
-There are many more attributes described below and in the [Springboot() Attribute doc](springboot_doc.md).
+There are many more attributes described below and in the [Springboot() Attribute doc](attributes.md).
 
 ## Build and Run
 
@@ -84,24 +84,18 @@ The executable jar file is ready to be copied to your production environment or
 
 ## In Depth
 
+The documentation below explains how to use (or links to subdocuments) all of the features supported by the _springboot_ rule.
+
 ### Rule Attributes Reference
 
-The documentation below explains how to use (or links to subdocuments) all of the features supported by the _springboot_ rule.
-For reference, the full list attributes are documented in the [generated _springboot_ Stardoc file.](springboot_doc.md).
+For reference, the full list available attributes that support these features are documented 
+  on the [attributes reference doc.](attributes.md).
 
 ### Manage External Dependencies in your MODULE.bazel
 
 This repository has an example [MODULE.bazel](../../MODULE.bazel) file that lists necessary and some optional Spring Boot dependencies.
 These will come from a Nexus/Artifactory repository, or Maven Central.
 Because the version of each dependency needs to be explicitly managed, it is left for you to review and add to your *MODULE.bazel* file.
-
-### Required Attributes
-
-The _springboot_ rule has sensible defaults for most attributes.
-But there are some attributes that require action on your part.
-
-The [springboot attributes doc](springboot_doc.md) has the details.
-
 
 ### Detecting, Excluding and Suppressing Unwanted Classes
 

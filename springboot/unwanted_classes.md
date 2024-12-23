@@ -83,6 +83,12 @@ This eliminates it from usage for the Spring Boot application.
 Bazel query is the best way to do this:
 
 ```bash
+# find the label of libraries containing the duplicated classes in your java_library
+bazel query 'deps(//examples/helloworld:helloworld_lib)' | grep webmvc
+```
+
+```bash
+# find the path from your java_library to that unwanted library
 bazel query 'somepath(//examples/helloworld:helloworld_lib, "@maven//:org_springframework_spring_webmvc")'
 ```
 
@@ -217,8 +223,7 @@ SampleMain:  Intentional duped class version: Hello LIB2!
 The current implementation of this feature uses the `jar` command line utility.
 Explicit jar entry ordering is implemented by specifying an explicit file list when running `jar`.  
 Very large dependency sets may cause the jar command to exceed the system command line length limit.
-This limitation will be addressed when [Issue 3](https://github.com/salesforce/rules_spring/issues/3) is resolved.
-Until then, if you run into errors, you can disable this feature by setting the attribute `deps_use_starlark_order` to `False`.
+If you run into errors, you can disable this feature by setting the attribute `deps_use_starlark_order` to `False`.
 
 
 #### Classpath Ordering with a Classpath Index
@@ -251,12 +256,10 @@ $ java org.springframework.boot.loader.JarLauncher
 ```
 
 
-### Advanced Use Cases
-
-#### Duplicate Class Detection Ignorelist
+### Ignoring Duplicate Classes
 
 Sometimes you have transitives that are out of your control that bring in duplicate classes.
-If you cannot use the *deps_exclude* attribute as shown above, you would normally be blocked from using the duplicate class checker.
+If you cannot use the exclusion solutions shown above, you would normally be blocked from using the duplicate class checker.
 It would always fail.
 
 For this reason, the duplicate class detection feature supports an *ignorelist*.

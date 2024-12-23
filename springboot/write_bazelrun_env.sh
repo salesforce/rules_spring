@@ -61,7 +61,6 @@ echo "export DATAFILES=\"$DATAFILES\"" >> $OUTPUTFILE_PATH
 echo "export JVM_FLAGS=\"$JVM_FLAGS\"" >> $OUTPUTFILE_PATH
 
 if [ -f "$LABEL_PATH/application.properties" ]; then
-    echo "BAZELRUN: Found external app props"
     echo "export USE_EXTERNAL_CONFIG=true" >> $OUTPUTFILE_PATH
 fi
 
@@ -76,6 +75,3 @@ fi
 #echo "JVM_FLAGS=$JVM_FLAGS"
 #echo "CURRENT DIR: $(pwd)"
 #echo "LABEL_PATH: $LABEL_PATH"
-
-
-

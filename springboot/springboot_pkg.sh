@@ -69,9 +69,15 @@ build_time_start=$SECONDS
 springboot_rule_tmpdir=${tmpdir:-/tmp}/bazel
 mkdir -p $springboot_rule_tmpdir
 
+# by mistake, this variable got lower cased for a while; it should be upper case but
+# now we should check for either, through 2025
 if [ -z "${debug_springboot_rule}" ]; then
+  if [ -z "${DEBUG_SPRINGBOOT_RULE}" ]; then
     debugfile=/dev/null
-else
+    debug_notset=1
+  fi
+fi
+if [ -z "${debug_notset}" ]; then
     debugdir=$springboot_rule_tmpdir/debug/springboot
     mkdir -p $debugdir
     debugfileName=$packagename-$packagesha

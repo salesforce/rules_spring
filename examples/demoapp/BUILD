@@ -141,9 +141,6 @@ springboot(
     # run the application in the background (command returns immediately)
     #bazelrun_background = True,
 
-    # you may choose to override the launcher script that is used when you invoke 'bazel run //examples/demoapp'
-    bazelrun_script = "custom_bazelrun_script.sh",
-
     # if you have conflicting classes in dependency jar files, you can define the order in which the jars are loaded
     #  https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath
     deps_index_file = ":demoapp_classpath.idx",
@@ -181,4 +178,7 @@ springboot(
     java_library = ":demoapp_lib",
     boot_launcher_class = 'org.springframework.boot.loader.launch.JarLauncher',
     deps = [ ":rootclassloader_lib", ],
+
+    # you may choose to override the launcher script that is used when you invoke 'bazel run //examples/demoapp'
+    bazelrun_script = "custom_bazelrun_script.sh",
 )

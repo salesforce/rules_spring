@@ -83,7 +83,7 @@ These tests, and all integration tests, are done within a Docker container.
 We rely on external Bazel tools for this, and we don't offer anything of interest beyond what those tools provide.
 We refer you to that documentation.
 
-- [rules_docker](https://github.com/bazelbuild/rules_docker)
+- [rules_oci](https://github.com/bazel-contrib/rules_oci)
 - [testcontainers](https://www.testcontainers.org/)
 
 ### Code Coverage

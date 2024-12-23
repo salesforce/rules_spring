@@ -12,6 +12,10 @@ Note that these features do **not** apply when running the application directly 
 
 ### Launcher JVM
 
+:warning: It is best to use the docs from the Git tag of the release of *rules_spring* you are using.
+This section in particular has changed often, so please make sure you are looking at the correct version (tag)
+of this doc for your chosen release.
+
 By default, the service will be started using the JVM from the current Java toolchain in your
   Bazel workspace - `@bazel_tools//tools/jdk:current_java_toolchain`
 See the [Bazel Java docs](https://bazel.build/docs/bazel-and-java) on how toolchains are defined.

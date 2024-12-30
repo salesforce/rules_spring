@@ -18,6 +18,9 @@ load("//tools/license:licenses_used.bzl", "licenses_used")
 deps = [
     "//examples/demoapp/libs/lib1",
     "//examples/demoapp/libs/lib2",
+
+    # the neverlink example lib is only included at compile time, and not packaged in the jar
+    "//examples/demoapp/libs/lib3_neverlink",
 ]
 
 # create our deps list for Spring Boot

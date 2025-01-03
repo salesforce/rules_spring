@@ -15,7 +15,7 @@ If you have any issues with this repository, please create a [GitHub Issue](http
 We will try to quickly address problems and answer questions.
 Note that we do not yet officially support running these [rules on Windows](https://github.com/salesforce/rules_spring/issues/25) but some users have gotten it to work.
 
-Ongoing development is planned and tracked using this GitHub repository's [Issues list](issues).
+Ongoing development is planned and tracked using this GitHub repository's [Issues list](https://github.com/salesforce/rules_spring/issues).
 To see what bug fixes and new features are planned, consult the backlog located there.
 Generally, we prioritize based on our internal requirements at Salesforce, but if you need something 
   please post a comment on the issue and that will help us prioritize.

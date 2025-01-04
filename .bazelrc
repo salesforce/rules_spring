@@ -6,6 +6,17 @@
 #
 
 # **********************************
+# ASPECT PRESETS
+# https://github.com/bazel-contrib/bazel-lib/tree/main/.aspect/bazelrc
+# **********************************
+
+
+import %workspace%/.aspect/bazelrc/bazel7.bazelrc
+import %workspace%/.aspect/bazelrc/convenience.bazelrc
+import %workspace%/.aspect/bazelrc/correctness.bazelrc
+
+
+# **********************************
 # BZLMOD
 # **********************************
 

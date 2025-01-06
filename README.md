@@ -32,15 +32,8 @@ Before you can use the rule in your BUILD files, you need to add it to your work
 
 **Bzlmod**
 
-We aren't currently listed in the Bazel Central Registry (hopefully this will be fixed soon).
 ```starlark
-# rules_spring is not in Bazel Central Registry yet, so use the specific commit
 bazel_dep(name = "rules_spring", version = "2.6.1")
-git_override(
-    module_name = "rules_spring",
-    remote = "https://github.com/salesforce/rules_spring",
-    commit="9342782519d69a12aa92c47e06214802ed3ab265",
-)
 ```
 
 **WORKSPACE (legacy)**

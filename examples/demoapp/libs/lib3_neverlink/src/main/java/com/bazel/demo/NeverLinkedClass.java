@@ -6,8 +6,8 @@
 */
 package com.bazel.demo;
 
-public class IntentionalDupedClass {
+public class NeverLinkedClass {
     public String hello() {
-      return "Hello LIB2!";
+      return "Hello LIB3!";
     }
 }

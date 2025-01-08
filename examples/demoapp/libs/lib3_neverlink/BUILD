@@ -25,7 +25,7 @@ java_library(
 )
 
 java_test(
-    name = "IntentionalDupedClassTest",
-    srcs = ["src/test/java/com/bazel/demo/IntentionalDupedClassTest.java"],
+    name = "NeverLinkTest",
+    srcs = ["src/test/java/com/bazel/demo/NeverLinkTest.java"],
     deps = [":lib3_neverlink"] + test_deps,
 )

@@ -1,8 +1,9 @@
 package com.sample;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.loader.tools.SignalUtils;
 
 public class SampleAutoConfiguration {
@@ -22,6 +23,14 @@ public class SampleAutoConfiguration {
     @Value("${prop2:not found}")
     String config_external_env_prop2;
 
+    /**
+     * BuildProperties is a Spring facility for implanting build data into the app.
+     * This is not enabled by default for rules_spring. You must wire it up using
+     * the example code in generate-build-info.sh
+     */
+    @Autowired
+    private BuildProperties buildProperties;
+
     @PostConstruct
     public void logLoadedProperties() {
         System.out.println("SampleAutoConfiguration loading of application.properties files:");
@@ -31,6 +40,10 @@ public class SampleAutoConfiguration {
         System.out.println("SampleAutoConfiguration loading of environment variables:");
         System.out.println("  PROP1: "+config_external_env_prop1);
         System.out.println("  PROP2: "+config_external_env_prop2);
+        System.out.println("SampleAutoConfiguration loading of BuildProperties:");
+        System.out.println("  (set BUILD_NUMBER and BUILD_TAG action_env variables for Bazel build to use)");
+        System.out.println("  build.number: "+buildProperties.get("number"));
+        System.out.println("  build.tag: "+buildProperties.get("tag"));
     }
 
     @PostConstruct

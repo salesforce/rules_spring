@@ -13,6 +13,16 @@ To run:
 
 ```bash
 bazel run //examples/demoapp
+
+# or to see build data in the endpoint, run like this:
+bazel run --action_env=BUILD_NUMBER=998 --action_env=BUILD_TAG=green examples/demoapp
 ```
 
-For full documentation, see the [//springboot](../../springboot) package documentation.
+Endpoints:
+```
+http://localhost:8080/
+http://localhost:8080/actuator/configprops
+http://localhost:8080/actuator/info
+```
+
+For full documentation of rules_spring, see the [//springboot](../../springboot) package documentation.

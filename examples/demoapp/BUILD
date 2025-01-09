@@ -180,6 +180,13 @@ java_test(
     deps = [":demoapp_lib"] + test_deps + springboottest_deps,
 )
 
+java_test(
+    name = "PackagingTest",
+    srcs = ["src/test/java/com/salesforce/rules_spring/PackagingTest.java"],
+    data = [":demoapp"],
+    deps = [":demoapp_lib"] + test_deps,
+)
+
 licenses_used(
     name = "demoapp_licenses",
     out = "demoapp_licenses.json",

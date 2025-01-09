@@ -245,7 +245,7 @@ echo "DEBUG: finished copying transitives into BOOT-INF/lib, elapsed time (secon
 if [[ "$include_git_properties_file" == true ]]; then
   echo "DEBUG: adding git.properties" >> $debugfile
   cat $ruledir/$gitpropsfile >> $debugfile
-  cp -f $ruledir/$gitpropsfile $working_dir/BOOT-INF/classes
+  cp -f $ruledir/$gitpropsfile $working_dir/BOOT-INF/classes/git.properties
 fi
 
 # Inject the classpath index (unless it is the default empty.txt file). Requires Spring Boot version 2.3+

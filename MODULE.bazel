@@ -1,6 +1,6 @@
 module(
     name = "rules_spring",
-    version = "2.6.1",
+    version = "2.6.2",
     compatibility_level = 2,
     repo_name = "rules_spring",
 )
@@ -11,11 +11,11 @@ bazel_dep(name = "rules_python", version = "0.40.0")
 # For License support
 bazel_dep(name = "rules_license", version = "1.0.0")
 
-
 # DEV DEPENDENCIES
 
 # Maven dependencies for the examples
 bazel_dep(name = "rules_jvm_external", version = "6.6", dev_dependency = True)
+
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven", dev_dependency = True)
 maven.install(
     artifacts = [
@@ -39,7 +39,6 @@ maven.install(
         "org.springframework.boot:spring-boot-test:3.3.5",
         "org.springframework.boot:spring-boot-test-autoconfigure:3.3.5",
         "org.springframework.boot:spring-boot-starter-thymeleaf:3.3.5",
-
         "org.springframework:spring-aop:6.1.14",
         "org.springframework:spring-aspects:6.1.14",
         "org.springframework:spring-beans:6.1.14",
@@ -63,5 +62,4 @@ maven.install(
     ],
     lock_file = "//:maven_install.json",
 )
-
 use_repo(maven, "maven")

@@ -75,7 +75,7 @@ springboot(
     java_library = ":helloworld_lib",
 
     # SPRING BOOT 3
-    # The launcher class changed in between Boot2 and Boot3, so we provide the
+    # The launcher class changed in Spring Boot 3.2.0, so we provide the
     # Boot3 launcher class here (the Boot2 one is the default)
     boot_launcher_class = 'org.springframework.boot.loader.launch.JarLauncher',
 )

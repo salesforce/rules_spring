@@ -27,12 +27,12 @@ maven.install(
         "org.springframework.boot:spring-boot-configuration-processor:3.3.5",
         "org.springframework.boot:spring-boot-loader:3.3.5",
         "org.springframework.boot:spring-boot-loader-tools:3.3.5",
-        "org.springframework.boot:spring-boot-starter:3.3.5",
+        "org.springframework.boot:spring-boot-starter:3.3.5",  # pick this
         "org.springframework.boot:spring-boot-starter-actuator:3.3.5",
         "org.springframework.boot:spring-boot-starter-freemarker:3.3.5",
         "org.springframework.boot:spring-boot-starter-jdbc:3.3.5",
         "org.springframework.boot:spring-boot-starter-jetty:3.3.5",
-        "org.springframework.boot:spring-boot-starter-logging:3.3.5",
+        "org.springframework.boot:spring-boot-starter-logging:3.3.5", # pick this
         "org.springframework.boot:spring-boot-starter-security:3.3.5",
         "org.springframework.boot:spring-boot-starter-test:3.3.5",
         "org.springframework.boot:spring-boot-starter-web:3.3.5",
@@ -59,6 +59,7 @@ maven.install(
         # test deps
         "junit:junit:4.13.2",
         "org.hamcrest:hamcrest-core:2.2",
+        "org.assertj:assertj-core:3.25.3",
     ],
     lock_file = "//:maven_install.json",
 )

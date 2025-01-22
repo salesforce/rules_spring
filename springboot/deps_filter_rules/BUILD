@@ -20,7 +20,7 @@ deps_filter(
     deps_exclude = [
         "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
     ],
-    exclude_transitives = True,
+    exclude_transitives = True,       #### Update the default value
     testonly = True,
 )
 
@@ -88,7 +88,7 @@ deps_filter_disable_transitives(
 java_test(
     name = "CaseA",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/CaseA.java"],
+    srcs = ["src/test/java/com/salesforce/depsfilter/CaseA.java"], #### depsfilter -> deps_filter_rules?
     deps = [":Case_A"] + test_deps,
 )
 
@@ -115,15 +115,15 @@ java_test(
 
 
 java_test(
-    name = "DepsFilterRuleTransitivesExclusionTest",
+    name = "DepsFilterWithTransitivesExclusionTest",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/DepsFilterRuleTransitivesExclusionTest.java"],
+    srcs = ["src/test/java/com/salesforce/depsfilter/DepsFilterWithTransitivesExclusionTest.java"],
     deps = [":filtered_test_deps_with_transitives_excluded"] + test_deps,
 )
 
 java_test(
-    name = "DepsFilterRuleWithoutTransitivesExclusionTest",
+    name = "DepsFilterWithoutTransitivesExclusionTest",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/DepsFilterRuleWithoutTransitivesExclusionTest.java"],
+    srcs = ["src/test/java/com/salesforce/depsfilter/DepsFilterWithoutTransitivesExclusionTest.java"],
     deps = [":filtered_test_deps_without_transitives_excluded"] + test_deps,
 )

@@ -106,7 +106,7 @@ In this example, the springboot jar wants the red, green and blue libraries, but
 does not want the yellow library (a transitive).
 ```starlark
 #
-load("@rules_spring//springboot/deps_filters:deps_filter_transitive.bzl", "deps_filter_transitive")
+load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
 
 deps = [
     "@maven//:com_colors_red",
@@ -114,7 +114,7 @@ deps = [
     "@maven//:com_colors_blue",
 ]
 
-deps_filter_transitive(
+deps_filte(
     name = "filtered_deps",
     deps = deps, # input list of deps
     deps_exclude = [

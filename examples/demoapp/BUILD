@@ -11,7 +11,7 @@
 #   "@rules_spring//springboot" when you consume the official release via http_archive.
 
 load("//springboot:springboot.bzl", "springboot")
-load("//springboot/deps_filters:deps_filter_transitive.bzl", "deps_filter_transitive")
+load("//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
 load("//tools/license:licenses_used.bzl", "licenses_used")
 load(":generate-build-info.bzl", "gen_buildinfo_rule")
 
@@ -39,7 +39,7 @@ springboot_deps = [
 
 # Sometimes you have a transitive that you don't want. The unwanted_classes.md doc
 # covers this case, and this snippet shows how to use it:
-deps_filter_transitive(
+deps_filter(
     name = "filtered_deps",
     deps_exclude = [
         # tomcat comes in transitively, but we want to use jetty

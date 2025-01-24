@@ -82,7 +82,7 @@ def _deps_filter_impl(ctx):
     and runtime deps. It utilizes the 'deps_exclude' attribute to omit 
     specific JAR labels and the 'deps_exclude_paths' attribute to exclude 
     deps  based on partial paths in their filenames. If 'exclude_transitives'
-    set to `True` (default: `False`), any transitive deps solely required
+    is set to `True` (default: `False`), any transitive deps solely required
     by the deps in 'deps_exclude' are also excluded. These exclusions ensure
     the final collection includes only the necessary elements for the build
     process, eliminating problematic deps.

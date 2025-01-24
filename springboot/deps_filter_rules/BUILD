@@ -20,7 +20,7 @@ deps_filter(
     deps_exclude = [
         "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
     ],
-    exclude_transitives = True,       #### Update the default value
+    exclude_transitives = True,
     testonly = True,
 )
 
@@ -88,10 +88,9 @@ deps_filter_disable_transitives(
 java_test(
     name = "TransitiveDepsFilterCaseA",
     size = "small",
-    srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseA.java"], #### depsfilter -> deps_filter_rules?
+    srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseA.java"],
     deps = [":filtered_deps_disable_transitives_case_A"] + test_deps,
 )
-#### test output contains the deps - remove them somehow?
 
 java_test(
     name = "TransitiveDepsFilterCaseB",

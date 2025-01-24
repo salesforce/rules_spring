@@ -7,7 +7,8 @@ dependency graphs.
 
 ## Rule Definition
 The rule is defined as `dep_filter` in `deps_filter.bzl`. It filters out specified deps and JARs from the compile-time and runtime deps. It utilizes the `deps_exclude` attribute to omit specific JAR labels and the `deps_exclude_paths` attribute to exclude deps based on partial paths in their 
-filenames. By default, with `exclude_transitives` set to true, any transitive deps solely required by the deps in `deps_exclude` are also excluded. These exclusions ensure the final collection includes only the 
+filenames. If `exclude_transitives` is set to `True` (default: `False`), any transitive deps solely required by the  
+deps in `deps_exclude` are also excluded. These exclusions ensure the final collection includes only the 
 necessary elements for the build process, eliminating problematic deps.
 
 ```
@@ -17,7 +18,7 @@ deps_filter(
     runtime_deps = <list of labels>,
     deps_exclude = <list of labels>,
     deps_exclude_paths = <list of strings>,
-    exclude_transitives = <boolean, default = True>,
+    exclude_transitives = <boolean, default = False>,
     testonly = <boolean, default = False>,
 )
 ```
@@ -29,8 +30,9 @@ deps_filter(
 - `runtime_deps` (Optional): List of runtime dependencies to include.
 - `deps_exclude` (Optional): Dependencies to exclude from the build.
 - `deps_exclude_paths` (Optional): Filename patterns for excluding dependencies.
-- `exclude_transitives` (Optional, Default: `True`): If `True`, transitive dependencies of excluded dependencies are also removed, unless needed by other included dependencies.
-- `testonly` (Optional, Default: False): Restricts usage to test environments.
+- `exclude_transitives` (Optional, Default: `False`): If `True`, transitive dependencies of excluded dependencies are 
+  also removed, unless needed by other included dependencies.
+- `testonly` (Optional, Default: `False`): Restricts usage to test environments.
 
 ### Behavior
 1. **Excludes Specific Dependencies**:

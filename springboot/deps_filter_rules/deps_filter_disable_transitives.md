@@ -1,13 +1,9 @@
 # `deps_filter_disable_transitives` Rule
 ## Overview
-The `deps_filter_disable_transitives` rule lets you control transitive dependencies in your project. It disables the 
-resolution of transitive dependencies for specific dependencies, which is useful when you need to exclude 
-problematic transitive dependencies, similar to [this](https://docs.gradle.org/current/userguide/resolution_rules.html#sec:disabling-resolution-transitive-dependencies) Gradle's transitive dependencies resolution rule.
-
+The `deps_filter_disable_transitives` rule gives you control over transitive dependencies by disabling their resolution for specific dependencies. Inspired by [Gradle's transitive dependency resolution rule](https://docs.gradle.org/current/userguide/resolution_rules.html#sec:disabling-resolution-transitive-dependencies), it’s useful for excluding problematic dependencies from your project.
 
 ## Rule Definition
-This rule filters out transitives of the specified dependencies and JARs
-from the compile-time and runtime dependencies.
+This rule filters out transitives of the specified dependencies and JARs from the compile-time and runtime dependencies.
 
 ```
 deps_filter_disable_transitives(
@@ -37,7 +33,7 @@ Follow the steps mentioned [here](../../README.md#loading-the-spring-rules-in-yo
 load("@rules_spring//springboot/deps_filter_rules:deps_filter_disable_transitives.bzl", "deps_filter_disable_transitives")
 ```
 
-### Step 3: Use the `deps_filter_disable_transitives` rule, and reference it by other targets (e.g., `java_library`) to manage dependencies:
+### Step 3: Define and reference the `deps_filter_disable_transitives` in other targets (e.g., `java_library`) to manage their dependencies:
 ```
 load("@rules_spring//springboot/deps_filter_rules:deps_filter_disable_transitives.bzl", "deps_filter_disable_transitives")
 

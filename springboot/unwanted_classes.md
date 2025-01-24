@@ -114,7 +114,7 @@ deps = [
     "@maven//:com_colors_blue",
 ]
 
-deps_filte(
+deps_filter(
     name = "filtered_deps",
     deps = deps, # input list of deps
     deps_exclude = [

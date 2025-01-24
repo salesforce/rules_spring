@@ -1,15 +1,19 @@
 # `deps_filter` Rule
 ## Overview
 The `deps_filter` rule provides a way to filter java dependencies in Bazel projects, ensuring only the necessary ones 
-are included in the build. This rule can be referenced by other Java targets, such as `java_library` and helps to 
-remove problematic or unwanted dependencies, offering better control over 
-dependency graphs. 
+are included in the build. This rule can be referenced by other java targets, such as `java_library` and helps to 
+remove problematic or unwanted dependencies, offering better control over dependency graphs. 
+
+It removes Java dependencies from your dependency graph. This is done when you have knowledge that Bazel does not, 
+specifically that your application does not need a dependency at runtime.
+
+This is useful in cases where:
+- You want to exclude a dependency for a specific reason (it has a vulnerability)
+- There are multiple versions of a dependency on the classpath (dupe classes) and you want to exclude the unfavored one.
+
 
 ## Rule Definition
-The rule is defined as `dep_filter` in `deps_filter.bzl`. It filters out specified deps and JARs from the compile-time and runtime deps. It utilizes the `deps_exclude` attribute to omit specific JAR labels and the `deps_exclude_paths` attribute to exclude deps based on partial paths in their 
-filenames. If `exclude_transitives` is set to `True` (default: `False`), any transitive deps solely required by the  
-deps in `deps_exclude` are also excluded. These exclusions ensure the final collection includes only the 
-necessary elements for the build process, eliminating problematic deps.
+The rule is defined as `dep_filter` in `deps_filter.bzl`. It filters out specified deps and JARs from the compile-time and runtime deps. It utilizes the `deps_exclude` attribute to omit specific JAR labels and the `deps_exclude_paths` attribute to exclude dependencies based on partial paths in their filenames. If `exclude_transitives` is set to `True` (default: `False`), any transitive dependencies solely required by the dependencies in `deps_exclude` are also excluded. These exclusions ensure the final collection includes only the necessary elements for the build process, eliminating problematic dependencies.
 
 ```
 deps_filter(
@@ -23,8 +27,8 @@ deps_filter(
 )
 ```
 
-### Attributes:
 
+### Attributes:
 - `name` (Required): Name of the target.
 - `deps` (Required): List of dependencies to include.
 - `runtime_deps` (Optional): List of runtime dependencies to include.
@@ -36,12 +40,13 @@ deps_filter(
 
 ### Behavior
 1. **Excludes Specific Dependencies**:
-   - Removes any dependencies listed in deps_exclude.
+   - Removes any dependencies listed in `deps_exclude`.
 2. **Handles Transitive Dependencies**:
    - If `exclude_transitives` is `True`, transitive dependencies that are only required by excluded dependencies are removed.
    - If `False`, transitive dependencies remain in the build.
 3. **Filename-Based Exclusions**:
-   - Dependencies matching patterns in deps_exclude_paths are excluded.
+   - Dependencies matching patterns in `deps_exclude_paths` are excluded.
+
 
 ## Adding to Your Project
 ### Step 1: Add `rules_spring` to your workspace:
@@ -52,7 +57,7 @@ Follow the steps mentioned [here](../../README.md#loading-the-spring-rules-in-yo
 load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
 ```
 
-### Step 3: Use the `deps_filter` rule, and reference it by other targets (e.g., `java_library`) to manage dependencies:
+### Step 3: Define and reference the `deps_filter` rule in other targets (e.g., `java_library`) to manage their dependencies:
 ```
 load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
 

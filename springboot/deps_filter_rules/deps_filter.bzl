@@ -4,8 +4,8 @@ def _depaggregator_rule_impl(merged, ctx):
     to assemble a cohesive set of jars essential for the build process. During 
     this process, it excludes deps specified in 'deps_exclude', which 
     lists jar labels to be omitted from packaging due to issues that cannot 
-    be resolved upstream. By default, with 'exclude_transitives' set to true, any 
-    transitive deps that are only required by excluded deps 
+    be resolved upstream. If 'exclude_transitives' is set to 'true' (default:
+    'false'), any transitive deps that are only required by excluded deps
     are also omitted, ensuring that only necessary transitives are included 
     in the final package. It uses 'deps_exclude_paths' to exclude deps 
     based on partial filename matches, ensuring problematic files are also 
@@ -76,13 +76,13 @@ def _depaggregator_rule_impl(merged, ctx):
 
     return jars
 
-def _deps_filter_transitive_impl(ctx):
+def _deps_filter_impl(ctx):
     """
     This rule filters out specified deps and JARs from the compile-time 
     and runtime deps. It utilizes the 'deps_exclude' attribute to omit 
     specific JAR labels and the 'deps_exclude_paths' attribute to exclude 
-    deps  based on partial paths in their filenames. By default, with 
-    'exclude_transitives' set to true, any transitive deps solely required 
+    deps  based on partial paths in their filenames. If 'exclude_transitives'
+    is set to `True` (default: `False`), any transitive deps solely required
     by the deps in 'deps_exclude' are also excluded. These exclusions ensure
     the final collection includes only the necessary elements for the build
     process, eliminating problematic deps.
@@ -114,13 +114,13 @@ def _deps_filter_transitive_impl(ctx):
             ]
 
 
-deps_filter_transitive = rule(
-    implementation = _deps_filter_transitive_impl,
+deps_filter = rule(
+    implementation = _deps_filter_impl,
     attrs = {
         "deps": attr.label_list(providers = [java_common.provider]),
         "runtime_deps": attr.label_list(providers = [java_common.provider], allow_empty = True),
         "deps_exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
         "deps_exclude_paths": attr.string_list(),
-        "exclude_transitives": attr.bool(default = True),  
+        "exclude_transitives": attr.bool(default = False),
     },
 )

@@ -59,6 +59,7 @@ maven.install(
         # test deps
         "junit:junit:4.13.2",
         "org.hamcrest:hamcrest-core:2.2",
+        "org.assertj:assertj-core:3.25.3",
     ],
     lock_file = "//:maven_install.json",
 )

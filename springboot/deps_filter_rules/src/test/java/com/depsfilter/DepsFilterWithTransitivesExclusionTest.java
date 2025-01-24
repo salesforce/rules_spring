@@ -1,4 +1,4 @@
-package com.salesforce.depsfilter;
+package com.depsfilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

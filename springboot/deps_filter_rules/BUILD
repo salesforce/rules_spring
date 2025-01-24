@@ -38,7 +38,7 @@ deps_filter(
 )
 
 deps_filter_disable_transitives(
-    name = "Case_A",
+    name = "filtered_deps_disable_transitives_case_A",
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
@@ -51,7 +51,7 @@ deps_filter_disable_transitives(
 )
 
 deps_filter_disable_transitives(
-    name = "Case_B",
+    name = "filtered_deps_disable_transitives_case_B",
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
@@ -64,7 +64,7 @@ deps_filter_disable_transitives(
 )
 
 deps_filter_disable_transitives(
-    name = "Case_C",
+    name = "filtered_deps_disable_transitives_case_C",
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
@@ -77,7 +77,7 @@ deps_filter_disable_transitives(
 )
 
 deps_filter_disable_transitives(
-    name = "Case_D",
+    name = "filtered_deps_disable_transitives_case_D",
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
@@ -86,44 +86,45 @@ deps_filter_disable_transitives(
 )
 
 java_test(
-    name = "CaseA",
+    name = "TransitiveDepsFilterCaseA",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/CaseA.java"], #### depsfilter -> deps_filter_rules?
-    deps = [":Case_A"] + test_deps,
+    srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseA.java"], #### depsfilter -> deps_filter_rules?
+    deps = [":filtered_deps_disable_transitives_case_A"] + test_deps,
+)
+#### test output contains the deps - remove them somehow?
+
+java_test(
+    name = "TransitiveDepsFilterCaseB",
+    size = "small",
+    srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseB.java"],
+    deps = [":filtered_deps_disable_transitives_case_B"] + test_deps,
 )
 
 java_test(
-    name = "CaseB",
+    name = "TransitiveDepsFilterCaseC",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/CaseB.java"],
-    deps = [":Case_B"] + test_deps,
+    srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseC.java"],
+    deps = [":filtered_deps_disable_transitives_case_C"] + test_deps,
 )
 
 java_test(
-    name = "CaseC",
+    name = "TransitiveDepsFilterCaseD",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/CaseC.java"],
-    deps = [":Case_C"] + test_deps,
-)
-
-java_test(
-    name = "CaseD",
-    size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/CaseD.java"],
-    deps = [":Case_D"] + test_deps,
+    srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseD.java"],
+    deps = [":filtered_deps_disable_transitives_case_D"] + test_deps,
 )
 
 
 java_test(
     name = "DepsFilterWithTransitivesExclusionTest",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/DepsFilterWithTransitivesExclusionTest.java"],
+    srcs = ["src/test/java/com/depsfilter/DepsFilterWithTransitivesExclusionTest.java"],
     deps = [":filtered_test_deps_with_transitives_excluded"] + test_deps,
 )
 
 java_test(
     name = "DepsFilterWithoutTransitivesExclusionTest",
     size = "small",
-    srcs = ["src/test/java/com/salesforce/depsfilter/DepsFilterWithoutTransitivesExclusionTest.java"],
+    srcs = ["src/test/java/com/depsfilter/DepsFilterWithoutTransitivesExclusionTest.java"],
     deps = [":filtered_test_deps_without_transitives_excluded"] + test_deps,
 )

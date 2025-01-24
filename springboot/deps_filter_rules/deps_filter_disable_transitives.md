@@ -1,4 +1,4 @@
-_# `deps_filter` Rule
+# `deps_filter_disable_transitives` Rule
 ## Overview
 The `deps_filter_disable_transitives` rule lets you control transitive dependencies in your project. It disables the 
 resolution of transitive dependencies for specific dependencies, which is useful when you need to exclude 

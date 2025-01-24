@@ -31,7 +31,8 @@ public class TransitiveDepsFilterCaseD {
             )
 
             This test verifies:
-            - Build-time deps include "@maven//:org_springframework_spring_jdbc" and "@maven//:org_springframework_spring_web", and their transitive deps 
+            - Build-time deps include "@maven//:org_springframework_spring_jdbc" and
+              "@maven//:org_springframework_spring_web", and their transitive deps
             - No deps are excluded
             This is validated by checking the available deps in the code.
         */
@@ -40,12 +41,12 @@ public class TransitiveDepsFilterCaseD {
         List<String> allTransitivesDeps = getTransitiveDeps();
         List<String> availableDeps = computeClasspathDependencies();
 
-        // Ensure that all transitive deps are included in available deps
+        // Ensure that all transitive deps are included in available deps.
         for (String transitive : allTransitivesDeps) {
             assertThat(availableDeps).contains(transitive);
         }
 
-        // Ensure that all direct deps are included in available deps
+        // Ensure that all direct deps are included in available deps.
         for (String dep : depsList) {
             assertThat(availableDeps).contains(dep);
         }
@@ -64,7 +65,7 @@ public class TransitiveDepsFilterCaseD {
     }
 
     private List<String> getTransitiveDeps() {
-        // Calculate transitives of both excluded and non-excluded deps
+        // Compute transitive deps of both excluded and non-excluded deps
         Set<String> uniqueTransitivesSet = new HashSet<>();
         uniqueTransitivesSet.addAll(transitivesOfFirstDep);
         uniqueTransitivesSet.addAll(transitivesOfSecondDep);
@@ -95,27 +96,29 @@ public class TransitiveDepsFilterCaseD {
             "rules_jvm_external~~maven~maven/org/assertj/assertj-core/3.25.3/processed_assertj-core-3.25.3.jar",
             "rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy/1.14.12/processed_byte-buddy-1.14.12.jar",
             "rules_java~~toolchains~remote_java_tools/java_tools/Runner_deploy.jar"
-            );
+        );
 
         // specified in the 'deps' attribute of 'deps_filter'
         depsList = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-jdbc/6.1.14/processed_spring-jdbc-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
-            );
+        );
 
         transitivesOfFirstDep = List.of(
-            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13.6/processed_micrometer-observation-1.13.6.jar",
-            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1.13.6.jar",
+            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13"
+            + ".6/processed_micrometer-observation-1.13.6.jar",
+            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1"
+            + ".13.6.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar"
-            );
+        );
 
         transitivesOfSecondDep = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-tx/6.1.14/processed_spring-tx-6.1.14.jar"
-            );
+        );
     }
 }

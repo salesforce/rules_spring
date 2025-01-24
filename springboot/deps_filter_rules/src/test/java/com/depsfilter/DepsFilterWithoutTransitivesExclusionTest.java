@@ -43,7 +43,7 @@ public class DepsFilterWithoutTransitivesExclusionTest {
 
             This is validated by checking the available deps in the code.
         */
- 
+
         initialTestSetup();
         List<String> allTransitivesDeps = getTransitiveDeps();
         List<String> availableDeps = computeClasspathDependencies();
@@ -53,7 +53,8 @@ public class DepsFilterWithoutTransitivesExclusionTest {
             assertThat(availableDeps).doesNotContain(excludedDep);
         }
 
-        // Ensure that non-excluded direct deps, their transitive deps, and the transitive deps of excluded deps are present in the available deps.
+        // Ensure that non-excluded direct deps, their transitive deps, and the transitive deps of excluded deps are
+        // present in the available deps.
         for (String nonExcludedDep : nonexcludedDirectDeps) {
             assertThat(availableDeps).contains(nonExcludedDep);
         }
@@ -66,8 +67,8 @@ public class DepsFilterWithoutTransitivesExclusionTest {
             assertThat(availableDeps).contains(transitive);
         }
 
-        // Combined list of testDeps, depsList, and allTransitivesDeps
-        // is equal to the combined list of availableDeps, and excludedDirectDeps
+        // Ensure that the combined list of testDeps, depsList, and allTransitivesDeps
+        // is equal to the combined list of availableDeps, and excludedDirectDeps.
         List<String> expectedCombinedDepsList = new ArrayList<>();
         List<String> actualCombinedDepsList = new ArrayList<>();
         expectedCombinedDepsList.addAll(testDeps);
@@ -81,7 +82,7 @@ public class DepsFilterWithoutTransitivesExclusionTest {
     }
 
     private List<String> getTransitiveDeps() {
-        // Finds the transitive deps of both excluded and non-excluded deps
+        // Compute transitive deps of both excluded and non-excluded deps
         Set<String> uniqueTransitivesSet = new HashSet<>();
         uniqueTransitivesSet.addAll(transitivesOfExcludedDirectDeps);
         uniqueTransitivesSet.addAll(transitivesOfNonExcludedDirectDeps);
@@ -111,37 +112,39 @@ public class DepsFilterWithoutTransitivesExclusionTest {
             "rules_jvm_external~~maven~maven/org/assertj/assertj-core/3.25.3/processed_assertj-core-3.25.3.jar",
             "rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy/1.14.12/processed_byte-buddy-1.14.12.jar",
             "rules_java~~toolchains~remote_java_tools/java_tools/Runner_deploy.jar"
-            );
+        );
 
         // specified in the 'deps' attribute of 'deps_filter'
         depsList = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-jdbc/6.1.14/processed_spring-jdbc-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
-            );
+        );
 
         // specified in the 'deps_exclude' attribute of 'deps_filter'
         excludedDirectDeps = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
-            );
+        );
 
         // deps that are not excluded = depsList - excludedDirectDeps
         nonexcludedDirectDeps = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-jdbc/6.1.14/processed_spring-jdbc-6.1.14.jar"
-            );
+        );
 
         transitivesOfExcludedDirectDeps = List.of(
-            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13.6/processed_micrometer-observation-1.13.6.jar",
-            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1.13.6.jar",
+            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13"
+            + ".6/processed_micrometer-observation-1.13.6.jar",
+            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1"
+            + ".13.6.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar"
-            );
+        );
 
         transitivesOfNonExcludedDirectDeps = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-tx/6.1.14/processed_spring-tx-6.1.14.jar"
-            );
+        );
     }
 }

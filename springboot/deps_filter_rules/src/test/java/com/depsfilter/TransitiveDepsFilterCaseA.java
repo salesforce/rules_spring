@@ -35,9 +35,10 @@ public class TransitiveDepsFilterCaseA {
             )
 
             It verifies:
-            - Build-time deps include "@maven//:org_springframework_spring_jdbc" and "@maven//:org_springframework_spring_web"
-            - Excluded deps include transitive deps of "@maven//:org_springframework_spring_jdbc" and "@maven//:org_springframework_spring_web"
-              i.e exclude all the transitive deps. 
+            - Build-time deps include "@maven//:org_springframework_spring_jdbc" and
+              "@maven//:org_springframework_spring_web"
+            - Excluded deps include transitive deps of "@maven//:org_springframework_spring_jdbc" and
+              "@maven//:org_springframework_spring_web" i.e exclude all the transitive deps.
 
             This is validated by checking the available deps in the code.
         */
@@ -46,17 +47,17 @@ public class TransitiveDepsFilterCaseA {
         List<String> allTransitivesDeps = getTransitiveDeps();
         List<String> availableDeps = computeClasspathDependencies();
 
-        // Ensure that all transitive deps are not present in available deps
+        // Ensure that all transitive deps are not present in available deps.
         for (String transitive : allTransitivesDeps) {
             assertThat(availableDeps).doesNotContain(transitive);
         }
 
-        // Ensure that all direct deps are present in available deps
+        // Ensure that all direct deps are present in available deps.
         for (String dep : depsList) {
             assertThat(availableDeps).contains(dep);
         }
 
-        // Ensure that combined list of testDeps, and depsList is equal to combined list of available deps
+        // Ensure that combined list of testDeps, and depsList is equal to combined list of available deps.
         List<String> expectedCombinedDepsList = new ArrayList<>();
         List<String> actualCombinedDepsList = new ArrayList<>();
         expectedCombinedDepsList.addAll(testDeps);
@@ -98,27 +99,29 @@ public class TransitiveDepsFilterCaseA {
             "rules_jvm_external~~maven~maven/org/assertj/assertj-core/3.25.3/processed_assertj-core-3.25.3.jar",
             "rules_jvm_external~~maven~maven/net/bytebuddy/byte-buddy/1.14.12/processed_byte-buddy-1.14.12.jar",
             "rules_java~~toolchains~remote_java_tools/java_tools/Runner_deploy.jar"
-            );
+        );
 
         // specified in the 'deps' attribute of 'deps_filter'
         depsList = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-jdbc/6.1.14/processed_spring-jdbc-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
-            );
+        );
 
         transitivesOfFirstDep = List.of(
-            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13.6/processed_micrometer-observation-1.13.6.jar",
-            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1.13.6.jar",
+            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13"
+            + ".6/processed_micrometer-observation-1.13.6.jar",
+            "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1"
+            + ".13.6.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar"
-            );
+        );
 
         transitivesOfSecondDep = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-tx/6.1.14/processed_spring-tx-6.1.14.jar"
-            );
+        );
     }
 }

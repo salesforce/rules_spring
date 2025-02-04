@@ -40,7 +40,7 @@ If you are building your Spring Boot application with Bazel, this operation is s
 Bazel Query will output the set of libraries that are dependencies.
 The _index_ is more detailed though in that it can output exact file sizes and is run on the final
   Spring Boot jar.
-If you are using *rules_spring* features like *deps_exclude*, the Bazel Query output will be incorrect.
+If you are using *rules_spring* features like *deps_exclude_labels* and *deps_exclude_paths*, the Bazel Query output will be incorrect.
 
 Usage examples:
 ```

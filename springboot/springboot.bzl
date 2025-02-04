@@ -37,7 +37,7 @@ def _depaggregator_rule_impl(ctx):
     jars = []
     excludes = {}
 
-    for exclusion_info in ctx.attr.deps_exclude:
+    for exclusion_info in ctx.attr.deps_exclude_labels:
         for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
             # print("Spring Boot Excluding: "+compile_jar.owner.name+" as "+compile_jar.path)
             excludes[compile_jar.path] = True
@@ -67,7 +67,7 @@ _depaggregator_rule = rule(
     attrs = {
         "depaggregator_rule": attr.label(),
         "deps": attr.label_list(providers = [java_common.provider]),
-        "deps_exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
+        "deps_exclude_labels": attr.label_list(providers = [java_common.provider], allow_empty = True),
         "deps_exclude_paths": attr.string_list(),
     },
 )
@@ -207,7 +207,7 @@ def _banneddeps_rule_impl(ctx):
         ctx.actions.write(output, "NOT_RUN", is_executable = False)
         return [DefaultInfo(files = depset(outputs))]
 
-    # iterate through the transitive set; this set has already had the deps_exclude
+    # iterate through the transitive set; this set has already had the deps_exclude_labels
     # rules applied, so this is the filtered list
     found_banned = False
     banned_filenames = ""
@@ -365,6 +365,7 @@ def springboot(
         boot_launcher_class = "org.springframework.boot.loader.JarLauncher",
         deps = None,
         deps_banned = ["junit", "mockito"],  # detects common mistake of test dep pollution
+        deps_exclude_labels = None,
         deps_exclude = None,
         deps_exclude_paths = None,
         deps_index_file = None,
@@ -413,13 +414,14 @@ def springboot(
       deps_banned: Optional. A list of strings to match against the jar filenames in the transitive graph of
         dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail.
         This is useful for detecting jars that should never go to production. The list of dependencies is
-        obtained after the deps_exclude processing has run. Default: [ "junit", "mockito" ]
-      deps_exclude: Optional. A list of jar labels that will be omitted from the final packaging step.
+        obtained after the deps_exclude_labels and deps_exclude_paths processing has run. Default: [ "junit", "mockito" ]
+      deps_exclude_labels: Optional. A list of jar labels that will be omitted from the final packaging step.
         This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream.
         Ex: *["@maven//:commons_cli_commons_cli"]*.
+      deps_exclude: Deprecated. Use deps_exclude_labels instead. Functions the same as deps_exclude_labels but retained for backward compatibility.
       deps_exclude_paths: Optional. This attribute provides a list of partial paths that will be omitted
         from the final packaging step if the string is contained within the dep filename. This is a more raw method
-        than deps_exclude for eliminating a problematic dependency/file that cannot be eliminated upstream.
+        than deps_exclude_labels for eliminating a problematic dependency/file that cannot be eliminated upstream.
         Ex: [*jackson-databind-*].
       deps_index_file: Optional. Uses Spring Boot's
         [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath)
@@ -453,7 +455,7 @@ def springboot(
       jartools_toolchains: Optional. Toolchains for running build tools like singlejar, override for obscure use cases. Default: ["@bazel_tools//tools/jdk:current_java_runtime"]
       restricted_to: Optional. Bazel standard attribute.
       target_compatible_with: Optional. Bazel standard attribute.
-      exclude: Deprecated synonym of *deps_exclude*
+      exclude: Deprecated synonym of *deps_exclude_labels* and *deps_exclude*.
       classpath_index: Deprecated synonym of *deps_index_file*
       use_build_dependency_order: Deprecated synonym of *deps_use_starlark_order*
       fail_on_duplicate_classes: Deprecated synonym of *dupeclassescheck_enable*
@@ -477,8 +479,10 @@ def springboot(
 
     # Handle deprecated attribute names; if modern name is not set then take
     # the legacy attribute value (which may be set to a default, or set by the user)
-    if deps_exclude == None:
-        deps_exclude = exclude
+    if deps_exclude_labels == None and deps_exclude != None:
+        deps_exclude_labels = deps_exclude
+    if deps_exclude_labels == None:
+        deps_exclude_labels = exclude
     if deps_index_file == None:
         deps_index_file = classpath_index
     if deps_use_starlark_order == None:
@@ -510,7 +514,7 @@ def springboot(
     _depaggregator_rule(
         name = dep_aggregator_rule,
         deps = java_deps,
-        deps_exclude = deps_exclude,
+        deps_exclude_labels = deps_exclude_labels,
         deps_exclude_paths = deps_exclude_paths,
         tags = tags,
         testonly = testonly,

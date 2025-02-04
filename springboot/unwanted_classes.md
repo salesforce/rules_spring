@@ -71,7 +71,7 @@ springboot(
 )
 ```
 
-The list of dependencies is obtained after the *deps_exclude* processing has run.
+The list of dependencies is obtained after the *deps_exclude_labels* and *deps_exclude_paths* processing has run.
 
 ## Remediation
 
@@ -117,7 +117,7 @@ deps = [
 deps_filter(
     name = "filtered_deps",
     deps = deps, # input list of deps
-    deps_exclude = [
+    deps_exclude_labels = [
         "@maven//:com_colors_yellow", # yellow is a transitive of green, and we don't want it
     ],
     exclude_transitives = True, # also exclude any transitive of yellow
@@ -147,8 +147,8 @@ This was our original mechanism of removing dependencies from the dependency gra
 With Exclude lists, your tests will run without the exclusions, such that your test classpath
 will not match what will run with your executable jar.
 
-There are two forms: *deps_exclude* and *deps_exclude_paths*.
-- *deps_exclude* uses Bazel labels to match the desired target to exclude.
+There are two forms: *deps_exclude_labels* and *deps_exclude_paths*.
+- *deps_exclude_labels* uses Bazel labels to match the desired target to exclude.
 - *deps_exclude_paths* is a partial String match against the file path of the dependency within the jar.
 
 The first one is more elegant and maintainable, as the label will be validated by Bazel.
@@ -165,7 +165,7 @@ springboot(
     name = "helloworld",
     boot_app_class = "com.sample.SampleMain",
     java_library = ":helloworld_lib",
-    deps_exclude = [
+    deps_exclude_labels = [
       "@maven//:com_google_protobuf_protobuf_java",
       "//protos/third-party/google/protobuf:any_java_proto",
     ],

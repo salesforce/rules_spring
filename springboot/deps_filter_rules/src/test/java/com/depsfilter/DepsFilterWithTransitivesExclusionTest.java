@@ -27,7 +27,7 @@ public class DepsFilterWithTransitivesExclusionTest {
                     "@maven//:org_springframework_spring_jdbc",
                     "@maven//:org_springframework_spring_web",
                 ],
-                deps_exclude = [
+                deps_exclude_labels = [
                     "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
                 ],
                 exclude_transitives = True,
@@ -130,7 +130,7 @@ public class DepsFilterWithTransitivesExclusionTest {
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
         );
 
-        // specified in the 'deps_exclude' attribute of 'deps_filter'
+        // specified in the 'deps_exclude_labels' attribute of 'deps_filter'
         excludedDirectDeps = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
         );

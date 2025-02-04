@@ -13,14 +13,14 @@ This is useful in cases where:
 
 
 ## Rule Definition
-The rule is defined as `dep_filter` in `deps_filter.bzl`. It filters out specified deps and JARs from the compile-time and runtime deps. It utilizes the `deps_exclude` attribute to omit specific JAR labels and the `deps_exclude_paths` attribute to exclude dependencies based on partial paths in their filenames. If `exclude_transitives` is set to `True` (default: `False`), any transitive dependencies solely required by the dependencies in `deps_exclude` are also excluded. These exclusions ensure the final collection includes only the necessary elements for the build process, eliminating problematic dependencies.
+The rule is defined as `dep_filter` in `deps_filter.bzl`. It filters out specified deps and JARs from the compile-time and runtime deps. It utilizes the `deps_exclude_labels` attribute to omit specific JAR labels and the `deps_exclude_paths` attribute to exclude dependencies based on partial paths in their filenames. If `exclude_transitives` is set to `True` (default: `False`), any transitive dependencies solely required by the dependencies in `deps_exclude_labels` are also excluded. These exclusions ensure the final collection includes only the necessary elements for the build process, eliminating problematic dependencies.
 
 ```
 deps_filter(
     name = <string>,
     deps = <list of labels>,
     runtime_deps = <list of labels>,
-    deps_exclude = <list of labels>,
+    deps_exclude_labels = <list of labels>,
     deps_exclude_paths = <list of strings>,
     exclude_transitives = <boolean, default = False>,
     testonly = <boolean, default = False>,
@@ -32,7 +32,7 @@ deps_filter(
 - `name` (Required): Name of the target.
 - `deps` (Required): List of dependencies to include.
 - `runtime_deps` (Optional): List of runtime dependencies to include.
-- `deps_exclude` (Optional): Dependencies to exclude from the build.
+- `deps_exclude_labels` (Optional): Dependencies to exclude from the build.
 - `deps_exclude_paths` (Optional): Filename patterns for excluding dependencies.
 - `exclude_transitives` (Optional, Default: `False`): If `True`, transitive dependencies of excluded dependencies are 
   also removed, unless needed by other included dependencies.
@@ -40,7 +40,7 @@ deps_filter(
 
 ### Behavior
 1. **Excludes Specific Dependencies**:
-   - Removes any dependencies listed in `deps_exclude`.
+   - Removes any dependencies listed in `deps_exclude_labels`.
 2. **Handles Transitive Dependencies**:
    - If `exclude_transitives` is `True`, transitive dependencies that are only required by excluded dependencies are removed.
    - If `False`, transitive dependencies remain in the build.
@@ -106,7 +106,7 @@ deps_filter(
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    deps_exclude = [
+    deps_exclude_labels = [
         "@maven//:org_springframework_spring_web",
     ],
     exclude_transitives = False,
@@ -124,7 +124,7 @@ deps_filter(
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    deps_exclude = [
+    deps_exclude_labels = [
         "@maven//:org_springframework_spring_web",
     ],
     exclude_transitives = True,

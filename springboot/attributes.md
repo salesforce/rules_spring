@@ -57,9 +57,10 @@ mycompany_springboot(
 | jartools_toolchains | Optional. Toolchain for running build tools like singlejar | <code>["@bazel_tools//tools/jdk:current_host_java_runtime"]</code> | see [Issue 250](https://github.com/salesforce/rules_spring/issues/250) |
 | **Dependencies** | | | |
 | deps |  Optional. An additional set of Java dependencies to add to the executable. Normally all dependencies are set on the *java_library*.   |  <code>None</code> | |
-| deps_exclude | Optional. A list of jar labels that will be omitted from the final packaging step. This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream. Ex: *["@maven//:commons_cli_commons_cli"]*. |  <code>None</code> | [details](unwanted_classes.md) |
-| deps_exclude_paths |  Optional. This attribute provides a list of partial paths that will be omitted   from the final packaging step if the string is contained within the dep filename. This is a more raw method than deps_exclude for eliminating a problematic dependency/file that cannot be eliminated upstream.   Ex: [*jackson-databind-*].   |  <code>None</code> | [details](unwanted_classes.md) |
-| deps_banned| Optional. A list of strings to match against the jar filenames in the transitive graph of dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail. This is useful for detecting jars that should never go to production. The list of dependencies is obtained after the deps_exclude processing has run. | <code>[ "junit", "mockito" ]</code> | [details](unwanted_classes.md) |
+| deps_exclude_labels | Optional. A list of jar labels that will be omitted from the final packaging step. This is a manual option for eliminating a problematic dependency that cannot be eliminated upstream. Ex: *["@maven//:commons_cli_commons_cli"]*. |  <code>None</code> | [details](unwanted_classes.md) |
+| deps_exclude | Deprecated. Use deps_exclude_labels instead. Functions the same as deps_exclude_labels but retained for backward compatibility. |  <code>None</code> | |  <code>None</code> | |
+| deps_exclude_paths |  Optional. This attribute provides a list of partial paths that will be omitted   from the final packaging step if the string is contained within the dep filename. This is a more raw method than deps_exclude_labels for eliminating a problematic dependency/file that cannot be eliminated upstream.   Ex: [*jackson-databind-*].   |  <code>None</code> | [details](unwanted_classes.md) |
+| deps_banned| Optional. A list of strings to match against the jar filenames in the transitive graph of dependencies for this springboot app. If any of these strings is found within any jar name, the rule will fail. This is useful for detecting jars that should never go to production. The list of dependencies is obtained after the deps_exclude_labels and deps_exclude_paths processing has run. | <code>[ "junit", "mockito" ]</code> | [details](unwanted_classes.md) |
 | dupeclassescheck_enable |  If *True*, will analyze the list of dependencies looking for any class that appears more than   once, but with a different hash. This indicates that your dependency tree has conflicting libraries.   |  <code>False</code> | [details](unwanted_classes.md) |
 | dupeclassescheck_ignorelist |  Optional. When using the duplicate class check, this attribute provides a file   that contains a list of libraries excluded from the analysis. Ex: *dupeclass_libs.txt*   |  <code>None</code> | [details](unwanted_classes.md) |
 | deps_index_file |  Optional. Uses Spring Boot's index to define classpath order. This feature is not commonly used, as the application must be extracted from the jar   file for it to work. Ex: *my_classpath_index.idx*   |  <code>None</code> | [classpath index feature](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-executable-jar-format.html#executable-jar-war-index-files-classpath) |
@@ -83,7 +84,7 @@ mycompany_springboot(
 The following attributes are deprecated and will be removed in a future release.
 | Name  | Description |
 | :-------------: | :-------------: | 
-| exclude |  Deprecated synonym of *deps_exclude* |
+| exclude |  Deprecated synonym of *deps_exclude_labels* and *deps_exclude* |
 | classpath_index |  Deprecated synonym of *deps_index_file* |
 | use_build_dependency_order |  Deprecated synonym of *deps_use_starlark_order* |
 | fail_on_duplicate_classes |  Deprecated synonym of *dupeclassescheck_enable* |

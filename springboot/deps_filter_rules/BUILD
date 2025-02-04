@@ -17,7 +17,7 @@ deps_filter(
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    deps_exclude = [
+    deps_exclude_labels = [
         "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
     ],
     exclude_transitives = True,
@@ -30,7 +30,7 @@ deps_filter(
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    deps_exclude = [
+    deps_exclude_labels = [
        "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
     ],
     exclude_transitives = False,

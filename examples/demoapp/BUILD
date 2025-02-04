@@ -41,7 +41,7 @@ springboot_deps = [
 # covers this case, and this snippet shows how to use it:
 deps_filter(
     name = "filtered_deps",
-    deps_exclude = [
+    deps_exclude_labels = [
         # tomcat comes in transitively, but we want to use jetty
         "@maven//:org_apache_tomcat_embed_tomcat_embed_core",
         "@maven//:org_apache_tomcat_embed_tomcat_embed_el",

@@ -2,7 +2,7 @@ def _depaggregator_rule_impl(merged, ctx):
     """
     This method processes declared deps and their transitive closures 
     to assemble a cohesive set of jars essential for the build process. During 
-    this process, it excludes deps specified in 'deps_exclude', which 
+    this process, it excludes deps specified in 'deps_exclude_labels', which 
     lists jar labels to be omitted from packaging due to issues that cannot 
     be resolved upstream. If 'exclude_transitives' is set to 'true' (default:
     'false'), any transitive deps that are only required by excluded deps
@@ -22,13 +22,13 @@ def _depaggregator_rule_impl(merged, ctx):
         # Dictionary to track transitive dependency paths that should be excluded
         transitives_excludes = {}
 
-        # List to store deps info for deps present in 'deps_exclude'
+        # List to store deps info for deps present in 'deps_exclude_labels'
         direct_excludes = []
 
-    # Iterate through the deps specified in 'deps_exclude' to collect 
+    # Iterate through the deps specified in 'deps_exclude_labels' to collect 
     # jars that should be excluded from the final set.
 
-    for exclusion_info in ctx.attr.deps_exclude:    
+    for exclusion_info in ctx.attr.deps_exclude_labels:    
         # For each excluded dependency, add its compile-time JARs to the exclusion list
         for compile_jar in exclusion_info[JavaInfo].full_compile_jars.to_list():
             excludes[compile_jar.path] = True
@@ -43,7 +43,7 @@ def _depaggregator_rule_impl(merged, ctx):
     if exclude_transitives:
         # Iterate over all deps, for non-excluded deps, mark their transitives as included.
         for deps_info in ctx.attr.deps:
-            # skip the current dependency if it is listed in 'deps_exclude'.
+            # skip the current dependency if it is listed in 'deps_exclude_labels'.
             if str(deps_info) in direct_excludes:
                 continue     
                     
@@ -79,11 +79,11 @@ def _depaggregator_rule_impl(merged, ctx):
 def _deps_filter_impl(ctx):
     """
     This rule filters out specified deps and JARs from the compile-time 
-    and runtime deps. It utilizes the 'deps_exclude' attribute to omit 
+    and runtime deps. It utilizes the 'deps_exclude_labels' attribute to omit 
     specific JAR labels and the 'deps_exclude_paths' attribute to exclude 
     deps  based on partial paths in their filenames. If 'exclude_transitives'
     is set to `True` (default: `False`), any transitive deps solely required
-    by the deps in 'deps_exclude' are also excluded. These exclusions ensure
+    by the deps in 'deps_exclude_labels' are also excluded. These exclusions ensure
     the final collection includes only the necessary elements for the build
     process, eliminating problematic deps.
     """ 
@@ -119,7 +119,7 @@ deps_filter = rule(
     attrs = {
         "deps": attr.label_list(providers = [java_common.provider]),
         "runtime_deps": attr.label_list(providers = [java_common.provider], allow_empty = True),
-        "deps_exclude": attr.label_list(providers = [java_common.provider], allow_empty = True),
+        "deps_exclude_labels": attr.label_list(providers = [java_common.provider], allow_empty = True),
         "deps_exclude_paths": attr.string_list(),
         "exclude_transitives": attr.bool(default = False),
     },

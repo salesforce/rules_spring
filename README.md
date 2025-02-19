@@ -33,7 +33,7 @@ Before you can use the rule in your BUILD files, you need to add it to your work
 **Bzlmod**
 
 ```starlark
-bazel_dep(name = "rules_spring", version = "2.6.1")
+bazel_dep(name = "rules_spring", version = "2.6.3")
 ```
 
 **WORKSPACE (legacy)**
@@ -42,14 +42,13 @@ This loads a pre-built version of this rule into your workspace during the build
 ```starlark
 http_archive(
     name = "rules_spring",
-    sha256 = "98143672b2edd2eb84762a6ebe6afc3a194d1ec06bdfaaf0cc87d4d750476db0",
+    sha256 = "2d0805b4096db89b8e407ed0c243ce81c3d20f346e4c259885041d5eabc59436",
     urls = [
-        "https://github.com/salesforce/rules_spring/releases/download/2.6.1/rules-spring-2.6.1.zip",
+        "https://github.com/salesforce/rules_spring/releases/download/2.6.3/rules-spring-2.6.3.zip",
     ],
 )
 ```
 
-Do not use a git_repository rule with our main branch.
 If you choose not to use an official release, you may be tempted to use a *git_repository* workspace
   rule to point to our *main* branch,
 Please **do not** do this, as we use *main* for ongoing work.

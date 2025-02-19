@@ -1,4 +1,4 @@
-## Detecting, Excluding and Suppressing Unwanted Classes
+## Detecting, Excluding and Suppressing Unwanted Classes and Dependencies
 
 Spring Boot jars normally aggregate a great number of dependency jars, many from outside the Bazel
   build (external Maven-built jars).
@@ -92,15 +92,18 @@ bazel query 'deps(//examples/helloworld:helloworld_lib)' | grep webmvc
 bazel query 'somepath(//examples/helloworld:helloworld_lib, "@maven//:org_springframework_spring_webmvc")'
 ```
 
-### Removing Unwanted Classes with a Filter
+### Removing Unwanted Classes with a Deps Filter
 
 The next best way to exclude dependencies is to remove them before they are added to
   the ```java_library``` rule invocation.
-This mechanism is not specific to ```springboot``` at all - it is a sample provided
+This mechanism is not specific to ```springboot``` at all - it is provided
   by rules_spring because it is a commmon use case.
 The benefits to excluding dependencies this way (as opposed to the exclude lists)
   is that your test execution will use the actual classpath set into
   the ```springboot``` executable jar.
+
+A simple example is below, and there is detailed documentation in the filter directory:
+- [deps_filter documentation](deps_filter_rules/README.md)
 
 In this example, the springboot jar wants the red, green and blue libraries, but
 does not want the yellow library (a transitive).

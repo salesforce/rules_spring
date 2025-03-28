@@ -73,6 +73,12 @@ springboot(
 
 The list of dependencies is obtained after the *deps_exclude_labels* and *deps_exclude_paths* processing has run.
 
+### Brute Force Class Listing
+
+In some cases, it can be helpful to get a full catalog of the classes included in all dependency jars for your springboot application.
+The script to do this is located here:
+- [jar exploder utility](../tools/jar_explode)
+
 ## Remediation
 
 ### Removing Unwanted Libraries and Classes by Removing a Dependency in the BUILD File

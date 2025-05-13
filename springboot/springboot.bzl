@@ -466,16 +466,16 @@ def springboot(
     # NOTE: if you add/change any params, be sure to rerun the stardoc generator (see BUILD file)
 
     # Create the subrule names
-    dep_aggregator_rule = native.package_name() + "_" + name + "_deps"
-    appjar_locator_rule = native.package_name() + "_" + name + "_appjar_locator"
-    genmanifest_rule = native.package_name() + "_" + name + "_genmanifest"
-    genbazelrunenv_rule = native.package_name() + "_" + name + "_genbazelrunenv"
-    gengitinfo_rule = native.package_name() + "_" + name + "_gengitinfo"
-    genjar_rule = native.package_name() + "_" + name + "_genjar"
-    dupecheck_rule = native.package_name() + "_" + name + "_dupecheck"
-    javaxdetect_rule = native.package_name() + "_" + name + "_javaxdetect"
-    bannedcheck_rule = native.package_name() + "_" + name + "_bannedcheck"
-    apprun_rule = native.package_name() + "_" + name + "_apprun"
+    dep_aggregator_rule = name + "_" + native.package_name() + "_deps"
+    appjar_locator_rule = name + "_" + native.package_name() + "_appjar_locator"
+    genmanifest_rule = name + "_" + native.package_name() + "_genmanifest"
+    genbazelrunenv_rule = name + "_" + native.package_name() + "_genbazelrunenv"
+    gengitinfo_rule = name + "_" + native.package_name() + "_gengitinfo"
+    genjar_rule = name + "_" + native.package_name() + "_genjar"
+    dupecheck_rule = name + "_" + native.package_name() + "_dupecheck"
+    javaxdetect_rule = name + "_" + native.package_name() + "_javaxdetect"
+    bannedcheck_rule = name + "_" + native.package_name() + "_bannedcheck"
+    apprun_rule = name + "_" + native.package_name() + "_apprun"
 
     # Handle deprecated attribute names; if modern name is not set then take
     # the legacy attribute value (which may be set to a default, or set by the user)

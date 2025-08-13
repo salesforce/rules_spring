@@ -158,7 +158,10 @@ echo "" >> $debugfile
 # Extract the compiled Boot application classes into BOOT-INF/classes
 #    this must include the application's main class (annotated with @SpringBootApplication)
 cd $working_dir/BOOT-INF/classes
+# Extract all files except META-INF/MANIFEST.MF to avoid duplicate manifest entries
 $jar_command -xf $ruledir/$appjar
+# Remove the extracted MANIFEST.MF to prevent duplicate entries in the final jar
+rm -f META-INF/MANIFEST.MF
 
 # Copy all transitive upstream dependencies into BOOT-INF/lib
 #   The dependencies are passed as arguments to the script, starting at index $first_jar_arg
@@ -292,7 +295,9 @@ classpath_idx_file="BOOT-INF/classpath.idx"
 > $classpath_idx_file  # Create empty file
 for jar_path in $boot_inf_lib_jars; do
   if [[ -f "$jar_path" ]]; then
-    echo "- \"$jar_path\"" >> $classpath_idx_file
+    # Clean up double slashes and use the actual jar path as it appears in the jar file
+    clean_jar_path=$(echo "$jar_path" | sed 's|//|/|g')
+    echo "- \"$clean_jar_path\"" >> $classpath_idx_file
   fi
 done
 

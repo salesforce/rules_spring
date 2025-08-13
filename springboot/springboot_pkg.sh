@@ -176,7 +176,7 @@ while [ "$i" -le "$#" ]; do
   echo "DEBUG: libname: $libname" >> $debugfile
   if [[ $libname == *jar ]]; then
     # we only want to process .jar files as libs
-    if [[ $libname == *spring-boot-loader* ]] || [[ $libname == *spring_boot_loader* ]] || [[ $libname == librootclassloader_lib* ]]; then
+    if ([[ $libname == *spring-boot-loader-[0-9]* ]] || [[ $libname == *spring_boot_loader-[0-9]* ]]) && [[ $libname != *spring-boot-loader-tools* ]] && [[ $libname != *spring_boot_loader_tools* ]] || [[ $libname == librootclassloader_lib* ]]; then
       # if libname contains the string 'spring-boot-loader' then...
       # the Spring Boot Loader classes are special, they must be extracted at the root level /,
       #   not in BOOT-INF/lib/loader.jar nor BOOT-INF/classes/**/*.class
@@ -238,6 +238,79 @@ done
 
 elapsed_trans=$(( $SECONDS - build_time_start ))
 echo "DEBUG: finished copying transitives into BOOT-INF/lib, elapsed time (seconds): $elapsed_trans" >> $debugfile
+
+# Auto-include spring-boot-jarmode-tools.jar for jarmode=tools functionality
+echo "DEBUG: auto-including spring-boot-jarmode-tools.jar" >> $debugfile
+
+# Find spring-boot-loader-tools jar and extract spring-boot-jarmode-tools.jar from it
+spring_boot_loader_tools_jar=""
+for jar_path in $boot_inf_lib_jars; do
+  if [[ $jar_path == *spring-boot-loader-tools* ]]; then
+    spring_boot_loader_tools_jar="$jar_path"
+    echo "DEBUG: found spring-boot-loader-tools jar: $jar_path" >> $debugfile
+    break
+  fi
+done
+
+if [[ -n "$spring_boot_loader_tools_jar" ]] && [[ -f "$spring_boot_loader_tools_jar" ]]; then
+  echo "DEBUG: extracting spring-boot-jarmode-tools.jar from $spring_boot_loader_tools_jar" >> $debugfile
+
+  # Create a temporary directory for extraction
+  temp_extract_dir=$(mktemp -d)
+  cd $temp_extract_dir
+
+  # Extract the jarmode tools jar from spring-boot-loader-tools
+  $jar_command xf $working_dir/$spring_boot_loader_tools_jar META-INF/jarmode/spring-boot-jarmode-tools.jar 2>/dev/null
+
+  if [ -f META-INF/jarmode/spring-boot-jarmode-tools.jar ]; then
+    # Copy the extracted jarmode tools jar to BOOT-INF/lib
+    jarmode_tools_dest="BOOT-INF/lib/spring-boot-jarmode-tools.jar"
+    cp META-INF/jarmode/spring-boot-jarmode-tools.jar $working_dir/$jarmode_tools_dest
+    boot_inf_lib_jars="${boot_inf_lib_jars} ${jarmode_tools_dest}"
+    echo "DEBUG: successfully extracted spring-boot-jarmode-tools.jar to $jarmode_tools_dest" >> $debugfile
+
+    # Remove spring-boot-loader-tools jar from the list since we only need the extracted jarmode tools
+    boot_inf_lib_jars=$(echo "$boot_inf_lib_jars" | sed "s|$spring_boot_loader_tools_jar||g" | sed 's/  */ /g' | sed 's/^ *//' | sed 's/ *$//')
+    echo "DEBUG: removed spring-boot-loader-tools jar from the list" >> $debugfile
+  else
+    echo "DEBUG: spring-boot-jarmode-tools.jar not found in $spring_boot_loader_tools_jar" >> $debugfile
+  fi
+
+  # Clean up temporary directory
+  cd $working_dir
+  rm -rf $temp_extract_dir
+else
+  echo "DEBUG: could not find spring-boot-loader-tools jar" >> $debugfile
+fi
+
+# Generate Spring Boot index files for jarmode=tools support
+echo "DEBUG: generating Spring Boot index files" >> $debugfile
+
+# Generate classpath.idx
+echo "DEBUG: generating BOOT-INF/classpath.idx" >> $debugfile
+classpath_idx_file="BOOT-INF/classpath.idx"
+> $classpath_idx_file  # Create empty file
+for jar_path in $boot_inf_lib_jars; do
+  if [[ -f "$jar_path" ]]; then
+    echo "- \"$jar_path\"" >> $classpath_idx_file
+  fi
+done
+
+# Generate layers.idx
+echo "DEBUG: generating BOOT-INF/layers.idx" >> $debugfile
+layers_idx_file="BOOT-INF/layers.idx"
+cat > $layers_idx_file << 'EOF'
+- "dependencies":
+  - "BOOT-INF/lib/"
+- "spring-boot-loader":
+  - "org/"
+- "snapshot-dependencies":
+- "application":
+  - "BOOT-INF/classes/"
+  - "BOOT-INF/classpath.idx"
+  - "BOOT-INF/layers.idx"
+  - "META-INF/"
+EOF
 
 # Inject the Git properties into a properties file in the jar
 # (the -f is needed when remote caching is used, as cached files come down as r-x and
@@ -321,6 +394,10 @@ cd $working_dir
     cd "$ruledir"
     $singlejar_cmd $singlejar_options $singlejar_mainclass \
         --deploy_manifest_lines "Start-Class: $mainclass" \
+        --deploy_manifest_lines "Spring-Boot-Classes: BOOT-INF/classes/" \
+        --deploy_manifest_lines "Spring-Boot-Lib: BOOT-INF/lib/" \
+        --deploy_manifest_lines "Spring-Boot-Classpath-Index: BOOT-INF/classpath.idx" \
+        --deploy_manifest_lines "Spring-Boot-Layers-Index: BOOT-INF/layers.idx" \
         --sources $raw_output_jar \
         --output "$outputjar" 2>&1 | tee -a $debugfile
 )

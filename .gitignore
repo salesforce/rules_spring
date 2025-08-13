@@ -29,3 +29,5 @@ rules-spring-*.zip
 
 .vscode
 .ijwb
+
+.idea

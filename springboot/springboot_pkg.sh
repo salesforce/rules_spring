@@ -174,6 +174,12 @@ while [ "$i" -le "$#" ]; do
   libname=$(basename $lib)
   libdir=$(dirname $lib)
   echo "DEBUG: libname: $libname" >> $debugfile
+  echo "DEBUG: libdir: $libdir" >> $debugfile
+  # Some paths may contain % as a result of Bazel URL encoding the folder name, such as
+  # user@example.com becoming user%40example.com. Such folders fail to load (see Issue #270).
+  # Translate % to _ to avoid this issue.
+  libdir=${libdir//%/_}
+  echo "DEBUG: sanitized libdir: $libdir" >> $debugfile
   if [[ $libname == *jar ]]; then
     # we only want to process .jar files as libs
     if [[ $libname == *spring-boot-loader* ]] || [[ $libname == *spring_boot_loader* ]] || [[ $libname == librootclassloader_lib* ]]; then

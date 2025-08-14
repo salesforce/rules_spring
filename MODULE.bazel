@@ -27,6 +27,7 @@ maven.install(
         "org.springframework.boot:spring-boot-configuration-processor:3.4.4",
         "org.springframework.boot:spring-boot-loader:3.4.4",
         "org.springframework.boot:spring-boot-loader-tools:3.4.4",
+        "org.springframework.boot:spring-boot-jarmode-tools:3.4.4",
         "org.springframework.boot:spring-boot-starter:3.4.4",
         "org.springframework.boot:spring-boot-starter-actuator:3.4.4",
         "org.springframework.boot:spring-boot-starter-freemarker:3.4.4",

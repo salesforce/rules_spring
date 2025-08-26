@@ -158,7 +158,10 @@ echo "" >> $debugfile
 # Extract the compiled Boot application classes into BOOT-INF/classes
 #    this must include the application's main class (annotated with @SpringBootApplication)
 cd $working_dir/BOOT-INF/classes
+# Extract all files except META-INF/MANIFEST.MF to avoid duplicate manifest entries
 $jar_command -xf $ruledir/$appjar
+# Remove the extracted MANIFEST.MF to prevent duplicate entries in the final jar
+rm -f META-INF/MANIFEST.MF
 
 # Copy all transitive upstream dependencies into BOOT-INF/lib
 #   The dependencies are passed as arguments to the script, starting at index $first_jar_arg
@@ -245,6 +248,39 @@ done
 elapsed_trans=$(( $SECONDS - build_time_start ))
 echo "DEBUG: finished copying transitives into BOOT-INF/lib, elapsed time (seconds): $elapsed_trans" >> $debugfile
 
+
+
+# Generate Spring Boot index files for jarmode=tools support
+echo "DEBUG: generating Spring Boot index files" >> $debugfile
+
+# Generate classpath.idx
+echo "DEBUG: generating BOOT-INF/classpath.idx" >> $debugfile
+classpath_idx_file="BOOT-INF/classpath.idx"
+> $classpath_idx_file  # Create empty file
+for jar_path in $boot_inf_lib_jars; do
+  if [[ -f "$jar_path" ]]; then
+    # Clean up double slashes and use the actual jar path as it appears in the jar file
+    clean_jar_path=$(echo "$jar_path" | sed 's|//|/|g')
+    echo "- \"$clean_jar_path\"" >> $classpath_idx_file
+  fi
+done
+
+# Generate layers.idx
+echo "DEBUG: generating BOOT-INF/layers.idx" >> $debugfile
+layers_idx_file="BOOT-INF/layers.idx"
+cat > $layers_idx_file << 'EOF'
+- "dependencies":
+  - "BOOT-INF/lib/"
+- "spring-boot-loader":
+  - "org/"
+- "snapshot-dependencies":
+- "application":
+  - "BOOT-INF/classes/"
+  - "BOOT-INF/classpath.idx"
+  - "BOOT-INF/layers.idx"
+  - "META-INF/"
+EOF
+
 # Inject the Git properties into a properties file in the jar
 # (the -f is needed when remote caching is used, as cached files come down as r-x and
 #  if you rerun the build it needs to overwrite)
@@ -327,6 +363,10 @@ cd $working_dir
     cd "$ruledir"
     $singlejar_cmd $singlejar_options $singlejar_mainclass \
         --deploy_manifest_lines "Start-Class: $mainclass" \
+        --deploy_manifest_lines "Spring-Boot-Classes: BOOT-INF/classes/" \
+        --deploy_manifest_lines "Spring-Boot-Lib: BOOT-INF/lib/" \
+        --deploy_manifest_lines "Spring-Boot-Classpath-Index: BOOT-INF/classpath.idx" \
+        --deploy_manifest_lines "Spring-Boot-Layers-Index: BOOT-INF/layers.idx" \
         --sources $raw_output_jar \
         --output "$outputjar" 2>&1 | tee -a $debugfile
 )

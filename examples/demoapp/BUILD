@@ -30,6 +30,7 @@ springboot_deps = [
     "@maven//:org_springframework_boot_spring_boot_starter_jetty",
     "@maven//:org_springframework_boot_spring_boot_starter_web",
     "@maven//:org_springframework_boot_spring_boot_loader_tools",
+    "@maven//:org_springframework_boot_spring_boot_jarmode_tools",
     "@maven//:org_springframework_spring_webmvc",
 
     # bring in same dep again as above, but through a different maven_install

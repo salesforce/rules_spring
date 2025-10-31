@@ -1,5 +1,5 @@
-load("//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
-load("//springboot/deps_filter_rules:deps_filter_disable_transitives.bzl", "deps_filter_disable_transitives")
+load("//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
+load("//springboot/deps_filter_rules_legacy:deps_filter_disable_transitives.bzl", "deps_filter_disable_transitives")
 
 deps = [
     "@maven//:org_springframework_spring_jdbc",

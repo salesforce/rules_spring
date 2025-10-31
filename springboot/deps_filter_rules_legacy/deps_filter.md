@@ -54,12 +54,12 @@ Follow the steps mentioned [here](../../README.md#loading-the-spring-rules-in-yo
 
 ### Step 2: Load the `deps_filter` rule in your BUILD file:
 ```
-load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
+load("@rules_spring//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 ```
 
 ### Step 3: Define and reference the `deps_filter` rule in other targets (e.g., `java_library`) to manage their dependencies:
 ```
-load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
+load("@rules_spring//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 
 deps = [
     ...

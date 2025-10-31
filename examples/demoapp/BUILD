@@ -11,7 +11,7 @@
 #   "@rules_spring//springboot" when you consume the official release via http_archive.
 
 load("//springboot:springboot.bzl", "springboot")
-load("//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
+load("//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 load("//tools/license:licenses_used.bzl", "licenses_used")
 load(":generate-build-info.bzl", "gen_buildinfo_rule")
 

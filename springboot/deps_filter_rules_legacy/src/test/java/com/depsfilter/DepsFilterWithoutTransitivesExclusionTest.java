@@ -8,101 +8,90 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 
-public class TransitiveDepsFilterCaseC {
+public class DepsFilterWithoutTransitivesExclusionTest {
 
     private List<String> testDeps;
     private List<String> depsList;
-    private List<String> transitivesOfFirstDep;
-    private List<String> transitivesOfSecondDep;
+    private List<String> excludedDirectDeps;
+    private List<String> nonexcludedDirectDeps;
+    private List<String> transitivesOfExcludedDirectDeps;
+    private List<String> transitivesOfNonExcludedDirectDeps;
 
     @Test
     public void testTransitivesExclusion() {
         /*
-            This test is for the 'deps_filter_disable_transitives' rule
-            Corresponds to the 'filtered_deps_disable_transitives_case_B' rule in the BUILD file:
-    
-            deps_filter_disable_transitives(
-                name = "filtered_deps_disable_transitives_case_C",
+            Tests the 'deps_filter' rule with its 'exclude_transitives' attribute set to False.
+            Corresponds to the 'filtered_test_deps_with_transitives_excluded' rule in the BUILD file:
+
+            deps_filter(
+                name = "filtered_test_deps_without_transitives_excluded",
                 deps = [
                     "@maven//:org_springframework_spring_jdbc",
                     "@maven//:org_springframework_spring_web",
                 ],
-                deps_to_exclude_transitives = [
-                    "@maven//:org_springframework_spring_jdbc",
+                deps_exclude_labels = [
+                    "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
                 ],
+                exclude_transitives = False,
                 testonly = True,
             )
 
             This test verifies:
-            - Build-time deps include "@maven//:org_springframework_spring_web", its transitive deps, and
-              "@maven//:org_springframework_spring_jdbc"
-            - Excluded deps include transitive deps of @maven//:org_springframework_spring_jdbc, except those that
-              are transitive deps of @maven//:org_springframework_spring_web"
+            - Excluded deps include "@maven//:org_springframework_spring_web"
+            - Build-time deps include "@maven//:org_springframework_spring_jdbc" and its transitive deps
+              Build-time deps also include transitive deps of "@maven//:org_springframework_spring_web"
 
             This is validated by checking the available deps in the code.
         */
 
         initialTestSetup();
-        List<String> expectedExcludedTransitives = getExcludedTransitives();
-        List<String> expectedNonExcludedTransitives = getNonExcludedTransitives();
+        List<String> allTransitivesDeps = getTransitiveDeps();
         List<String> availableDeps = computeClasspathDependencies();
 
-        // Ensure that all expected excluded deps are not present in available deps.
-        for (String excludedTransitive : expectedExcludedTransitives) {
-            assertThat(availableDeps).doesNotContain(excludedTransitive);
+        // Ensure that direct deps listed for exclusion are not present in the available deps.
+        for (String excludedDep : excludedDirectDeps) {
+            assertThat(availableDeps).doesNotContain(excludedDep);
         }
 
-        // Ensure that all direct deps are present in available deps.
-        for (String dep : depsList) {
-            assertThat(availableDeps).contains(dep);
+        // Ensure that non-excluded direct deps, their transitive deps, and the transitive deps of excluded deps are
+        // present in the available deps.
+        for (String nonExcludedDep : nonexcludedDirectDeps) {
+            assertThat(availableDeps).contains(nonExcludedDep);
         }
 
-        // Ensure that the transitive deps of direct deps, which are not listed in the exclusion list,
-        // are included in the available dependencies.
-        for (String nonExcludedTransitive : expectedNonExcludedTransitives) {
-            assertThat(availableDeps).contains(nonExcludedTransitive);
+        for (String transitive : transitivesOfExcludedDirectDeps) {
+            assertThat(availableDeps).contains(transitive);
         }
 
-        // Ensure that combined list of  testDeps, depsList, expectedExcludedTransitives, and
-        // expectedNonExcludedTransitives is equal to combined list of availableDeps, and expectedExcludedTransitives.
+        for (String transitive : transitivesOfNonExcludedDirectDeps) {
+            assertThat(availableDeps).contains(transitive);
+        }
+
+        // Ensure that the combined list of testDeps, depsList, and allTransitivesDeps
+        // is equal to the combined list of availableDeps, and excludedDirectDeps.
         List<String> expectedCombinedDepsList = new ArrayList<>();
         List<String> actualCombinedDepsList = new ArrayList<>();
         expectedCombinedDepsList.addAll(testDeps);
         expectedCombinedDepsList.addAll(depsList);
-        expectedCombinedDepsList.addAll(expectedNonExcludedTransitives);
-        expectedCombinedDepsList.addAll(expectedExcludedTransitives);
+        expectedCombinedDepsList.addAll(allTransitivesDeps);
+
         actualCombinedDepsList.addAll(availableDeps);
-        actualCombinedDepsList.addAll(expectedExcludedTransitives);
+        actualCombinedDepsList.addAll(excludedDirectDeps);
 
-        assertThat(actualCombinedDepsList)
-            .containsExactlyInAnyOrderElementsOf(expectedCombinedDepsList);
+        assertThat(actualCombinedDepsList).containsExactlyInAnyOrderElementsOf(expectedCombinedDepsList);
     }
 
-    private List<String> getExcludedTransitives() {
-        // All transitive deps of specified deps in the exclusion list should be excluded,
-        // except those that are also transitives deps of deps not in exclusion list
-        // or the direct deps themselves.
-        List<String> expectedExcludedTransitives = new ArrayList<>();
-        for (String transitive : transitivesOfSecondDep) {
-            if ((!transitivesOfFirstDep.contains(transitive))
-                && (!depsList.contains(transitive))) {
-                expectedExcludedTransitives.add(transitive);
-            }
+    private List<String> getTransitiveDeps() {
+        // Compute transitive deps of both excluded and non-excluded deps
+        Set<String> uniqueTransitivesSet = new HashSet<>();
+        uniqueTransitivesSet.addAll(transitivesOfExcludedDirectDeps);
+        uniqueTransitivesSet.addAll(transitivesOfNonExcludedDirectDeps);
+        for (String directDependency : depsList) {
+            uniqueTransitivesSet.remove(directDependency);
         }
-        return expectedExcludedTransitives;
+        List<String> allTransitivesDeps = List.copyOf(uniqueTransitivesSet);
+        return allTransitivesDeps;
     }
-
-    private List<String> getNonExcludedTransitives() {
-        // Transitive deps of direct deps that are not specified in the exclusion list
-        List<String> expectedNonExcludedTransitives = new ArrayList<>();
-        for (String transitive : transitivesOfFirstDep) {
-            if (!expectedNonExcludedTransitives.contains(transitive)) {
-                expectedNonExcludedTransitives.add(transitive);
-            }
-        }
-        return expectedNonExcludedTransitives;
-    }
-
 
     private List<String> computeClasspathDependencies() {
         String classpath = System.getProperty("java.class.path");
@@ -116,7 +105,7 @@ public class TransitiveDepsFilterCaseC {
 
     private void initialTestSetup() {
         // required to run the test - specified in the test target
-        testDeps = List.of("springboot/deps_filter_rules/TransitiveDepsFilterCaseC.jar",
+        testDeps = List.of("springboot/deps_filter_rules_legacy/DepsFilterWithoutTransitivesExclusionTest.jar",
             "rules_jvm_external~~maven~maven/junit/junit/4.13.2/processed_junit-4.13.2.jar",
             "rules_jvm_external~~maven~maven/org/hamcrest/hamcrest-core/2.2/processed_hamcrest-core-2.2.jar",
             "rules_jvm_external~~maven~maven/org/hamcrest/hamcrest/2.2/processed_hamcrest-2.2.jar",
@@ -131,7 +120,17 @@ public class TransitiveDepsFilterCaseC {
             "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
         );
 
-        transitivesOfFirstDep = List.of(
+        // specified in the 'deps_exclude_labels' attribute of 'deps_filter'
+        excludedDirectDeps = List.of(
+            "rules_jvm_external~~maven~maven/org/springframework/spring-web/6.1.14/processed_spring-web-6.1.14.jar"
+        );
+
+        // deps that are not excluded = depsList - excludedDirectDeps
+        nonexcludedDirectDeps = List.of(
+            "rules_jvm_external~~maven~maven/org/springframework/spring-jdbc/6.1.14/processed_spring-jdbc-6.1.14.jar"
+        );
+
+        transitivesOfExcludedDirectDeps = List.of(
             "rules_jvm_external~~maven~maven/io/micrometer/micrometer-observation/1.13"
             + ".6/processed_micrometer-observation-1.13.6.jar",
             "rules_jvm_external~~maven~maven/io/micrometer/micrometer-commons/1.13.6/processed_micrometer-commons-1"
@@ -141,7 +140,7 @@ public class TransitiveDepsFilterCaseC {
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar"
         );
 
-        transitivesOfSecondDep = List.of(
+        transitivesOfNonExcludedDirectDeps = List.of(
             "rules_jvm_external~~maven~maven/org/springframework/spring-beans/6.1.14/processed_spring-beans-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-core/6.1.14/processed_spring-core-6.1.14.jar",
             "rules_jvm_external~~maven~maven/org/springframework/spring-jcl/6.1.14/processed_spring-jcl-6.1.14.jar",

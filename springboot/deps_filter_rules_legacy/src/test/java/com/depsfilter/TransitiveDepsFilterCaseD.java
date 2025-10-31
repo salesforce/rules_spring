@@ -89,7 +89,7 @@ public class TransitiveDepsFilterCaseD {
 
     private void initialTestSetup() {
         // required to run the test - specified in the test target
-        testDeps = List.of("springboot/deps_filter_rules/TransitiveDepsFilterCaseD.jar",
+        testDeps = List.of("springboot/deps_filter_rules_legacy/TransitiveDepsFilterCaseD.jar",
             "rules_jvm_external~~maven~maven/junit/junit/4.13.2/processed_junit-4.13.2.jar",
             "rules_jvm_external~~maven~maven/org/hamcrest/hamcrest-core/2.2/processed_hamcrest-core-2.2.jar",
             "rules_jvm_external~~maven~maven/org/hamcrest/hamcrest/2.2/processed_hamcrest-2.2.jar",

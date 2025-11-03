@@ -13,6 +13,8 @@ This is useful in cases where:
 - You want to exclude a dependency for a specific reason (it has a vulnerability)
 - There are multiple versions of a dependency on the classpath (dupe classes) and you want to exclude the unfavored one
 
+> **For large monorepos**: Consider using the [`dependencyset` macro](DEPENDENCYSET.md) which wraps `deps_filter` to enable centralized exclusion management and policy-as-code enforcement across hundreds of services.
+
 ## Usage
 
 ```python

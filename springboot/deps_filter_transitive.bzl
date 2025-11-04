@@ -1,7 +1,7 @@
 
 # THIS VERSION OF THE FILTER IS DEPRECATED AND WILL BE REMOVED
 # Use deps_filter instead: 
-#  load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
+#  load("@rules_spring//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 # 
 # Note: the attribute deps_exclude has been renamed deps_exclude_labels for deps_filter
 

@@ -11,6 +11,9 @@ bazel_dep(name = "rules_python", version = "0.40.0")
 # For License support
 bazel_dep(name = "rules_license", version = "1.0.0")
 
+# For unittest toolchain
+bazel_dep(name = "bazel_skylib", version = "1.1.1")
+
 # DEV DEPENDENCIES
 
 # Maven dependencies for the examples
@@ -57,6 +60,7 @@ maven.install(
         # a filter to exclude this dependency
         "javax.annotation:javax.annotation-api:1.3.2",
 
+
         # test deps
         "junit:junit:4.13.2",
         "org.hamcrest:hamcrest-core:2.2",
@@ -65,3 +69,29 @@ maven.install(
     lock_file = "//:maven_install.json",
 )
 use_repo(maven, "maven")
+
+unmanaged_maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven", dev_dependency = True)
+unmanaged_maven.install(
+    name = "unmanaged_deps_filter",
+    artifacts = [
+        "org.springframework.boot:spring-boot-starter-data-jpa:3.3.11",
+        "org.springframework.boot:spring-boot-starter-security:3.3.11",
+        "com.fasterxml.jackson.core:jackson-databind:2.17.2",
+        "org.hibernate.orm:hibernate-core:6.4.4.Final",
+        "org.springframework.boot:spring-boot-starter-oauth2-client:3.3.11",
+        "org.springframework.boot:spring-boot-starter-webflux:3.3.11",
+        "org.springframework.boot:spring-boot-starter-actuator:3.3.11",
+        "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1",
+        "junit:junit:4.13.2",
+        "org.assertj:assertj-core:3.26.0",
+        "io.micrometer:micrometer-commons:1.13.13",
+        "org.slf4j:jul-to-slf4j:2.0.17",
+    ],
+    excluded_artifacts = [
+        "org.slf4j:slf4j-api",
+        "org.yaml:snakeyaml",
+    ],
+    lock_file = "//springboot/deps_filter_rules/tests/external_deps:unmanaged_deps_filter_install.json",
+)
+use_repo(unmanaged_maven, "unmanaged_deps_filter")
+

@@ -109,13 +109,13 @@ The benefits to excluding dependencies this way (as opposed to the exclude lists
   the ```springboot``` executable jar.
 
 A simple example is below, and there is detailed documentation in the filter directory:
-- [deps_filter documentation](deps_filter_rules/README.md)
+- [deps_filter documentation](deps_filter_rules_legacy/README.md)
 
 In this example, the springboot jar wants the red, green and blue libraries, but
 does not want the yellow library (a transitive).
 ```starlark
 #
-load("@rules_spring//springboot/deps_filter_rules:deps_filter.bzl", "deps_filter")
+load("@rules_spring//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 
 deps = [
     "@maven//:com_colors_red",

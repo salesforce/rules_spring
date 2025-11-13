@@ -204,6 +204,9 @@ springboot(
     bazelrun_script = "custom_bazelrun_script.sh",
     boot_app_class = "com.sample.SampleMain",
     boot_launcher_class = "org.springframework.boot.loader.launch.JarLauncher",
+    # Verify that dupe class checking works in this second springboot rule too
+    dupeclassescheck_enable = True,
+    dupeclassescheck_ignorelist = "demoapp_dupeclass_allowlist.txt",
     java_library = ":demoapp_lib",
     deps = [":rootclassloader_lib"],
 )

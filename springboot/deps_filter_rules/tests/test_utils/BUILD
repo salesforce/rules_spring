@@ -1,3 +1,5 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
 package(default_visibility = ["//visibility:public"])
 
 java_library(
@@ -8,4 +10,4 @@ java_library(
 )
 
 # Export the dependency graph file for tests
-exports_files(["dependency_graph.txt"]) 
+exports_files(["dependency_graph.txt"])

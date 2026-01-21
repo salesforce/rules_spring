@@ -1,24 +1,25 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load("//springboot/deps_filter_rules:dependencyset.bzl", "dependencyset")
 load(
     "//springboot/deps_filter_rules/tests/dependencyset/internal_dependencies/compile_and_runtime_1:compile_and_runtime_test.bzl",
-    "no_filtering_test",
-    "filtered_deps_test",
+    "empty_exclusion_lists_test",
     "filtered_deps_exclude_transitive_test",
-    "path_based_exclusions_test",
+    "filtered_deps_test",
     "interface_implementation_jars_test",
     "multiple_exclusions_with_transitive_test",
     "multiple_exclusions_without_transitive_test",
-    "empty_exclusion_lists_test",
     "multiple_paths_test",
+    "no_filtering_test",
+    "path_based_exclusions_test",
 )
 
 # Dependency Graph Structure:
 
-#          base_lib      
+#          base_lib
 #             |
 #        dependencyset
 #    ("deps")  ("runtime_deps")
-#        /       \  
+#        /       \
 #      A (c)    I (r)
 #      /  \        |
 #     /   \     G (r)
@@ -29,67 +30,67 @@ load(
 #   |    F (c)
 #    \   /
 #    C (c)
-#     | 
-#    D (r)   
+#     |
+#    D (r)
 
 java_library(
     name = "lib_a",
     srcs = ["src/main/java/com/depsfilter/A.java"],
-    deps = [
-        ":lib_b",  # A -> B (c)
-    ],
     runtime_deps = [
         ":lib_e",  # A -> E (r)
+    ],
+    deps = [
+        ":lib_b",  # A -> B (c)
     ],
 )
 
 java_library(
     name = "lib_b",
-    srcs = ["src/main/java/com/depsfilter/B.java"],  
-    deps = [":lib_c"], # B -> C (c)
+    srcs = ["src/main/java/com/depsfilter/B.java"],
+    deps = [":lib_c"],  # B -> C (c)
 )
 
 java_library(
     name = "lib_c",
     srcs = ["src/main/java/com/depsfilter/C.java"],
-    runtime_deps = [":lib_d"], # C -> D (r)
+    runtime_deps = [":lib_d"],  # C -> D (r)
 )
 
 java_library(
     name = "lib_d",
-    srcs = ["src/main/java/com/depsfilter/D.java"], 
+    srcs = ["src/main/java/com/depsfilter/D.java"],
 )
 
 java_library(
     name = "lib_e",
     srcs = ["src/main/java/com/depsfilter/E.java"],
-    deps = [":lib_f"], # E -> F (c)
+    deps = [":lib_f"],  # E -> F (c)
 )
 
 java_library(
     name = "lib_f",
     srcs = ["src/main/java/com/depsfilter/F.java"],
-    deps = [":lib_c"], # F -> C (c)
+    deps = [":lib_c"],  # F -> C (c)
 )
 
 java_library(
     name = "lib_g",
     srcs = ["src/main/java/com/depsfilter/G.java"],
-    deps = [":lib_f"], # G -> F (c)
+    deps = [":lib_f"],  # G -> F (c)
 )
 
 java_library(
     name = "lib_i",
     srcs = ["src/main/java/com/depsfilter/I.java"],
-    runtime_deps = [":lib_g"], # I -> G path
+    runtime_deps = [":lib_g"],  # I -> G path
 )
 
 # Consumer library that uses the filtered dependencies
 java_library(
     name = "base_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":lib_a"], # base_lib -> A (c)
-    runtime_deps = [":lib_i"], # base_lib -> I (r)
+    runtime_deps = [":lib_i"],  # base_lib -> I (r)
+    deps = [":lib_a"],  # base_lib -> A (c)
 )
 
 # Test 1: No filtering
@@ -106,34 +107,40 @@ dependencyset(
 java_library(
     name = "no_filtering_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_no_filtering"],
     runtime_deps = [":runtime_deps_no_filtering"],
+    deps = [":deps_no_filtering"],
 )
 
 no_filtering_test(
     name = "deps_filter_no_filtering_test",
-    java_library = ":base_lib",  
+    java_library = ":base_lib",
     java_library_dependencyset = ":no_filtering_test_lib",
 )
 
 # Test 2: Exclude by labels and exclude_transitives = False
 dependencyset(
     name = "deps_exclude_b_g",
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     items = [":lib_a"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
 )
 
 dependencyset(
     name = "runtime_deps_exclude_b_g",
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     items = [":lib_i"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
 )
 
 java_library(
     name = "exclude_b_g_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_exclude_b_g"],
     runtime_deps = [":runtime_deps_exclude_b_g"],
+    deps = [":deps_exclude_b_g"],
 )
 
 filtered_deps_test(
@@ -144,23 +151,29 @@ filtered_deps_test(
 # Test 3: Exclude by labels and exclude_transitives = True
 dependencyset(
     name = "deps_exclude_b_g_transitives",
-    items = [":lib_a"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     exclude_transitives = True,
+    items = [":lib_a"],
 )
 
 dependencyset(
     name = "runtime_deps_exclude_b_g_transitives",
-    items = [":lib_i"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     exclude_transitives = True,
+    items = [":lib_i"],
 )
 
 java_library(
     name = "exclude_b_g_transitives_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_exclude_b_g_transitives"],
     runtime_deps = [":runtime_deps_exclude_b_g_transitives"],
+    deps = [":deps_exclude_b_g_transitives"],
 )
 
 filtered_deps_exclude_transitive_test(
@@ -171,21 +184,27 @@ filtered_deps_exclude_transitive_test(
 # Test 4: Test for path-based exclusions
 dependencyset(
     name = "deps_exclude_paths",
+    deps_exclude_paths = [
+        "lib_b",
+        "lib_f",
+    ],
     items = [":lib_a"],
-    deps_exclude_paths = ["lib_b", "lib_f"],
 )
 
 dependencyset(
     name = "runtime_deps_exclude_paths",
+    deps_exclude_paths = [
+        "lib_b",
+        "lib_f",
+    ],
     items = [":lib_i"],
-    deps_exclude_paths = ["lib_b", "lib_f"],
 )
 
 java_library(
     name = "path_based_exclusions_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_exclude_paths"],
     runtime_deps = [":runtime_deps_exclude_paths"],
+    deps = [":deps_exclude_paths"],
 )
 
 path_based_exclusions_test(
@@ -196,21 +215,27 @@ path_based_exclusions_test(
 # Test 5: Interface vs Implementation JARs
 dependencyset(
     name = "deps_interface_impl_exclude_b_g",
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     items = [":lib_a"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
 )
 
 dependencyset(
     name = "runtime_deps_interface_impl_exclude_b_g",
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     items = [":lib_i"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
 )
 
 java_library(
     name = "interface_impl_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_interface_impl_exclude_b_g"],
     runtime_deps = [":runtime_deps_interface_impl_exclude_b_g"],
+    deps = [":deps_interface_impl_exclude_b_g"],
 )
 
 interface_implementation_jars_test(
@@ -221,25 +246,25 @@ interface_implementation_jars_test(
 # Test 6: Multiple exclusions with exclude_transitives=True
 dependencyset(
     name = "deps_multi_excl_transitives",
-    items = [":lib_a"],
     deps_exclude_labels = [":lib_b"],
     deps_exclude_paths = ["lib_g"],
     exclude_transitives = True,
+    items = [":lib_a"],
 )
 
 dependencyset(
     name = "runtime_deps_multi_excl_transitives",
-    items = [":lib_i"],
     deps_exclude_labels = [":lib_b"],
     deps_exclude_paths = ["lib_g"],
     exclude_transitives = True,
+    items = [":lib_i"],
 )
 
 java_library(
     name = "multiple_exclusions_with_transitive_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_multi_excl_transitives"],
     runtime_deps = [":runtime_deps_multi_excl_transitives"],
+    deps = [":deps_multi_excl_transitives"],
 )
 
 multiple_exclusions_with_transitive_test(
@@ -250,25 +275,25 @@ multiple_exclusions_with_transitive_test(
 # Test 7: Multiple exclusions with exclude_transitives=False
 dependencyset(
     name = "deps_multi_excl_no_transitives",
-    items = [":lib_a"],
     deps_exclude_labels = [":lib_b"],
     deps_exclude_paths = ["lib_g"],
     exclude_transitives = False,
+    items = [":lib_a"],
 )
 
 dependencyset(
     name = "runtime_deps_multi_excl_no_transitives",
-    items = [":lib_i"],
     deps_exclude_labels = [":lib_b"],
     deps_exclude_paths = ["lib_g"],
     exclude_transitives = False,
+    items = [":lib_i"],
 )
 
 java_library(
     name = "multiple_exclusions_without_transitive_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_multi_excl_no_transitives"],
     runtime_deps = [":runtime_deps_multi_excl_no_transitives"],
+    deps = [":deps_multi_excl_no_transitives"],
 )
 
 multiple_exclusions_without_transitive_test(
@@ -279,23 +304,23 @@ multiple_exclusions_without_transitive_test(
 # Test 8: Empty exclusion lists
 dependencyset(
     name = "deps_empty_exclusions",
-    items = [":lib_a"],
-    deps_exclude_paths = [],
     deps_exclude_labels = [],
+    deps_exclude_paths = [],
+    items = [":lib_a"],
 )
 
 dependencyset(
     name = "runtime_deps_empty_exclusions",
-    items = [":lib_i"],
-    deps_exclude_paths = [],
     deps_exclude_labels = [],
+    deps_exclude_paths = [],
+    items = [":lib_i"],
 )
 
 java_library(
     name = "empty_exclusion_lists_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_empty_exclusions"],
     runtime_deps = [":runtime_deps_empty_exclusions"],
+    deps = [":deps_empty_exclusions"],
 )
 
 empty_exclusion_lists_test(
@@ -306,21 +331,27 @@ empty_exclusion_lists_test(
 # Test 9: Multiple paths handling
 dependencyset(
     name = "deps_multiple_paths_exclude_b_g",
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     items = [":lib_a"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
 )
 
 dependencyset(
     name = "runtime_deps_multiple_paths_exclude_b_g",
+    deps_exclude_labels = [
+        ":lib_b",
+        ":lib_g",
+    ],
     items = [":lib_i"],
-    deps_exclude_labels = [":lib_b", ":lib_g"],
 )
 
 java_library(
     name = "multiple_paths_test_lib",
     srcs = ["src/main/java/com/depsfilter/H.java"],
-    deps = [":deps_multiple_paths_exclude_b_g"],
     runtime_deps = [":runtime_deps_multiple_paths_exclude_b_g"],
+    deps = [":deps_multiple_paths_exclude_b_g"],
 )
 
 multiple_paths_test(
@@ -330,6 +361,6 @@ multiple_paths_test(
 
 toolchain(
     name = "unittest_toolchain",
-    toolchain_type = "@bazel_skylib//toolchains/unittest:toolchain_type",
     toolchain = "@bazel_skylib//toolchains/unittest:toolchain",
+    toolchain_type = "@bazel_skylib//toolchains/unittest:toolchain_type",
 )

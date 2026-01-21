@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_test")
 load("//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 load("//springboot/deps_filter_rules_legacy:deps_filter_disable_transitives.bzl", "deps_filter_disable_transitives")
 
@@ -13,76 +14,76 @@ test_deps = [
 
 deps_filter(
     name = "filtered_test_deps_with_transitives_excluded",
+    testonly = True,
+    deps_exclude_labels = [
+        "@maven//:org_springframework_spring_web",  # share transitives with spring-jdbc
+    ],
+    exclude_transitives = True,
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    deps_exclude_labels = [
-        "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
-    ],
-    exclude_transitives = True,
-    testonly = True,
 )
 
 deps_filter(
     name = "filtered_test_deps_without_transitives_excluded",
+    testonly = True,
+    deps_exclude_labels = [
+        "@maven//:org_springframework_spring_web",  # share transitives with spring-jdbc
+    ],
+    exclude_transitives = False,
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    deps_exclude_labels = [
-       "@maven//:org_springframework_spring_web", # share transitives with spring-jdbc
-    ],
-    exclude_transitives = False,
-    testonly = True,
 )
 
 deps_filter_disable_transitives(
     name = "filtered_deps_disable_transitives_case_A",
-    deps = [
-        "@maven//:org_springframework_spring_jdbc",
-        "@maven//:org_springframework_spring_web",
-    ],
+    testonly = True,
     deps_to_exclude_transitives = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    testonly = True,
+    deps = [
+        "@maven//:org_springframework_spring_jdbc",
+        "@maven//:org_springframework_spring_web",
+    ],
 )
 
 deps_filter_disable_transitives(
     name = "filtered_deps_disable_transitives_case_B",
-    deps = [
-        "@maven//:org_springframework_spring_jdbc",
-        "@maven//:org_springframework_spring_web",
-    ],
+    testonly = True,
     deps_to_exclude_transitives = [
         # "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
-    testonly = True,
+    deps = [
+        "@maven//:org_springframework_spring_jdbc",
+        "@maven//:org_springframework_spring_web",
+    ],
 )
 
 deps_filter_disable_transitives(
     name = "filtered_deps_disable_transitives_case_C",
-    deps = [
-        "@maven//:org_springframework_spring_jdbc",
-        "@maven//:org_springframework_spring_web",
-    ],
+    testonly = True,
     deps_to_exclude_transitives = [
         "@maven//:org_springframework_spring_jdbc",
         # "@maven//:org_springframework_spring_web",
     ],
-    testonly = True,
-)
-
-deps_filter_disable_transitives(
-    name = "filtered_deps_disable_transitives_case_D",
     deps = [
         "@maven//:org_springframework_spring_jdbc",
         "@maven//:org_springframework_spring_web",
     ],
+)
+
+deps_filter_disable_transitives(
+    name = "filtered_deps_disable_transitives_case_D",
     testonly = True,
+    deps = [
+        "@maven//:org_springframework_spring_jdbc",
+        "@maven//:org_springframework_spring_web",
+    ],
 )
 
 java_test(
@@ -112,7 +113,6 @@ java_test(
     srcs = ["src/test/java/com/depsfilter/TransitiveDepsFilterCaseD.java"],
     deps = [":filtered_deps_disable_transitives_case_D"] + test_deps,
 )
-
 
 java_test(
     name = "DepsFilterWithTransitivesExclusionTest",

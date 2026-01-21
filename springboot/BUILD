@@ -10,8 +10,9 @@
 
 # See the README.md file for detailed usage instructions.
 
-load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("@rules_license//rules:license.bzl", "license")
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 
 # Using a package wide default ensure that all targets are associated with the
 # license.
@@ -36,12 +37,12 @@ exports_files([
 
 license(
     name = "license",
+    package_name = "@rules_spring//springboot",
     copyright_notice = "Copyright (c) 2017-2024, Salesforce",
     license_kinds = [
         "@rules_license//licenses/spdx:Apache-2.0",
     ],
     license_text = "//:LICENSE.txt",
-    package_name = "@rules_spring//springboot",
     package_url = "https://github.com/salesforce/rules_spring",
     package_version = "2.4.2",
     visibility = ["//visibility:public"],
@@ -82,6 +83,6 @@ java_library(
 
 java_binary(
     name = "springboot_cli",
-    runtime_deps = [":springboot_lib"],
     main_class = "com.salesforce.rulesspring.cli.SpringBootInspector",
+    runtime_deps = [":springboot_lib"],
 )

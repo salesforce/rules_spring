@@ -30,6 +30,8 @@
 # Dependency Aggregator Rule
 #  do not use directly, see the SpringBoot Macro below
 
+load("@rules_java//java:defs.bzl", "JavaInfo", "java_binary", "java_common", "java_library")
+
 def _depaggregator_rule_impl(ctx):
     # magical incantation for getting upstream transitive closure of java deps
     merged = java_common.merge([dep[java_common.provider] for dep in ctx.attr.deps])
@@ -698,7 +700,7 @@ def springboot(
     # Making the springboot rule itself executable is not recognized by IntelliJ
     # (because IntelliJ doesn't know how to handle the springboot rule type or
     # because of a misconfiguration on our end?)
-    native.java_binary(
+    java_binary(
         name = apprun_rule,
         main_class = boot_app_class,
         runtime_deps = java_deps,

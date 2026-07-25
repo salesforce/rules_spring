@@ -1,12 +1,13 @@
 load("@bazel_skylib//lib:unittest.bzl", "asserts", "unittest")
-load("//springboot/deps_filter_rules/tests/test_utils:verification_utils.bzl",
-        "verify_jars", 
-        "verify_runtime_and_compile_jars",
-        "verify_jars_and_dropped_counts", 
-        "verify_dropped_counts",
-        "compute_expected_jars",
+load("@rules_java//java:defs.bzl", "JavaInfo")
+load(
+    "//springboot/deps_filter_rules/tests/test_utils:verification_utils.bzl",
+    "compute_expected_jars",
+    "verify_dropped_counts",
+    "verify_jars",
+    "verify_jars_and_dropped_counts",
+    "verify_runtime_and_compile_jars",
 )
-
 
 def _test_no_filtering(ctx):
     """
@@ -14,22 +15,27 @@ def _test_no_filtering(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_jars_and_dropped_counts(env, expected, 
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = "0")
+
+    verify_jars_and_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = "0",
+    )
 
     return unittest.end(env)
 
@@ -56,11 +62,10 @@ no_filtering_test = unittest.make(_test_no_filtering, attrs = {
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
 })
-
 
 def _test_with_label_exclusions(ctx):
     """
@@ -68,17 +73,19 @@ def _test_with_label_exclusions(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
+
     # Verify dropped counts - label exclusions should drop direct JARs but not transitives when exclude_transitives=False
     dropped_counts = {
         "compile_jars_dropped": expected["compile_jars_dropped"],
@@ -86,11 +93,14 @@ def _test_with_label_exclusions(ctx):
         "transitive_compile_jars_dropped": expected["transitive_compile_jars_dropped"],
         "transitive_runtime_jars_dropped": expected["transitive_runtime_jars_dropped"],
     }
-    verify_dropped_counts(env, expected, 
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
 
     return unittest.end(env)
 
@@ -118,10 +128,9 @@ with_label_exclusions_test = unittest.make(_test_with_label_exclusions, attrs = 
         default = [
             "@unmanaged_deps_filter//:io_micrometer_micrometer_commons",
             "@unmanaged_deps_filter//:org_slf4j_jul_to_slf4j",
-            
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -135,22 +144,27 @@ def _test_with_label_exclusions_with_exclude_transitives(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_jars_and_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+
+    verify_jars_and_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
 
     return unittest.end(env)
 
@@ -178,10 +192,9 @@ with_label_exclusions_with_exclude_transitives_test = unittest.make(_test_with_l
         default = [
             "@unmanaged_deps_filter//:io_micrometer_micrometer_commons",
             "@unmanaged_deps_filter//:org_slf4j_jul_to_slf4j",
-            
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -189,29 +202,33 @@ with_label_exclusions_with_exclude_transitives_test = unittest.make(_test_with_l
     ),
 })
 
-
 def _test_with_path_exclusions(ctx):
     """
     Tests deps with path-based exclusions (without transitives).
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 with_path_exclusions_test = unittest.make(_test_with_path_exclusions, attrs = {
@@ -235,13 +252,13 @@ with_path_exclusions_test = unittest.make(_test_with_path_exclusions, attrs = {
         providers = [JavaInfo],
     ),
     "deps_exclude_labels": attr.label_list(
-        default = [        
+        default = [
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
             "micrometer",
-            "slf4j"
+            "slf4j",
         ],
     ),
     "exclude_transitives": attr.bool(
@@ -249,29 +266,33 @@ with_path_exclusions_test = unittest.make(_test_with_path_exclusions, attrs = {
     ),
 })
 
-
 def _test_with_path_exclusions_with_exclude_transitives(ctx):
     """
     Tests deps with path-based exclusions including exclude_transitives.
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
-    
+
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
 
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 with_path_exclusions_with_exclude_transitives_test = unittest.make(_test_with_path_exclusions_with_exclude_transitives, attrs = {
@@ -295,13 +316,13 @@ with_path_exclusions_with_exclude_transitives_test = unittest.make(_test_with_pa
         providers = [JavaInfo],
     ),
     "deps_exclude_labels": attr.label_list(
-        default = [        
+        default = [
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
             "micrometer",
-            "slf4j"
+            "slf4j",
         ],
     ),
     "exclude_transitives": attr.bool(
@@ -315,22 +336,27 @@ def _test_multiple_exclusions_with_exclude_transitives(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
 
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 multiple_exclusions_with_exclude_transitives_test = unittest.make(_test_multiple_exclusions_with_exclude_transitives, attrs = {
@@ -359,9 +385,9 @@ multiple_exclusions_with_exclude_transitives_test = unittest.make(_test_multiple
             "@unmanaged_deps_filter//:org_slf4j_jul_to_slf4j",
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
-            "slf4j"
+            "slf4j",
         ],
     ),
     "exclude_transitives": attr.bool(
@@ -375,22 +401,27 @@ def _test_multiple_exclusions_without_exclude_transitives(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
 
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 multiple_exclusions_without_exclude_transitives_test = unittest.make(_test_multiple_exclusions_without_exclude_transitives, attrs = {
@@ -419,9 +450,9 @@ multiple_exclusions_without_exclude_transitives_test = unittest.make(_test_multi
             "@unmanaged_deps_filter//:org_slf4j_jul_to_slf4j",
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
-            "slf4j"
+            "slf4j",
         ],
     ),
     "exclude_transitives": attr.bool(
@@ -435,22 +466,27 @@ def _test_empty_exclusion_lists(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
 
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = "0")
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = "0",
+    )
     return unittest.end(env)
 
 empty_exclusion_lists_test = unittest.make(_test_empty_exclusion_lists, attrs = {
@@ -476,7 +512,7 @@ empty_exclusion_lists_test = unittest.make(_test_empty_exclusion_lists, attrs = 
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -490,30 +526,38 @@ def _test_path_based_exclusions_comprehensive(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
+
     # Additional verification: ensure excluded patterns are not present
     transitive_runtime_jars = [jar.basename for jar in javainfo_filtered.transitive_runtime_jars.to_list()]
     for pattern in ["micrometer", "slf4j", "logback"]:
         for jar in transitive_runtime_jars:
-            asserts.true(env, pattern not in jar, 
-                "Excluded pattern '{}' found in JAR: {}".format(pattern, jar))
+            asserts.true(
+                env,
+                pattern not in jar,
+                "Excluded pattern '{}' found in JAR: {}".format(pattern, jar),
+            )
 
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
-    
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
+
     return unittest.end(env)
 
 path_based_exclusions_comprehensive_test = unittest.make(_test_path_based_exclusions_comprehensive, attrs = {
@@ -539,11 +583,11 @@ path_based_exclusions_comprehensive_test = unittest.make(_test_path_based_exclus
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
             "micrometer",
             "slf4j",
-            "logback"
+            "logback",
         ],
     ),
     "exclude_transitives": attr.bool(
@@ -557,36 +601,49 @@ def _test_runtime_deps_only(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     # Updating manually because the output_jar for 'runtime_deps' is a full_compile_jar if no 'deps' specified
     expected_full_compile_jars = ["processed_spring-boot-starter-oauth2-client-3.3.11.jar"]
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected_full_compile_jars,
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
+
     # Runtime deps should not contribute to compile-time JARs
     compile_jars = [jar.basename for jar in javainfo_filtered.compile_jars.to_list()]
     full_compile_jars = [jar.basename for jar in javainfo_filtered.full_compile_jars.to_list()]
-    
-    asserts.equals(env, len(compile_jars), 0, 
-        "Expected no compile JARs when only runtime_deps provided, got: {}".format(len(compile_jars)))
+
+    asserts.equals(
+        env,
+        len(compile_jars),
+        0,
+        "Expected no compile JARs when only runtime_deps provided, got: {}".format(len(compile_jars)),
+    )
 
     # Note: full_compile_jars is not empty because the output_jar is a full_compile_jar
-    asserts.equals(env, len(full_compile_jars), 1, 
-        "Expected no full compile JARs when only runtime_deps provided, got: {}".format(len(full_compile_jars)))
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = "0")
+    asserts.equals(
+        env,
+        len(full_compile_jars),
+        1,
+        "Expected no full compile JARs when only runtime_deps provided, got: {}".format(len(full_compile_jars)),
+    )
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = "0",
+    )
     return unittest.end(env)
 
 runtime_deps_only_test = unittest.make(_test_runtime_deps_only, attrs = {
@@ -605,7 +662,7 @@ runtime_deps_only_test = unittest.make(_test_runtime_deps_only, attrs = {
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -619,31 +676,42 @@ def _test_compile_deps_only(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
+
     # Compile deps should contribute to both compile and runtime JARs
     compile_jars = [jar.basename for jar in javainfo_filtered.compile_jars.to_list()]
     transitive_runtime_jars = [jar.basename for jar in javainfo_filtered.transitive_runtime_jars.to_list()]
-    
-    asserts.true(env, len(compile_jars) > 0, 
-        "Expected compile JARs when deps provided, got: {}".format(len(compile_jars)))
-    asserts.true(env, len(transitive_runtime_jars) > 0, 
-        "Expected transitive runtime JARs when deps provided, got: {}".format(len(transitive_runtime_jars)))
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = "0")
+
+    asserts.true(
+        env,
+        len(compile_jars) > 0,
+        "Expected compile JARs when deps provided, got: {}".format(len(compile_jars)),
+    )
+    asserts.true(
+        env,
+        len(transitive_runtime_jars) > 0,
+        "Expected transitive runtime JARs when deps provided, got: {}".format(len(transitive_runtime_jars)),
+    )
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = "0",
+    )
     return unittest.end(env)
 
 compile_deps_only_test = unittest.make(_test_compile_deps_only, attrs = {
@@ -664,7 +732,7 @@ compile_deps_only_test = unittest.make(_test_compile_deps_only, attrs = {
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -678,22 +746,27 @@ def _test_single_dep_with_exclusions(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 single_dep_with_exclusions_test = unittest.make(_test_single_dep_with_exclusions, attrs = {
@@ -712,7 +785,7 @@ single_dep_with_exclusions_test = unittest.make(_test_single_dep_with_exclusions
             "@unmanaged_deps_filter//:io_micrometer_micrometer_commons",
         ],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -726,24 +799,29 @@ def _test_single_runtime_dep_with_exclusions(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     expected["full_compile_jars"] = ["processed_spring-boot-starter-oauth2-client-3.3.11.jar"]
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = ">0")
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 single_runtime_dep_with_exclusions_test = unittest.make(_test_single_runtime_dep_with_exclusions, attrs = {
@@ -760,7 +838,7 @@ single_runtime_dep_with_exclusions_test = unittest.make(_test_single_runtime_dep
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
             "slf4j",
         ],
@@ -776,22 +854,27 @@ def _test_one_compile_one_runtime_dep(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = "0")
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = "0",
+    )
     return unittest.end(env)
 
 one_compile_one_runtime_dep_test = unittest.make(_test_one_compile_one_runtime_dep, attrs = {
@@ -811,7 +894,7 @@ one_compile_one_runtime_dep_test = unittest.make(_test_one_compile_one_runtime_d
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [],
     ),
     "exclude_transitives": attr.bool(
@@ -825,22 +908,27 @@ def _test_path_patterns_with_special_characters(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = ">0",
-                          expected_transitive_runtime_dropped = ">0")
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = ">0",
+        expected_transitive_runtime_dropped = ">0",
+    )
     return unittest.end(env)
 
 path_patterns_with_special_characters_test = unittest.make(_test_path_patterns_with_special_characters, attrs = {
@@ -866,7 +954,7 @@ path_patterns_with_special_characters_test = unittest.make(_test_path_patterns_w
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
             "io.micrometer",  # Pattern with dot
             "to-slf4j",  # Pattern with hyphen
@@ -883,22 +971,27 @@ def _test_case_sensitive_pattern_matching(ctx):
     """
     env = unittest.begin(ctx)
     javainfo_filtered = ctx.attr.filtered[JavaInfo]
-    
+
     expected = compute_expected_jars(ctx)
 
     verify_runtime_and_compile_jars(
-        ctx, env, javainfo_filtered,
+        ctx,
+        env,
+        javainfo_filtered,
         expected_compile_jars = expected["compile_jars"],
         expected_full_compile_jars = expected["full_compile_jars"],
         expected_transitive_compile_jars = expected["transitive_compile_jars"],
         expected_transitive_runtime_jars = expected["transitive_runtime_jars"],
     )
-    
-    verify_dropped_counts(env, expected,
-                          expected_compile_dropped = "0",
-                          expected_full_compile_dropped = "0",
-                          expected_transitive_compile_dropped = "0",
-                          expected_transitive_runtime_dropped = "0")
+
+    verify_dropped_counts(
+        env,
+        expected,
+        expected_compile_dropped = "0",
+        expected_full_compile_dropped = "0",
+        expected_transitive_compile_dropped = "0",
+        expected_transitive_runtime_dropped = "0",
+    )
     return unittest.end(env)
 
 case_sensitive_pattern_matching_test = unittest.make(_test_case_sensitive_pattern_matching, attrs = {
@@ -924,18 +1017,14 @@ case_sensitive_pattern_matching_test = unittest.make(_test_case_sensitive_patter
     "deps_exclude_labels": attr.label_list(
         default = [],
     ),
-    "deps_exclude_paths": attr.string_list( 
+    "deps_exclude_paths": attr.string_list(
         default = [
             "SPRING",  # Uppercase pattern
-            "Jackson", # Mixed case pattern
-            "HIBERNATE", # Uppercase pattern
+            "Jackson",  # Mixed case pattern
+            "HIBERNATE",  # Uppercase pattern
         ],
     ),
     "exclude_transitives": attr.bool(
         default = False,
     ),
 })
-
-
-
-

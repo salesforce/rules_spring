@@ -5,11 +5,13 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
+load("@rules_java//java:defs.bzl", "java_library")
+
 # List of standard imports bundles that most/all Spring Boot app will need.
 
-java_import(
+java_library(
     name = "springboot_required_deps",
-    jars = [],
+    srcs = [],
     visibility = ["//visibility:public"],
     exports = [
         "@maven//:org_springframework_boot_spring_boot",

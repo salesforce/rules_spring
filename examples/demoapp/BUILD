@@ -10,6 +10,7 @@
 #   to local path "//springboot" work here. But you will need to change them to:
 #   "@rules_spring//springboot" when you consume the official release via http_archive.
 
+load("@rules_java//java:defs.bzl", "java_library", "java_test")
 load("//springboot:springboot.bzl", "springboot")
 load("//springboot/deps_filter_rules_legacy:deps_filter.bzl", "deps_filter")
 load("//tools/license:licenses_used.bzl", "licenses_used")

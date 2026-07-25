@@ -6,18 +6,19 @@ module(
 )
 
 # Python for dupe class checking support
-bazel_dep(name = "rules_python", version = "0.40.0")
+bazel_dep(name = "rules_python", version = "1.8.0")
 
 # For License support
 bazel_dep(name = "rules_license", version = "1.0.0")
 
 # For unittest toolchain
-bazel_dep(name = "bazel_skylib", version = "1.1.1")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "rules_java", version = "9.3.0")
 
 # DEV DEPENDENCIES
 
 # Maven dependencies for the examples
-bazel_dep(name = "rules_jvm_external", version = "6.6", dev_dependency = True)
+bazel_dep(name = "rules_jvm_external", version = "6.9", dev_dependency = True)
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven", dev_dependency = True)
 maven.install(
@@ -60,7 +61,6 @@ maven.install(
         # a filter to exclude this dependency
         "javax.annotation:javax.annotation-api:1.3.2",
 
-
         # test deps
         "junit:junit:4.13.2",
         "org.hamcrest:hamcrest-core:2.2",
@@ -94,4 +94,3 @@ unmanaged_maven.install(
     lock_file = "//springboot/deps_filter_rules/tests/external_deps:unmanaged_deps_filter_install.json",
 )
 use_repo(unmanaged_maven, "unmanaged_deps_filter")
-

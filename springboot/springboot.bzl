@@ -93,7 +93,7 @@ _appjar_locator_rule = rule(
 
 def _dupeclasses_rule_impl(ctx):
     # setup the output file (contains SUCCESS, NOT_RUN, or the list of errors)
-    output = ctx.actions.declare_file(ctx.attr.out)
+    output = ctx.actions.declare_file(ctx.attr.name + "_results.txt")
     outputs = [output]
 
     if not ctx.attr.dupeclassescheck_enable:
@@ -138,7 +138,6 @@ _dupeclasses_rule = rule(
         "springbootjar": attr.label(),
         "dupeclassescheck_ignorelist": attr.label(allow_files = True),
         "dupeclassescheck_enable": attr.bool(),
-        "out": attr.string(),
     },
 )
 
@@ -147,7 +146,7 @@ _dupeclasses_rule = rule(
 
 def _javaxdetect_rule_impl(ctx):
     # setup the output file (contains SUCCESS, NOT_RUN, or the list of errors)
-    output = ctx.actions.declare_file(ctx.attr.out)
+    output = ctx.actions.declare_file(ctx.attr.name + "_results.txt")
     outputs = [output]
 
     if not ctx.attr.javaxdetect_enable:
@@ -192,7 +191,6 @@ _javaxdetect_rule = rule(
         "springbootjar": attr.label(),
         "javaxdetect_ignorelist": attr.label(allow_files = True),
         "javaxdetect_enable": attr.bool(),
-        "out": attr.string(),
     },
 )
 
@@ -200,7 +198,7 @@ _javaxdetect_rule = rule(
 # BANNED DEPS RULE
 
 def _banneddeps_rule_impl(ctx):
-    output = ctx.actions.declare_file(ctx.attr.out)
+    output = ctx.actions.declare_file(ctx.attr.name + "_results.txt")
     outputs = [output]
 
     if ctx.attr.deps_banned == None:
@@ -236,7 +234,6 @@ _banneddeps_rule = rule(
         "springboot_rule_name": attr.string(),
         "deps_banned": attr.string_list(),
         "deps": attr.label_list(),
-        "out": attr.string(),
     },
 )
 
@@ -325,11 +322,18 @@ def _springboot_rule_impl(ctx):
             for data_target in data_target.files.to_list():
                 runfiles_list.append(data_target)
 
-    return [DefaultInfo(
-        files = outs,
-        executable = outer_bazelrun_script_file,
-        runfiles = ctx.runfiles(files = runfiles_list),
-    )]
+    validations = ctx.files.dupecheck_rule + ctx.files.javaxdetect_rule + ctx.files.banneddeps_rule
+
+    return [
+        DefaultInfo(
+            files = outs,
+            executable = outer_bazelrun_script_file,
+            runfiles = ctx.runfiles(files = runfiles_list),
+        ),
+        # Special output group for validation results that ensures they are put into the critical
+        # path of the build. https://bazel.build/versions/8.4.0/extending/rules#validation_actions
+        OutputGroupInfo(_validation = validations),
+    ]
 
 _springboot_rule = rule(
     implementation = _springboot_rule_impl,
@@ -644,7 +648,6 @@ def springboot(
             springbootjar = genjar_rule,
             dupeclassescheck_enable = dupeclassescheck_enable,
             dupeclassescheck_ignorelist = dupeclassescheck_ignorelist,
-            out = "dupecheck_results.txt",
             tags = tags,
             testonly = testonly,
             restricted_to = restricted_to,
@@ -664,7 +667,6 @@ def springboot(
             springbootjar = genjar_rule,
             javaxdetect_enable = javaxdetect_enable,
             javaxdetect_ignorelist = javaxdetect_ignorelist,
-            out = "javaxdetect_results.txt",
             tags = tags,
             testonly = testonly,
             restricted_to = restricted_to,
@@ -683,7 +685,6 @@ def springboot(
             name = bannedcheck_rule,
             deps = [":" + dep_aggregator_rule],
             deps_banned = deps_banned,
-            out = "bannedcheck_results.txt",
             tags = tags,
             testonly = testonly,
             restricted_to = restricted_to,
